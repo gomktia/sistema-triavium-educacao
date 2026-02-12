@@ -1,0 +1,364 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id                 String              @id @default(cuid())
+  name               String
+  slug               String              @unique
+  cnpj               String?             @unique
+  address            String?
+  city               String?
+  state              String?             @db.VarChar(2)
+  phone              String?
+  email              String?
+  logoUrl            String?
+  isActive           Boolean             @default(true)
+  subscriptionStatus String              @default("active") // active, past_due, canceled
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  assessments        Assessment[]
+  classrooms         Classroom[]
+  interventionGroups InterventionGroup[]
+  interventionLogs   InterventionLog[]
+  interventionPlans  InterventionPlan[]
+  notifications      Notification[]
+  schoolIndicators   SchoolIndicator[]
+  students           Student[]
+  users              User[]
+
+  @@map("tenants")
+}
+
+model User {
+  id                String            @id @default(cuid())
+  tenantId          String
+  email             String
+  name              String
+  role              Role
+  supabaseUid       String?           @unique
+  isActive          Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  studentId         String?           @unique
+  teacherScreenings Assessment[]      @relation("ScreeningTeacher")
+  interventionLogs  InterventionLog[] @relation("InterventionAuthor")
+  interventionPlans InterventionPlan[] @relation("PlanAuthor")
+  notifications     Notification[]    @relation("UserNotifications")
+  studentProfile    Student?          @relation("StudentUser", fields: [studentId], references: [id])
+  tenant            Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([supabaseUid])
+  @@map("users")
+}
+
+model Student {
+  id                 String              @id @default(cuid())
+  tenantId           String
+  name               String
+  birthDate          DateTime?
+  grade              GradeLevel
+  classroomId        String?
+  enrollmentId       String?
+  guardianName       String?
+  guardianPhone      String?
+  guardianEmail      String?
+  isActive           Boolean             @default(true)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  assessments        Assessment[]
+  interventionLogs   InterventionLog[]
+  interventionPlans  InterventionPlan[]
+  notifications      Notification[]
+  schoolIndicators   SchoolIndicator[]
+  classroom          Classroom?          @relation(fields: [classroomId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userAccount        User?               @relation("StudentUser")
+  interventionGroups InterventionGroup[] @relation("InterventionGroupToStudent")
+
+  @@unique([tenantId, enrollmentId])
+  @@index([tenantId])
+  @@index([tenantId, grade])
+  @@index([classroomId])
+  @@map("students")
+}
+
+model Classroom {
+  id        String     @id @default(cuid())
+  tenantId  String
+  name      String
+  grade     GradeLevel
+  year      Int
+  shift     String?
+  createdAt DateTime   @default(now())
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  students  Student[]
+
+  @@unique([tenantId, name, year])
+  @@index([tenantId])
+  @@map("classrooms")
+}
+
+model Assessment {
+  id                 String          @id @default(cuid())
+  tenantId           String
+  studentId          String
+  type               AssessmentType
+  screeningWindow    ScreeningWindow
+  academicYear       Int
+  appliedAt          DateTime        @default(now())
+  screeningTeacherId String?
+  rawAnswers         Json
+  processedScores    Json?
+  overallTier        RiskTier?
+  externalizingScore Int?
+  internalizingScore Int?
+  selfKnowledgeScore Int?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  screeningTeacher   User?           @relation("ScreeningTeacher", fields: [screeningTeacherId], references: [id])
+  student            Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  tenant             Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([tenantId, studentId])
+  @@index([tenantId, type, screeningWindow, academicYear])
+  @@index([tenantId, overallTier])
+  @@index([studentId, type, appliedAt])
+  @@map("assessments")
+}
+
+model InterventionLog {
+  id                String             @id @default(cuid())
+  tenantId          String
+  studentId         String
+  authorId          String
+  type              InterventionType
+  status            InterventionStatus @default(PLANNED)
+  tier              RiskTier
+  title             String
+  description       String?
+  goals             String?
+  observations      String?
+  leverageStrengths String[]
+  targetRisks       String[]
+  startDate         DateTime?
+  endDate           DateTime?
+  nextReview        DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  author            User               @relation("InterventionAuthor", fields: [authorId], references: [id])
+  student           Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  tenant            Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([tenantId, studentId])
+  @@index([tenantId, status])
+  @@index([tenantId, tier])
+  @@map("intervention_logs")
+}
+
+model SchoolIndicator {
+  id               String   @id @default(cuid())
+  tenantId         String
+  studentId        String
+  academicYear     Int
+  quarter          Int
+  attendanceRate   Float
+  academicAverage  Float
+  disciplinaryLogs Int      @default(0)
+  previousAverage  Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  student          Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  tenant           Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, academicYear, quarter])
+  @@index([tenantId])
+  @@map("school_indicators")
+}
+
+model InterventionGroup {
+  id          String           @id @default(cuid())
+  tenantId    String
+  name        String
+  description String?
+  type        InterventionType
+  startDate   DateTime
+  endDate     DateTime?
+  isActive    Boolean          @default(true)
+  tenant      Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  students    Student[]        @relation("InterventionGroupToStudent")
+
+  @@index([tenantId])
+  @@map("intervention_groups")
+}
+
+model InterventionPlan {
+  id                String   @id @default(cuid())
+  tenantId          String
+  studentId         String
+  authorId          String
+  status            String   @default("ACTIVE")
+  targetRisks       String[]
+  leverageStrengths String[]
+  strategicActions  String   @db.Text
+  expectedOutcome   String?  @db.Text
+  reviewDate        DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  author            User     @relation("PlanAuthor", fields: [authorId], references: [id])
+  student           Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([tenantId])
+  @@map("intervention_plans")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  tenantId  String
+  userId    String?
+  studentId String?
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  link      String?
+  createdAt DateTime         @default(now())
+  student   Student?         @relation(fields: [studentId], references: [id])
+  tenant    Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User?            @relation("UserNotifications", fields: [userId], references: [id])
+
+  @@index([tenantId])
+  @@index([tenantId, userId, isRead])
+  @@index([tenantId, createdAt])
+  @@map("notifications")
+}
+
+model ViaQuestionItem {
+  id         Int    @id @default(autoincrement())
+  itemNumber Int    @unique @map("item_number")
+  textPt     String @map("text_pt")
+  strength   String
+  virtue     String
+  maxScore   Int    @default(4) @map("max_score")
+
+  @@map("via_question_items")
+}
+
+model SrssIeItem {
+  id              Int                @id @default(autoincrement())
+  itemNumber      Int                @unique @map("item_number")
+  textPt          String             @map("text_pt")
+  domain          String
+  maxScore        Int                @default(3) @map("max_score")
+  gradeFocusItems GradeFocusConfig[]
+
+  @@map("srss_ie_items")
+}
+
+model SrssIeCutoff {
+  id       Int      @id @default(autoincrement())
+  domain   String
+  tier     RiskTier
+  minScore Int      @map("min_score")
+  maxScore Int      @map("max_score")
+  color    String
+  actionPt String   @map("action_pt")
+
+  @@unique([domain, tier])
+  @@map("srss_ie_cutoffs")
+}
+
+model GradeFocusConfig {
+  id          Int        @id @default(autoincrement())
+  grade       GradeLevel
+  focusLabel  String     @map("focus_label")
+  srssItem    Int        @map("srss_item")
+  severity    String
+  rationalePt String     @map("rationale_pt")
+  item        SrssIeItem @relation(fields: [srssItem], references: [itemNumber])
+
+  @@unique([grade, srssItem])
+  @@map("grade_focus_config")
+}
+
+model ViaStrengthMapping {
+  id          Int    @id @default(autoincrement())
+  strengthId  Int    @unique @map("strength_id")
+  strength    String
+  virtue      String
+  itemNumbers Int[]  @map("item_numbers")
+  maxPossible Int    @map("max_possible")
+
+  @@map("via_strength_mapping")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  PSYCHOLOGIST
+  COUNSELOR
+  TEACHER
+  STUDENT
+}
+
+enum GradeLevel {
+  ANO_1_EM
+  ANO_2_EM
+  ANO_3_EM
+}
+
+enum AssessmentType {
+  VIA_STRENGTHS
+  SRSS_IE
+}
+
+enum ScreeningWindow {
+  DIAGNOSTIC
+  MONITORING
+  FINAL
+}
+
+enum RiskTier {
+  TIER_1
+  TIER_2
+  TIER_3
+}
+
+enum InterventionStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum InterventionType {
+  SOCIAL_SKILLS_GROUP
+  EMOTION_REGULATION
+  CAREER_GUIDANCE
+  PEER_MENTORING
+  STUDY_SKILLS
+  INDIVIDUAL_PLAN
+  PSYCHOLOGIST_REFERRAL
+  EXTERNAL_REFERRAL
+  CRISIS_PROTOCOL
+  FAMILY_MEETING
+  CHECK_IN_CHECK_OUT
+}
+
+enum NotificationType {
+  CRITICAL_RISK
+  NEW_ASSESSMENT
+  INTERVENTION_DUE
+  SYSTEM_ALERT
+}
