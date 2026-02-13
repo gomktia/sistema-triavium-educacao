@@ -33,8 +33,12 @@ export default async function OnboardingPage({ params }: OnboardingProps) {
         )
     }
 
-    const studentName = validation.data.name
-    const tenantName = validation.data.tenant.name
+    if (validation.valid === false || !validation.data || validation.type !== 'STUDENT_CODE') {
+        // Fallback for invalid state even if valid was true but data missing (defensive)
+        return notFound()
+    }
+
+    const { name: studentName, tenant: { name: tenantName } } = validation.data
 
     async function handleRegister(formData: FormData) {
         'use server'
