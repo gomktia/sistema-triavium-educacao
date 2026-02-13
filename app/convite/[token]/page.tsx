@@ -33,8 +33,7 @@ export default async function OnboardingPage({ params }: OnboardingProps) {
         )
     }
 
-    if (validation.valid === false || !validation.data || validation.type !== 'STUDENT_CODE') {
-        // Fallback for invalid state even if valid was true but data missing (defensive)
+    if (validation.type !== 'STUDENT_CODE') {
         return notFound()
     }
 
