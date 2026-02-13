@@ -7,11 +7,14 @@ import { Label } from "@/components/ui/label"
 import { notFound, redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
+export const dynamic = 'force-dynamic'
+
 interface OnboardingProps {
-    params: { token: string }
+    params: Promise<{ token: string }>
 }
 
-export default async function OnboardingPage({ params }: OnboardingProps) {
+export default async function OnboardingPage(props: OnboardingProps) {
+    const params = await props.params;
     const { token } = params
     const validation = await validateInviteToken(token)
 

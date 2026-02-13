@@ -4,16 +4,21 @@ import { prisma } from "@/lib/prisma"
 import { createClient } from "@supabase/supabase-js"
 import { redirect } from "next/navigation"
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || '',
-    {
+function getSupabaseAdmin() {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!url || !key) {
+        throw new Error("Supabase credentials missing");
+    }
+
+    return createClient(url, key, {
         auth: {
             autoRefreshToken: false,
             persistSession: false
         }
-    }
-)
+    });
+}
 
 
 type ValidationResult =
@@ -38,11 +43,19 @@ export async function validateInviteToken(token: string): Promise<ValidationResu
     // 2. Try to find in Student.accessCode
     const student = await prisma.student.findFirst({
         where: { accessCode: token },
-        select: { id: true, name: true, tenant: { select: { name: true, id: true } } }
+        include: { tenant: { select: { id: true, name: true } } }
     })
 
     if (student) {
-        return { valid: true, type: 'STUDENT_CODE', data: student }
+        return {
+            valid: true,
+            type: 'STUDENT_CODE',
+            data: {
+                id: student.id,
+                name: student.name,
+                tenant: student.tenant
+            }
+        }
     }
 
     return { valid: false, error: 'Código de convite inválido.' }
@@ -75,7 +88,7 @@ export async function completeStudentRegistration(token: string, data: {
     if (!studentId) throw new Error("Erro interno: ID do aluno não encontrado.")
 
     // 1. Create Supabase Auth User
-    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    const { data: authUser, error: authError } = await getSupabaseAdmin().auth.admin.createUser({
         email: data.email,
         password: data.password,
         email_confirm: true,
@@ -125,7 +138,7 @@ export async function completeStudentRegistration(token: string, data: {
     } catch (dbError) {
         console.error("DB Error:", dbError)
         // Rollback auth user
-        await supabaseAdmin.auth.admin.deleteUser(authUser.user.id)
+        await getSupabaseAdmin().auth.admin.deleteUser(authUser.user.id)
         return { success: false, error: "Erro ao salvar dados no sistema. CPF ou Email já utilizados?" }
     }
 }

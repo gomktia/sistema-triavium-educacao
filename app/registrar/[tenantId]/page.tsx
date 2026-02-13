@@ -3,7 +3,10 @@ import { notFound } from 'next/navigation';
 import { SelfRegistrationForm } from '@/components/auth/SelfRegistrationForm';
 import { BrainCircuit } from 'lucide-react';
 
-export default async function SelfRegistrationPage({ params }: { params: { tenantId: string } }) {
+export const dynamic = 'force-dynamic'
+
+export default async function SelfRegistrationPage(props: { params: Promise<{ tenantId: string }> }) {
+    const params = await props.params;
     const tenant = await prisma.tenant.findUnique({
         where: { id: params.tenantId },
         select: { name: true, logoUrl: true }

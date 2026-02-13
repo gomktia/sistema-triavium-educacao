@@ -4,16 +4,21 @@ import { prisma } from "@/lib/prisma"
 import { createClient } from "@supabase/supabase-js"
 import { isValidCPF, cleanCPF } from '@/src/lib/utils/cpf';
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || '',
-    {
+function getSupabaseAdmin() {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!url || !key) {
+        throw new Error("Supabase credentials missing");
+    }
+
+    return createClient(url, key, {
         auth: {
             autoRefreshToken: false,
             persistSession: false
         }
-    }
-)
+    });
+}
 
 export async function selfRegisterStudent(formData: FormData) {
     const tenantId = formData.get('tenantId') as string
@@ -58,7 +63,7 @@ export async function selfRegisterStudent(formData: FormData) {
         }
 
         // Criar Auth no Supabase
-        const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        const { data: authUser, error: authError } = await getSupabaseAdmin().auth.admin.createUser({
             email: email,
             password: password,
             email_confirm: true,

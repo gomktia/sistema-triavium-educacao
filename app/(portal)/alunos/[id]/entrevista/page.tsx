@@ -6,7 +6,8 @@ import { VIARawAnswers } from '@/src/core/types';
 import { Sparkles, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-export default async function InterviewPage({ params }: { params: { id: string } }) {
+export default async function InterviewPage(props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     const user = await getCurrentUser();
 
     // Permissão: Apenas Staff
