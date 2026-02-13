@@ -57,7 +57,7 @@ export async function completeStudentRegistration(token: string, data: {
     let tenantId: string = ''
     let existingStudentName: string = ''
 
-    if (validation.type === 'STUDENT_CODE') {
+    if (validation.valid && validation.type === 'STUDENT_CODE') {
         studentId = validation.data.id
         tenantId = validation.data.tenant.id
         existingStudentName = validation.data.name
