@@ -6,6 +6,7 @@ import { ImpactSummary } from '@/components/management/ImpactSummary';
 import { Button } from '@/components/ui/button';
 import { Download, Database } from 'lucide-react';
 import Link from 'next/link';
+import { getLabels } from '@/src/lib/utils/labels';
 
 export const metadata = {
     title: 'Sumário Executivo | Gestão de Impacto',
@@ -18,6 +19,8 @@ export default async function GestaoPage() {
     if (!user || !allowedRoles.includes(user.role)) {
         redirect('/');
     }
+
+    const labels = getLabels(user.organizationType);
 
     const totalStudents = await prisma.student.count({
         where: { tenantId: user.tenantId },
@@ -34,9 +37,9 @@ export default async function GestaoPage() {
 
     const windows = ['DIAGNOSTIC', 'MONITORING', 'FINAL'];
     const windowLabels: Record<string, string> = {
-        'DIAGNOSTIC': 'Março (Diagnóstico)',
-        'MONITORING': 'Junho (Monitoramento)',
-        'FINAL': 'Outubro (Final)'
+        'DIAGNOSTIC': 'Início (Diagnóstico)',
+        'MONITORING': 'Meio (Monitoramento)',
+        'FINAL': 'Fim (Final)'
     };
 
     const comparisonData = windows.map(w => {
@@ -59,19 +62,19 @@ export default async function GestaoPage() {
                             Live
                         </span>
                     </h1>
-                    <p className="text-slate-500 mt-1">Sumário executivo de eficácia do suporte socioemocional.</p>
+                    <p className="text-slate-500 mt-1">Sumário executivo de eficácia e monitoramento sociocomportamental.</p>
                 </div>
 
                 <div className="flex gap-2">
                     <Link href="/gestao/ews">
                         <Button variant="outline" className="border-slate-200">
                             <Database className="mr-2" size={16} />
-                            Lançar Dados EWS
+                            Indicadores EWS
                         </Button>
                     </Link>
                     <Button className="bg-slate-900 hover:bg-slate-800">
                         <Download className="mr-2" size={16} />
-                        Exportar Relatório PDF
+                        Exportar Relatório
                     </Button>
                 </div>
             </div>
@@ -79,6 +82,7 @@ export default async function GestaoPage() {
             <ImpactSummary
                 totalStudents={totalStudents}
                 comparisonData={comparisonData}
+                labels={labels}
             />
         </div>
     );

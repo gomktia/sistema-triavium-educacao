@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { NotificationMarkAllButton } from './mark-all-button';
+import { getLabels } from '@/src/lib/utils/labels';
 
 export const metadata = {
     title: 'Notificações',
@@ -30,6 +31,7 @@ export default async function NotificacoesPage() {
         redirect('/');
     }
 
+    const labels = getLabels(user.organizationType);
     const { notifications, total } = await fetchAllNotifications(1, 50);
     const unreadCount = notifications.filter((n: any) => !n.isRead).length;
 
@@ -55,7 +57,7 @@ export default async function NotificacoesPage() {
                     return (
                         <Link key={n.id} href={getNotificationLink(n)}>
                             <Card className={cn(
-                                "border-slate-200 hover:border-indigo-200 transition-all cursor-pointer",
+                                "border-slate-200 hover:border-indigo-200 transition-all cursor-pointer shadow-sm hover:shadow-md",
                                 !n.isRead && "border-l-4 border-l-indigo-500"
                             )}>
                                 <CardContent className="p-4 flex items-start gap-4">
@@ -89,7 +91,7 @@ export default async function NotificacoesPage() {
                         <Bell className="text-slate-200 mb-4" size={64} />
                         <h3 className="text-slate-400 font-black text-xl uppercase tracking-tighter">Nenhuma notificação</h3>
                         <p className="text-slate-400 text-sm max-w-xs mt-2">
-                            Quando houver alertas de risco ou atualizações, elas aparecerão aqui.
+                            Quando houver alertas de risco ou atualizações de {labels.subjects.toLowerCase()}, elas aparecerão aqui.
                         </p>
                     </div>
                 )}

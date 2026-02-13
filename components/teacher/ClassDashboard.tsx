@@ -4,6 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { TierBadge } from '@/components/domain/TierBadge';
 import { cn } from '@/lib/utils';
 import { Users, AlertTriangle, CheckCircle2, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
+import type { OrganizationLabels } from '@/src/lib/utils/labels';
 
 interface StudentRisk {
     id: string;
@@ -15,10 +17,13 @@ interface StudentRisk {
 
 interface ClassDashboardProps {
     students: StudentRisk[];
+    labels?: OrganizationLabels;
 }
 
-export function ClassDashboard({ students }: ClassDashboardProps) {
-    const total = students.length || 1;
+export function ClassDashboard({ students, labels }: ClassDashboardProps) {
+    const subjectsLabel = labels?.subjects ?? 'Alunos';
+    const subjectsLower = subjectsLabel.toLowerCase();
+    const studentsCount = students.length;
     const t1 = students.filter(s => s.overallTier === 'TIER_1').length;
     const t2 = students.filter(s => s.overallTier === 'TIER_2').length;
     const t3 = students.filter(s => s.overallTier === 'TIER_3').length;
@@ -35,8 +40,8 @@ export function ClassDashboard({ students }: ClassDashboardProps) {
                             <Users size={24} />
                         </div>
                         <div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Alunos</p>
-                            <p className="text-2xl font-black text-slate-900">{students.length}</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total {subjectsLabel}</p>
+                            <p className="text-2xl font-black text-slate-900">{studentsCount}</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -81,33 +86,37 @@ export function ClassDashboard({ students }: ClassDashboardProps) {
             {/* Lista de Atenção */}
             <section className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Alunos em Foco (Risco)</h3>
+                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider">{subjectsLabel} em Foco (Risco)</h3>
                     <span className="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-500">ORDE POR GRAVIDADE</span>
                 </div>
 
                 {atRisk.length > 0 ? (
                     <div className="grid gap-3">
                         {atRisk.map(student => (
-                            <Card key={student.id} className="hover:border-slate-300 transition-colors">
-                                <CardContent className="p-4 flex items-center justify-between">
-                                    <div>
-                                        <h4 className="font-bold text-slate-800">{student.name}</h4>
-                                        <div className="flex items-center gap-2 mt-0.5">
-                                            <span className="text-[9px] font-black bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded uppercase tracking-tighter">
-                                                {student.grade === 'ANO_1_EM' ? '1ª Série' : student.grade === 'ANO_2_EM' ? '2ª Série' : '3ª Série'}
-                                            </span>
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase">Alertas críticos: {student.alerts}</p>
+                            <Link key={student.id} href={`/alunos/${student.id}`}>
+                                <Card className="group cursor-pointer overflow-hidden border-l-4 border-l-rose-400">
+                                    <CardContent className="p-4 flex items-center justify-between">
+                                        <div>
+                                            <h4 className="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{student.name}</h4>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <span className="text-[9px] font-black bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded uppercase tracking-tighter">
+                                                    {student.grade === 'ANO_1_EM' ? '1ª Série' : student.grade === 'ANO_2_EM' ? '2ª Série' : '3ª Série'}
+                                                </span>
+                                                <p className="text-[10px] text-slate-400 font-bold uppercase">Alertas críticos: {student.alerts}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <TierBadge tier={student.overallTier} />
-                                </CardContent>
-                            </Card>
+                                        <div className="flex items-center gap-3">
+                                            <TierBadge tier={student.overallTier} />
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </Link>
                         ))}
                     </div>
                 ) : (
                     <div className="text-center py-12 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
                         <CheckCircle2 className="mx-auto text-emerald-400 mb-2 opacity-50" size={32} />
-                        <p className="text-slate-400 text-sm font-medium">Todos os alunos estão em Camada 1!</p>
+                        <p className="text-slate-400 text-sm font-medium">Todos os {subjectsLower} estão em Camada 1!</p>
                     </div>
                 )}
             </section>

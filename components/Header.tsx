@@ -1,15 +1,18 @@
 import { NotificationBell } from './NotificationBell';
 import { UserRole } from '@/src/core/types';
+import { getLabels } from '@/src/lib/utils/labels';
 
 interface HeaderProps {
     userName: string;
     userRole: string;
+    organizationType?: string;
 }
 
-export function Header({ userName, userRole }: HeaderProps) {
+export function Header({ userName, userRole, organizationType }: HeaderProps) {
+    const labels = getLabels(organizationType);
     const roleLabels: Record<string, string> = {
-        STUDENT: 'Aluno',
-        TEACHER: 'Professor',
+        STUDENT: labels.subject,
+        TEACHER: labels.actor,
         PSYCHOLOGIST: 'Psicólogo',
         COUNSELOR: 'Orientador',
         MANAGER: 'Gestor',

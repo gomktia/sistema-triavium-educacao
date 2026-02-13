@@ -15,6 +15,7 @@ import {
 } from 'recharts';
 import { TrendingDown, Users, AlertTriangle, CheckCircle2, ArrowUpRight, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { OrganizationLabels } from '@/src/lib/utils/labels';
 
 interface ImpactSummaryProps {
     comparisonData: {
@@ -24,9 +25,10 @@ interface ImpactSummaryProps {
         tier3: number;
     }[];
     totalStudents: number;
+    labels: OrganizationLabels;
 }
 
-export function ImpactSummary({ comparisonData, totalStudents }: ImpactSummaryProps) {
+export function ImpactSummary({ comparisonData, totalStudents, labels }: ImpactSummaryProps) {
     // Calcular redução do Tier 3 (entre a primeira e a última janela disponível)
     const firstWindowT3 = comparisonData[0]?.tier3 || 0;
     const lastWindowT3 = comparisonData[comparisonData.length - 1]?.tier3 || 0;
@@ -34,6 +36,8 @@ export function ImpactSummary({ comparisonData, totalStudents }: ImpactSummaryPr
     const reductionT3 = firstWindowT3 > 0
         ? ((firstWindowT3 - lastWindowT3) / firstWindowT3) * 100
         : 0;
+
+    const isSchool = labels.organization === 'Escola';
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
@@ -49,7 +53,7 @@ export function ImpactSummary({ comparisonData, totalStudents }: ImpactSummaryPr
                                 Cobertura
                             </span>
                         </div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Alunos Mapeados</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total {labels.subjects} Mapeados</p>
                         <div className="flex items-baseline gap-2">
                             <h2 className="text-3xl font-black text-slate-800">{totalStudents}</h2>
                             <span className="text-xs font-bold text-emerald-500 flex items-center gap-1">
@@ -72,7 +76,7 @@ export function ImpactSummary({ comparisonData, totalStudents }: ImpactSummaryPr
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Redução de Risco Alto (T3)</p>
                         <div className="flex items-baseline gap-2">
                             <h2 className="text-3xl font-black text-slate-800">{reductionT3.toFixed(1)}%</h2>
-                            <p className="text-xs font-bold text-slate-500">desde Março</p>
+                            <p className="text-xs font-bold text-slate-500">desde o início</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -90,7 +94,9 @@ export function ImpactSummary({ comparisonData, totalStudents }: ImpactSummaryPr
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Meta de Camada 1 Alcançada</p>
                         <div className="flex items-baseline gap-2">
                             <h2 className="text-3xl font-black text-slate-800">
-                                {((comparisonData[comparisonData.length - 1]?.tier1 / totalStudents) * 100).toFixed(0)}%
+                                {totalStudents > 0
+                                    ? ((comparisonData[comparisonData.length - 1]?.tier1 / totalStudents) * 100).toFixed(0)
+                                    : 0}%
                             </h2>
                             <p className="text-xs font-bold text-slate-500">estáveis (T1)</p>
                         </div>
@@ -127,13 +133,13 @@ export function ImpactSummary({ comparisonData, totalStudents }: ImpactSummaryPr
 
                 <Card className="lg:col-span-4 border-slate-200 shadow-sm flex flex-col">
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-black text-slate-500 uppercase tracking-widest">Estado Atual (Outubro)</CardTitle>
+                        <CardTitle className="text-sm font-black text-slate-500 uppercase tracking-widest">Estado Atual</CardTitle>
                     </CardHeader>
                     <CardContent className="flex-1 flex flex-col items-center justify-center">
                         {/* Visualização de Pizza simplificada via CSS ou Mini List */}
                         <div className="space-y-4 w-full">
                             {[
-                                { label: 'Saudável (C1)', count: lastWindowT3, color: 'bg-emerald-500' },
+                                { label: 'Saudável (C1)', count: comparisonData[comparisonData.length - 1]?.tier1, color: 'bg-emerald-500' },
                                 { label: 'Risco Mod. (C2)', count: comparisonData[comparisonData.length - 1]?.tier2, color: 'bg-amber-500' },
                                 { label: 'Risco Alto (C3)', count: comparisonData[comparisonData.length - 1]?.tier3, color: 'bg-rose-500' },
                             ].map((item, i) => (
@@ -149,7 +155,7 @@ export function ImpactSummary({ comparisonData, totalStudents }: ImpactSummaryPr
                     </CardContent>
                     <div className="p-5 mt-auto bg-slate-50 border-t border-slate-100">
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">
-                            Dados baseados em triagens SRSS-IE
+                            Monitoramento baseado em inteligência de risco
                         </p>
                     </div>
                 </Card>

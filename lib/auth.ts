@@ -15,40 +15,34 @@ export interface AppUser {
 
 /**
  * Obtém o usuário atual autenticado e seus metadados do banco de dados (RBAC).
- * Usa Supabase Auth para verificar a sessão e Prisma para consultar o banco,
- * evitando problemas com RLS do Supabase.
+ * Usa Supabase Auth para verificar a sessão e Prisma para consultar o banco.
  */
 export async function getCurrentUser(): Promise<AppUser | null> {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
 
-    const userSelect = {
-        id: true, email: true, name: true, role: true,
-        tenantId: true, studentId: true, supabaseUid: true,
-        tenant: { select: { organizationType: true } },
-    } as const;
-
-    // 1. Tentar buscar por UID (já vinculado)
-    let dbUser = await prisma.user.findFirst({
-        where: { supabaseUid: user.id },
-        select: userSelect,
+    // Tentar buscar por UID ou Email
+    let dbUser: any = await prisma.user.findFirst({
+        where: {
+            OR: [
+                { supabaseUid: user.id },
+                { email: user.email || '' }
+            ]
+        },
+        include: {
+            tenant: {
+                select: { organizationType: true }
+            }
+        }
     });
 
-    // 2. Se não encontrou por UID, tentar por Email (Primeiro acesso)
-    if (!dbUser && user.email) {
-        dbUser = await prisma.user.findFirst({
-            where: { email: user.email },
-            select: userSelect,
+    if (dbUser && !dbUser.supabaseUid && user.id) {
+        // Vincular o UID do Supabase se for o primeiro acesso
+        await prisma.user.update({
+            where: { id: dbUser.id },
+            data: { supabaseUid: user.id },
         });
-
-        if (dbUser) {
-            // Vincular o UID do Supabase ao registro no banco
-            await prisma.user.update({
-                where: { id: dbUser.id },
-                data: { supabaseUid: user.id },
-            });
-        }
     }
 
     if (!dbUser) return null;
@@ -69,10 +63,10 @@ export async function getCurrentUser(): Promise<AppUser | null> {
  */
 const ROLE_HOME: Record<string, string> = {
     STUDENT: '/minhas-forcas',
-    TEACHER: '/turma',
-    PSYCHOLOGIST: '/alunos',
-    COUNSELOR: '/alunos',
-    MANAGER: '/turma',
+    TEACHER: '/inicio',
+    PSYCHOLOGIST: '/inicio',
+    COUNSELOR: '/inicio',
+    MANAGER: '/inicio',
     ADMIN: '/super-admin',
 };
 
@@ -86,20 +80,18 @@ export function getHomeForRole(role: string): string {
 const ROUTE_ACCESS: Record<string, string[]> = {
     '/questionario': ['STUDENT'],
     '/minhas-forcas': ['STUDENT'],
-    '/turma': ['TEACHER', 'MANAGER', 'ADMIN'],
+    '/turma': ['TEACHER', 'MANAGER', 'ADMIN', 'PSYCHOLOGIST', 'COUNSELOR'],
     '/alunos': ['PSYCHOLOGIST', 'COUNSELOR', 'MANAGER', 'ADMIN'],
     '/intervencoes': ['PSYCHOLOGIST', 'COUNSELOR', 'MANAGER', 'ADMIN'],
     '/relatorios': ['PSYCHOLOGIST', 'COUNSELOR', 'MANAGER', 'ADMIN'],
     '/gestao': ['MANAGER', 'ADMIN'],
+    '/escola/configuracoes': ['MANAGER', 'ADMIN'],
     '/super-admin': ['ADMIN'],
+    '/inicio': ['TEACHER', 'MANAGER', 'ADMIN', 'PSYCHOLOGIST', 'COUNSELOR', 'STUDENT'],
 };
 
 /**
  * Verifica se o usuário com determinado Role pode acessar a rota.
- */
-/**
- * Exige que o usuário autenticado tenha role ADMIN.
- * Redireciona para / se não autorizado.
  */
 export async function requireSuperAdmin(): Promise<AppUser> {
     const user = await getCurrentUser();
@@ -113,6 +105,6 @@ export function canAccessRoute(role: string, pathname: string): boolean {
     const matchedRoute = Object.keys(ROUTE_ACCESS).find(
         (route) => pathname === route || pathname.startsWith(route + '/')
     );
-    if (!matchedRoute) return true; // Rotas não mapeadas são tratadas como públicas dentro do portal
+    if (!matchedRoute) return true;
     return ROUTE_ACCESS[matchedRoute].includes(role);
 }

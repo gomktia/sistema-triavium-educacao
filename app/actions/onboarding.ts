@@ -3,7 +3,11 @@
 import { Resend } from 'resend';
 import { getLabels } from '@/src/lib/utils/labels';
 import { prisma } from '@/lib/prisma';
-import { OrganizationType } from '@/src/core/types';
+import { getCurrentUser } from '@/lib/auth';
+import { OrganizationType, UserRole } from '@/src/core/types';
+import { revalidatePath } from 'next/cache';
+
+const MANAGER_ROLES = [UserRole.MANAGER, UserRole.ADMIN];
 
 // Helper to get Resend instance safely
 const getResend = () => {
@@ -222,4 +226,98 @@ export async function sendMonthlyDirectionReport({ directorEmail, schoolName, cr
         console.error('Error sending monthly report:', error);
         return { success: false, error };
     }
+}
+
+// ============================================================
+// WELCOME WIZARD ACTIONS
+// ============================================================
+
+export async function updateTenantInfo(data: {
+    name: string;
+    phone?: string;
+    email?: string;
+    city?: string;
+    state?: string;
+}) {
+    const user = await getCurrentUser();
+    if (!user || !MANAGER_ROLES.includes(user.role)) return { error: 'Não autorizado.' };
+
+    await prisma.tenant.update({
+        where: { id: user.tenantId },
+        data: {
+            name: data.name,
+            phone: data.phone || null,
+            email: data.email || null,
+            city: data.city || null,
+            state: data.state || null,
+        },
+    });
+
+    return { success: true };
+}
+
+export async function createFirstClassroom(data: {
+    name: string;
+    grade: string;
+    shift?: string;
+}) {
+    const user = await getCurrentUser();
+    if (!user || !MANAGER_ROLES.includes(user.role)) return { error: 'Não autorizado.' };
+
+    try {
+        await prisma.classroom.create({
+            data: {
+                tenantId: user.tenantId,
+                name: data.name,
+                grade: data.grade as any,
+                year: new Date().getFullYear(),
+                shift: data.shift || null,
+            },
+        });
+        return { success: true };
+    } catch (e: any) {
+        if (e.code === 'P2002') return { error: 'Turma com este nome já existe.' };
+        return { error: 'Erro ao criar turma.' };
+    }
+}
+
+export async function inviteTeamMember(data: {
+    name: string;
+    email: string;
+    role: string;
+}) {
+    const user = await getCurrentUser();
+    if (!user || !MANAGER_ROLES.includes(user.role)) return { error: 'Não autorizado.' };
+
+    const existing = await prisma.user.findFirst({
+        where: { tenantId: user.tenantId, email: data.email },
+    });
+    if (existing) return { error: 'Este email já está cadastrado.' };
+
+    try {
+        await prisma.user.create({
+            data: {
+                tenantId: user.tenantId,
+                name: data.name,
+                email: data.email,
+                role: data.role as any,
+            },
+        });
+        return { success: true };
+    } catch {
+        return { error: 'Erro ao convidar membro.' };
+    }
+}
+
+export async function completeOnboarding() {
+    const user = await getCurrentUser();
+    if (!user || !MANAGER_ROLES.includes(user.role)) return { error: 'Não autorizado.' };
+
+    await prisma.tenant.update({
+        where: { id: user.tenantId },
+        data: { onboardingCompleted: true },
+    });
+
+    revalidatePath('/');
+    return { success: true };
 }

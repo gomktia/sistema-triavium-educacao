@@ -7,14 +7,18 @@ import { StudentProfileView } from '@/components/psychologist/StudentProfileView
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ChevronLeft, UserCircle } from 'lucide-react';
+import { getLabels } from '@/src/lib/utils/labels';
 
-export default async function AlunoDetalhePage({ params }: { params: { id: string } }) {
+export default async function AlunoDetalhePage(props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     const user = await getCurrentUser();
     const allowedRoles = [UserRole.PSYCHOLOGIST, UserRole.COUNSELOR, UserRole.MANAGER, UserRole.ADMIN];
 
     if (!user || !allowedRoles.includes(user.role)) {
         redirect('/');
     }
+
+    const labels = getLabels(user.organizationType);
 
     const student = await prisma.student.findUnique({
         where: { id: params.id },
@@ -69,10 +73,12 @@ export default async function AlunoDetalhePage({ params }: { params: { id: strin
             'ANO_3_EM': CoreGradeLevel.TERCEIRO_ANO,
         };
 
+        const coreGrade = gradeMap[student.grade] || CoreGradeLevel.PRIMEIRO_ANO;
+
         profile = calculateStudentProfile(
             viaAnswers as any,
             srssAnswers as any,
-            gradeMap[student.grade] || CoreGradeLevel.PRIMEIRO_ANO
+            coreGrade
         );
     }
 
@@ -82,6 +88,12 @@ export default async function AlunoDetalhePage({ params }: { params: { id: strin
         include: { author: { select: { name: true } } },
         orderBy: { createdAt: 'desc' },
     });
+
+    // Display logic for grade
+    const displayGrade =
+        student.grade === 'ANO_1_EM' ? (labels.organization === 'Escola' ? '1ª Série EM' : 'Nível 1') :
+            student.grade === 'ANO_2_EM' ? (labels.organization === 'Escola' ? '2ª Série EM' : 'Nível 2') :
+                (labels.organization === 'Escola' ? '3ª Série EM' : 'Nível 3');
 
     return (
         <div className="space-y-6">
@@ -97,7 +109,7 @@ export default async function AlunoDetalhePage({ params }: { params: { id: strin
                         {student.name}
                     </h1>
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                        {student.grade === 'ANO_1_EM' ? '1ª Série EM' : student.grade === 'ANO_2_EM' ? '2ª Série EM' : '3ª Série EM'}
+                        {displayGrade}
                     </p>
                 </div>
             </div>
@@ -106,7 +118,7 @@ export default async function AlunoDetalhePage({ params }: { params: { id: strin
                 <div className="bg-slate-100 rounded-2xl p-12 text-center border-2 border-dashed border-slate-200">
                     <h3 className="text-slate-500 font-bold mb-2">Perfil Incompleto</h3>
                     <p className="text-slate-400 text-sm max-w-sm mx-auto">
-                        Este aluno precisa completar o questionário VIA e o professor deve realizar a triagem SRSS-IE para gerar o perfil integrado e intervenções.
+                        Este {labels.subject.toLowerCase()} precisa completar o questionário VIA e o {labels.actor.toLowerCase()} deve realizar a triagem SRSS-IE para gerar o perfil integrado e intervenções.
                     </p>
                     <div className="mt-6 flex justify-center gap-4">
                         <div className={cn("px-4 py-2 rounded-lg text-[10px] font-bold uppercase", viaAnswers ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-500")}>
@@ -125,6 +137,7 @@ export default async function AlunoDetalhePage({ params }: { params: { id: strin
                     evolutionData={evolutionData}
                     ewsAlert={ewsAlert}
                     interventionPlans={interventionPlans}
+                    labels={labels}
                 />
             )}
         </div>

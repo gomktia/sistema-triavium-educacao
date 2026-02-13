@@ -82,6 +82,7 @@ interface CrisisProtocolReportProps {
     externalizingScore: number;
     internalizingScore: number;
     criticalAlerts: any[];
+    subjectLabel?: string;
 }
 
 export function CrisisProtocolReport({
@@ -90,7 +91,8 @@ export function CrisisProtocolReport({
     riskTier,
     externalizingScore,
     internalizingScore,
-    criticalAlerts
+    criticalAlerts,
+    subjectLabel = 'Aluno',
 }: CrisisProtocolReportProps) {
     return (
         <Document title={`Protocolo de Crise - ${studentName}`}>
@@ -103,7 +105,7 @@ export function CrisisProtocolReport({
                 <Text style={styles.urgentBadge}>URGÊNCIA SOCIOEMOCIONAL - TIER 3</Text>
 
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Identificação do Aluno</Text>
+                    <Text style={styles.sectionTitle}>Identificação do {subjectLabel}</Text>
                     <View style={styles.row}>
                         <Text style={styles.label}>Nome Completo:</Text>
                         <Text style={styles.content}>{studentName}</Text>
@@ -147,9 +149,9 @@ export function CrisisProtocolReport({
                 <View style={styles.riskBox}>
                     <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>RECOMENDAÇÃO TÉCNICA:</Text>
                     <Text style={{ lineHeight: 1.4 }}>
-                        O aluno apresenta indicadores de comportamento ou estado emocional que extrapolam a capacidade de intervenção pedagógica escolar exclusiva.
+                        O {subjectLabel.toLowerCase()} apresenta indicadores de comportamento ou estado emocional que extrapolam a capacidade de intervenção interna exclusiva.
                         Recomenda-se avaliação especializada imediata por equipe multidisciplinar de saúde mental para diagnóstico e suporte clínico.
-                        A escola manterá o acompanhamento pedagógico adaptado conforme o Plano de Apoio Individual (PAI).
+                        A organização manterá o acompanhamento adaptado conforme o Plano de Apoio Individual (PAI).
                     </Text>
                 </View>
 

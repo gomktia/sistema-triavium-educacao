@@ -12,6 +12,7 @@ interface DownloadCrisisReportButtonProps {
     externalizingScore: number;
     internalizingScore: number;
     criticalAlerts: any[];
+    subjectLabel?: string;
 }
 
 export function DownloadCrisisReportButton(props: DownloadCrisisReportButtonProps) {

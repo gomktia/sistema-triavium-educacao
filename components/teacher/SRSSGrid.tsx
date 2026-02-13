@@ -6,6 +6,7 @@ import { saveSRSSScreening } from '@/app/actions/assessment';
 import { SRSS_ITEMS } from '@/src/core/logic/scoring';
 import { cn } from '@/lib/utils';
 import { Loader2, Check, AlertCircle } from 'lucide-react';
+import type { OrganizationLabels } from '@/src/lib/utils/labels';
 
 const ALL_ITEMS = [...SRSS_ITEMS.externalizing, ...SRSS_ITEMS.internalizing];
 
@@ -24,9 +25,10 @@ interface StudentData {
 interface SRSSGridProps {
     students: Student[];
     existingData: Record<string, StudentData>;
+    labels?: OrganizationLabels;
 }
 
-export function SRSSGrid({ students, existingData }: SRSSGridProps) {
+export function SRSSGrid({ students, existingData, labels }: SRSSGridProps) {
     const [data, setData] = useState<Record<string, StudentData>>(existingData);
     const saveTimeout = useRef<Record<string, NodeJS.Timeout>>({});
 
@@ -78,7 +80,7 @@ export function SRSSGrid({ students, existingData }: SRSSGridProps) {
                     <thead>
                         <tr className="bg-slate-50 border-b border-slate-200">
                             <th className="text-left p-4 sticky left-0 bg-slate-50 z-10 min-w-[200px] font-bold text-slate-600">
-                                Nome do Aluno
+                                Nome do {labels?.subject ?? 'Aluno'}
                             </th>
                             {ALL_ITEMS.map((item) => (
                                 <th key={item.item} className="p-2 text-center w-12 group relative">

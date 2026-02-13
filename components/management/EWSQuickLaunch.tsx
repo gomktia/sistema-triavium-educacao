@@ -8,6 +8,7 @@ import { Search, Save, Loader2 } from 'lucide-react';
 import { saveSchoolIndicators } from '@/app/actions/ews';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { OrganizationLabels } from '@/src/lib/utils/labels';
 
 interface StudentEWS {
     id: string;
@@ -17,9 +18,10 @@ interface StudentEWS {
 
 interface EWSQuickLaunchProps {
     students: StudentEWS[];
+    labels: OrganizationLabels;
 }
 
-export function EWSQuickLaunch({ students }: EWSQuickLaunchProps) {
+export function EWSQuickLaunch({ students, labels }: EWSQuickLaunchProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
     const [values, setValues] = useState<Record<string, { attendance: string; average: string; logs: string }>>({});
@@ -62,12 +64,14 @@ export function EWSQuickLaunch({ students }: EWSQuickLaunchProps) {
         }
     };
 
+    const isSchool = labels.organization === 'Escola';
+
     return (
         <div className="space-y-6">
             <div className="relative max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <Input
-                    placeholder="Buscar aluno por nome..."
+                    placeholder={`Buscar ${labels.subject.toLowerCase()} por nome...`}
                     className="pl-10 h-11 border-slate-200 shadow-sm"
                     value={searchTerm}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
@@ -77,7 +81,11 @@ export function EWSQuickLaunch({ students }: EWSQuickLaunchProps) {
             <div className="grid gap-4">
                 {filteredStudents.map((student) => {
                     const sValues = values[student.id] || { attendance: '', average: '', logs: '0' };
-                    const isAttendanceRisk = parseFloat(sValues.attendance) > 0 && parseFloat(sValues.attendance) < 90;
+                    const isAttendanceRisk = parseFloat(sValues.attendance) > 0 && parseFloat(sValues.attendance) < 95;
+
+                    const gradeLabel = student.grade === 'ANO_1_EM' ? (isSchool ? '1ª Série EM' : 'Nível 1') :
+                        student.grade === 'ANO_2_EM' ? (isSchool ? '2ª Série EM' : 'Nível 2') :
+                            (isSchool ? '3ª Série EM' : 'Nível 3');
 
                     return (
                         <Card key={student.id} className="border-slate-200 hover:border-indigo-100 transition-colors">
@@ -85,7 +93,7 @@ export function EWSQuickLaunch({ students }: EWSQuickLaunchProps) {
                                 <div className="min-w-[200px]">
                                     <h4 className="font-bold text-slate-800">{student.name}</h4>
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                        {student.grade === 'ANO_1_EM' ? '1ª Série' : student.grade === 'ANO_2_EM' ? '2ª Série' : '3ª Série'}
+                                        {gradeLabel}
                                     </p>
                                 </div>
 
@@ -104,7 +112,7 @@ export function EWSQuickLaunch({ students }: EWSQuickLaunchProps) {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Média (0-10)</label>
+                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Produtividade</label>
                                         <Input
                                             type="number"
                                             placeholder="7.5"
@@ -136,7 +144,7 @@ export function EWSQuickLaunch({ students }: EWSQuickLaunchProps) {
                                     ) : (
                                         <>
                                             <Save className="h-3 w-3 mr-2" />
-                                            Lançar
+                                            Salvar
                                         </>
                                     )}
                                 </Button>
@@ -148,7 +156,7 @@ export function EWSQuickLaunch({ students }: EWSQuickLaunchProps) {
                 {filteredStudents.length === 0 && (
                     <div className="py-20 text-center bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
                         <Search className="mx-auto text-slate-200 mb-2" size={32} />
-                        <p className="text-slate-400 text-sm font-medium">Nenhum aluno encontrado.</p>
+                        <p className="text-slate-400 text-sm font-medium">Nenhum registro encontrado.</p>
                     </div>
                 )}
             </div>

@@ -18,8 +18,9 @@ model Tenant {
   phone              String?
   email              String?
   logoUrl            String?
-  organizationType   OrganizationType    @default(EDUCATIONAL)
-  isActive           Boolean             @default(true)
+  organizationType      OrganizationType    @default(EDUCATIONAL)
+  onboardingCompleted   Boolean             @default(false)
+  isActive              Boolean             @default(true)
   subscriptionStatus String              @default("active") // active, past_due, canceled
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt

@@ -37,7 +37,7 @@ export function CreateGroupButton({ students, labels }: { students: StudentOptio
         <>
             <Button
                 onClick={() => setOpen(true)}
-                className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-200"
+                className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-200 font-bold"
             >
                 <Plus className="mr-2" size={18} />
                 Novo Grupo
@@ -48,7 +48,7 @@ export function CreateGroupButton({ students, labels }: { students: StudentOptio
                     <DialogHeader>
                         <DialogTitle>Criar Grupo de Intervenção</DialogTitle>
                         <DialogDescription>
-                            Defina o tipo de intervenção e selecione os alunos do grupo.
+                            Defina o tipo de intervenção e selecione os {labels.subjects.toLowerCase()} do grupo.
                         </DialogDescription>
                     </DialogHeader>
                     <InterventionGroupForm
@@ -73,7 +73,7 @@ export function EditGroupButton({ group, students, labels }: { group: GroupData;
                 variant="ghost"
                 size="sm"
                 onClick={() => setOpen(true)}
-                className="text-slate-500 hover:text-indigo-600"
+                className="text-slate-500 hover:text-indigo-600 transition-colors"
             >
                 <Pencil size={14} />
             </Button>
@@ -83,7 +83,7 @@ export function EditGroupButton({ group, students, labels }: { group: GroupData;
                     <DialogHeader>
                         <DialogTitle>Editar Grupo</DialogTitle>
                         <DialogDescription>
-                            Atualize os dados do grupo &quot;{group.name}&quot;.
+                            Atualize os dados e a composição de {labels.subjects.toLowerCase()} do grupo &quot;{group.name}&quot;.
                         </DialogDescription>
                     </DialogHeader>
                     <InterventionGroupForm
@@ -100,7 +100,7 @@ export function EditGroupButton({ group, students, labels }: { group: GroupData;
 
 // ── Delete Button + Confirmation ──────────────────────────────
 
-export function DeleteGroupButton({ group }: { group: { id: string; name: string } }) {
+export function DeleteGroupButton({ group, labels }: { group: { id: string; name: string }; labels: OrganizationLabels }) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -117,7 +117,7 @@ export function DeleteGroupButton({ group }: { group: { id: string; name: string
                 variant="ghost"
                 size="sm"
                 onClick={() => setOpen(true)}
-                className="text-slate-500 hover:text-red-600"
+                className="text-slate-500 hover:text-red-600 transition-colors"
             >
                 <Trash2 size={14} />
             </Button>
@@ -128,15 +128,15 @@ export function DeleteGroupButton({ group }: { group: { id: string; name: string
                         <DialogTitle>Excluir Grupo</DialogTitle>
                         <DialogDescription>
                             Tem certeza que deseja desativar o grupo &quot;{group.name}&quot;?
-                            Os alunos não serão removidos do sistema.
+                            Os {labels.subjects.toLowerCase()} não serão removidos do sistema.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="flex gap-3 pt-2">
+                    <div className="flex gap-3 pt-4">
                         <Button
                             variant="outline"
                             onClick={() => setOpen(false)}
                             disabled={loading}
-                            className="flex-1"
+                            className="flex-1 rounded-xl h-11"
                         >
                             Cancelar
                         </Button>
@@ -144,7 +144,7 @@ export function DeleteGroupButton({ group }: { group: { id: string; name: string
                             variant="destructive"
                             onClick={handleDelete}
                             disabled={loading}
-                            className="flex-1"
+                            className="flex-1 rounded-xl h-11 font-bold"
                         >
                             {loading && <Loader2 size={16} className="mr-2 animate-spin" />}
                             Confirmar Exclusão

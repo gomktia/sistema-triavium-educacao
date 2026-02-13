@@ -51,6 +51,38 @@ export default async function DashboardPage() {
                 </Card>
 
                 <div className="space-y-6">
+                    {(user.role === 'MANAGER' || user.role === 'ADMIN') && (
+                        <Card className="border-emerald-100 bg-emerald-50/30 shadow-sm overflow-hidden relative">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em]">
+                                    Status do Contrato
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-end justify-between gap-2">
+                                    <div>
+                                        <div className="flex items-baseline gap-1">
+                                            <span className="text-2xl font-black text-slate-900">540</span>
+                                            <span className="text-xs font-bold text-slate-400">/ 1000</span>
+                                        </div>
+                                        <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Alunos Ativos</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="text-xs font-black text-emerald-600 bg-emerald-100 px-2 py-1 rounded-lg">54%</span>
+                                    </div>
+                                </div>
+
+                                {/* Progress Bar */}
+                                <div className="h-2 w-full bg-slate-100 rounded-full mt-4 overflow-hidden">
+                                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: '54%' }} />
+                                </div>
+                                <p className="text-[9px] text-slate-400 mt-3 italic">
+                                    Próxima renovação: 12/12/2026
+                                </p>
+                            </CardContent>
+                        </Card>
+                    )}
+
                     <Card className="border-indigo-100 bg-indigo-50/50 shadow-sm">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-bold text-indigo-900 uppercase tracking-widest">

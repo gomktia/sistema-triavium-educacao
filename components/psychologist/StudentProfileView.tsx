@@ -11,6 +11,7 @@ import { EvolutionChart } from '@/components/charts/EvolutionChart';
 import { Button } from '@/components/ui/button';
 import { DownloadCrisisReportButton } from '@/components/reports/DownloadCrisisReportButton';
 import { InterventionPlanForm } from './InterventionPlanForm';
+import { OrganizationLabels } from '@/src/lib/utils/labels';
 
 interface StudentProfileViewProps {
     studentName: string;
@@ -19,6 +20,7 @@ interface StudentProfileViewProps {
     evolutionData?: any[];
     ewsAlert?: any;
     interventionPlans?: any[];
+    labels: OrganizationLabels;
 }
 
 export function StudentProfileView({
@@ -27,7 +29,8 @@ export function StudentProfileView({
     profile,
     evolutionData = [],
     ewsAlert,
-    interventionPlans = []
+    interventionPlans = [],
+    labels
 }: StudentProfileViewProps) {
     const [showPlanForm, setShowPlanForm] = useState(false);
     const {
@@ -38,6 +41,12 @@ export function StudentProfileView({
         gradeAlerts,
         interventionSuggestions
     } = profile;
+
+    // Tradução visual de Grades
+    const displayGrade =
+        grade === 'ANO_1_EM' ? (labels.organization === 'Escola' ? '1ª Série EM' : 'Nível 1') :
+            grade === 'ANO_2_EM' ? (labels.organization === 'Escola' ? '2ª Série EM' : 'Nível 2') :
+                (labels.organization === 'Escola' ? '3ª Série EM' : 'Nível 3');
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -53,7 +62,7 @@ export function StudentProfileView({
                             ewsAlert.alertLevel === 'CRITICAL' ? "text-rose-500" : "text-amber-500"
                         )} size={24} />
                         <div>
-                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-900 mb-1">Risco Escolar Adicional (EWS)</h4>
+                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-900 mb-1">Risco {labels.organization === 'Escola' ? 'Escolar' : 'Operacional'} Adicional (EWS)</h4>
                             <ul className="text-xs font-medium text-slate-700 space-y-0.5">
                                 {ewsAlert.rationale.map((r: string, i: number) => (
                                     <li key={i}>• {r}</li>
@@ -95,11 +104,11 @@ export function StudentProfileView({
                                     <span className="text-xs font-black uppercase tracking-widest">Protocolo de Crise</span>
                                 </div>
                                 <p className="text-[11px] text-rose-800 font-medium leading-relaxed">
-                                    Gere o documento oficial de encaminhamento para a rede de saúde.
+                                    Gere o documento oficial de encaminhamento para a rede de saúde/apoio.
                                 </p>
                                 <DownloadCrisisReportButton
                                     studentName={studentName}
-                                    grade={grade === 'ANO_1_EM' ? '1ª Série' : grade === 'ANO_2_EM' ? '2ª Série' : '3ª Série'}
+                                    grade={displayGrade}
                                     riskTier={overallTier}
                                     externalizingScore={externalizing.score}
                                     internalizingScore={internalizing.score}
@@ -175,7 +184,7 @@ export function StudentProfileView({
                                             ))}
                                         </div>
                                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
-                                            Monitorado por: {plan.author?.name || 'Psicólogo'}
+                                            Monitorado por: {plan.author?.name || labels.actor}
                                         </span>
                                     </div>
                                 </CardContent>
@@ -185,7 +194,7 @@ export function StudentProfileView({
                         <Card className="col-span-full bg-slate-50/50 border-dashed border-slate-200">
                             <CardContent className="p-12 text-center text-slate-400">
                                 <Target className="mx-auto mb-2 opacity-10" size={32} />
-                                <p className="text-xs font-medium">Nenhum plano PEI formalizado para este aluno.</p>
+                                <p className="text-xs font-medium">Nenhum plano PEI formalizado para este {labels.subject.toLowerCase()}.</p>
                             </CardContent>
                         </Card>
                     )}
@@ -216,7 +225,7 @@ export function StudentProfileView({
                     <Card className="bg-slate-50 border-dashed border-slate-200">
                         <CardContent className="p-8 text-center text-slate-400">
                             <Sparkles className="mx-auto mb-2 opacity-20" size={32} />
-                            <p className="text-sm font-medium">Não há intervenções urgentes sugeridas. Aluno em Camada 1.</p>
+                            <p className="text-sm font-medium">Não há intervenções urgentes sugeridas. {labels.subject} em Camada 1.</p>
                         </CardContent>
                     </Card>
                 )}

@@ -3,9 +3,10 @@ import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { UserRole } from '@/src/core/types';
 import { SRSSGrid } from '@/components/teacher/SRSSGrid';
+import { getLabels } from '@/src/lib/utils/labels';
 
 export const metadata = {
-    title: 'Triagem Socioemocional | SRSS-IE',
+    title: 'Lançar Triagem | Inteligência Socioemocional',
 };
 
 export default async function TriagemPage() {
@@ -44,19 +45,19 @@ export default async function TriagemPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">Lançar Triagem</h1>
-                    <p className="text-slate-500 mt-1">Instrumento SRSS-IE para identificação de riscos externos e internos.</p>
+                    <p className="text-slate-500 mt-1">Identificação preventiva de riscos comportamentais e socioemocionais.</p>
                 </div>
             </div>
 
             <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 flex gap-3 text-amber-800">
                 <div className="flex-shrink-0">💡</div>
                 <p className="text-xs leading-relaxed">
-                    <strong>Dica:</strong> Clique nos quadrados numéricos para alterar os valores.
-                    O cálculo do Tier (Rastro) é feito em tempo real assim que os 12 itens de um aluno são preenchidos.
+                    <strong>Dica:</strong> O preenchimento é feito item a item.
+                    O cálculo do Risco (Tier) é atualizado automaticamente assim que o instrumento é concluído para cada pessoa.
                 </p>
             </div>
 
-            <SRSSGrid students={students} existingData={existingData} />
+            <SRSSGrid students={students} existingData={existingData} labels={getLabels(user.organizationType)} />
         </div>
     );
 }

@@ -119,23 +119,28 @@ export async function saveSchoolIndicators(params: {
 
     if (alert.alertLevel !== 'NONE') {
         const { createNotification, NotificationType } = await import('@/lib/notifications');
+        const { getLabels } = await import('@/src/lib/utils/labels');
+        const labels = getLabels(user.organizationType);
 
         const student = await prisma.student.findUnique({
             where: { id: params.studentId },
             select: { name: true },
         });
 
+        const alertTitle = alert.alertLevel === 'CRITICAL' ? 'Crítico' : 'Atenção';
+
         await createNotification({
             tenantId: user.tenantId,
             studentId: params.studentId,
             type: NotificationType.SYSTEM_ALERT,
-            title: `⚠️ EWS: Alerta de Risco Escolar (${alert.alertLevel === 'CRITICAL' ? 'Crítico' : 'Atenção'})`,
-            message: `O aluno ${student?.name || 'estudante'} apresenta risco escolar: ${alert.rationale.join(' ')}`,
+            title: `⚠️ EWS: Alerta de Risco (${alertTitle})`,
+            message: `O ${labels.subject.toLowerCase()} ${student?.name || labels.subject.toLowerCase()} apresenta indicadores de risco: ${alert.rationale.join(' ')}`,
             link: `/alunos/${params.studentId}`
         });
     }
 
     revalidatePath(`/alunos/${params.studentId}`);
     revalidatePath('/gestao/ews');
+    revalidatePath('/gestao');
     return { success: true };
 }

@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
+import { getHomeForRole } from '@/lib/auth';
 
 export async function login(formData: FormData) {
     const supabase = await createClient();
@@ -12,17 +14,51 @@ export async function login(formData: FormData) {
         return { error: 'Preencha todos os campos.' };
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
     });
 
     if (error) {
-        console.error('Login error:', error.message);
+        console.error('[LOGIN] Supabase auth error:', error.message, '| email:', email);
         return { error: 'Email ou senha incorretos.' };
     }
 
-    // O middleware cuidará do redirecionamento para o '/' e o app/(portal)/page.tsx 
-    // cuidará do redirect baseado no Role.
+    // Vincular UID ao registro Prisma se ainda não vinculado
+    const supabaseUid = data.user?.id;
+    if (supabaseUid) {
+        const existingByUid = await prisma.user.findFirst({
+            where: { supabaseUid },
+            select: { id: true, role: true },
+        });
+
+        if (existingByUid) {
+            // Já vinculado — redirecionar
+            redirect(getHomeForRole(existingByUid.role));
+        }
+
+        // Tentar vincular por email
+        const dbUser = await prisma.user.findFirst({
+            where: { email },
+            select: { id: true, role: true, supabaseUid: true },
+        });
+
+        if (dbUser) {
+            if (!dbUser.supabaseUid) {
+                await prisma.user.update({
+                    where: { id: dbUser.id },
+                    data: { supabaseUid },
+                });
+                console.log('[LOGIN] Linked UID', supabaseUid, 'to user', email);
+            }
+            redirect(getHomeForRole(dbUser.role));
+        }
+
+        // Autenticou no Supabase mas não existe no Prisma
+        console.error('[LOGIN] User authenticated but not found in database:', email);
+        await supabase.auth.signOut();
+        return { error: 'Usuário não cadastrado no sistema. Contacte o administrador.' };
+    }
+
     redirect('/');
 }

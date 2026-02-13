@@ -6,6 +6,7 @@ import { ClassDashboard } from '@/components/teacher/ClassDashboard';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ClipboardList } from 'lucide-react';
+import { getLabels } from '@/src/lib/utils/labels';
 
 export const metadata = {
     title: 'Minha Turma | Dashboard',
@@ -78,7 +79,7 @@ export default async function TurmaPage() {
                 </Link>
             </div>
 
-            <ClassDashboard students={studentsWithRisk} />
+            <ClassDashboard students={studentsWithRisk} labels={getLabels(user.organizationType)} />
         </div>
     );
 }

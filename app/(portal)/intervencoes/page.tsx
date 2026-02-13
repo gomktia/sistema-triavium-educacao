@@ -68,7 +68,7 @@ export default async function IntervencoesPage() {
                                 </span>
                                 <div className="flex items-center gap-1">
                                     <EditGroupButton group={group} students={students} labels={labels} />
-                                    <DeleteGroupButton group={group} />
+                                    <DeleteGroupButton group={group} labels={labels} />
                                 </div>
                             </div>
                             <div className="flex items-center justify-between">
