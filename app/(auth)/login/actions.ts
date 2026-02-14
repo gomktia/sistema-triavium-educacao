@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { prisma } from '@/lib/prisma';
 import { getHomeForRole } from '@/lib/auth';
 
@@ -9,6 +10,12 @@ import { isValidCPF, cleanCPF } from '@/src/lib/utils/cpf';
 
 export async function login(formData: FormData) {
     try {
+        // Verificação de variáveis de ambiente
+        if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+            console.error('[LOGIN] Missing Supabase env vars');
+            return { error: 'Configuração do servidor incompleta (Supabase). Contacte o administrador.' };
+        }
+
         const supabase = await createClient();
         const identifier = formData.get('email') as string;
         const password = formData.get('password') as string;
@@ -23,7 +30,6 @@ export async function login(formData: FormData) {
         if (!identifier.includes('@')) {
             if (isValidCPF(identifier)) {
                 const cpf = cleanCPF(identifier);
-                // Agora CPF não é único globalmente
                 const user = await prisma.user.findFirst({
                     where: { cpf },
                     select: { email: true }
@@ -51,7 +57,6 @@ export async function login(formData: FormData) {
         // Vincular UID ao registro Prisma se ainda não vinculado
         const supabaseUid = data.user?.id;
         if (supabaseUid) {
-            // Tentar obter o primeiro usuário para setar o tenant inicial
             const dbUser = await prisma.user.findFirst({
                 where: {
                     OR: [
@@ -86,8 +91,19 @@ export async function login(formData: FormData) {
         }
 
     } catch (error: any) {
-        if (error.message === 'NEXT_REDIRECT') throw error;
-        console.error('[LOGIN CRITICAL ERROR]', error);
+        // Next.js redirect lança um erro especial - deve ser re-lançado
+        if (isRedirectError(error)) throw error;
+
+        console.error('[LOGIN CRITICAL ERROR]', error?.message || error);
+
+        // Diagnóstico específico
+        if (error?.message?.includes('connect') || error?.message?.includes('ECONNREFUSED')) {
+            return { error: 'Falha na conexão com o banco de dados. Verifique DATABASE_URL.' };
+        }
+        if (error?.message?.includes('prisma') || error?.message?.includes('PrismaClient')) {
+            return { error: 'Erro no banco de dados. Verifique se as migrações foram aplicadas.' };
+        }
+
         return { error: 'Ocorreu um erro no servidor. Tente novamente.' };
     }
 

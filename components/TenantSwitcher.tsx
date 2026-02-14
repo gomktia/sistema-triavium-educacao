@@ -31,7 +31,7 @@ export function TenantSwitcher({ tenants, activeTenantId, isCollapsed }: TenantS
             try {
                 await switchTenant(id);
             } catch (error: any) {
-                if (error.message === 'NEXT_REDIRECT') return;
+                if (error?.digest?.startsWith('NEXT_REDIRECT')) return;
                 console.error('Failed to switch tenant', error);
             }
         });

@@ -42,9 +42,10 @@ export default function LoginPage() {
                     setError(result.error);
                 }
             } catch (error: any) {
-                if (error.message === 'NEXT_REDIRECT') return;
+                // Redirect errors do Next.js devem ser ignorados (o redirect acontece automaticamente)
+                if (error?.digest?.startsWith('NEXT_REDIRECT')) return;
                 console.error('Quick login error:', error);
-                if (error.message.includes('unexpected response') || error.message.includes('Server Components render')) {
+                if (error.message?.includes('unexpected response') || error.message?.includes('Server Components render')) {
                     setError("Erro Crítico no Servidor (500). Possível falha de conexão com Banco de Dados ou Variáveis de Ambiente ausentes.");
                 } else {
                     setError(error.message || 'Erro desconhecido');
@@ -62,7 +63,7 @@ export default function LoginPage() {
                     setError(result.error);
                 }
             } catch (error: any) {
-                if (error.message === 'NEXT_REDIRECT') return;
+                if (error?.digest?.startsWith('NEXT_REDIRECT')) return;
                 console.error('Login error:', error);
             }
         });
