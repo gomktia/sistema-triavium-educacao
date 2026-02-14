@@ -94,17 +94,11 @@ export async function login(formData: FormData) {
         // Next.js redirect lança um erro especial - deve ser re-lançado
         if (isRedirectError(error)) throw error;
 
-        console.error('[LOGIN CRITICAL ERROR]', error?.message || error);
+        const msg = error?.message || String(error);
+        console.error('[LOGIN CRITICAL ERROR]', msg, error?.stack);
 
-        // Diagnóstico específico
-        if (error?.message?.includes('connect') || error?.message?.includes('ECONNREFUSED')) {
-            return { error: 'Falha na conexão com o banco de dados. Verifique DATABASE_URL.' };
-        }
-        if (error?.message?.includes('prisma') || error?.message?.includes('PrismaClient')) {
-            return { error: 'Erro no banco de dados. Verifique se as migrações foram aplicadas.' };
-        }
-
-        return { error: 'Ocorreu um erro no servidor. Tente novamente.' };
+        // Retorna erro detalhado para diagnóstico (remover em produção depois)
+        return { error: `Erro no servidor: ${msg.substring(0, 200)}` };
     }
 
     redirect('/');
