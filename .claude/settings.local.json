@@ -7,7 +7,13 @@
       "Bash(npx prisma migrate dev:*)",
       "Bash(npx prisma db push:*)",
       "Bash(find:*)",
-      "Bash(node scripts/create-remaining.js:*)"
+      "Bash(node scripts/create-remaining.js:*)",
+      "Bash(npx next build:*)",
+      "Bash(git push:*)",
+      "Bash(gh api:*)",
+      "Bash(where:*)",
+      "Bash(vercel ls:*)",
+      "Bash(vercel inspect:*)"
     ]
   }
 }
