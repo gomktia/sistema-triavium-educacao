@@ -8,6 +8,8 @@ import { OnboardingCheck } from '@/components/onboarding/OnboardingCheck';
 import { getLabels } from '@/src/lib/utils/labels';
 import { UserRole } from '@/src/core/types';
 
+export const dynamic = 'force-dynamic';
+
 export default async function PortalLayout({
     children,
 }: {
