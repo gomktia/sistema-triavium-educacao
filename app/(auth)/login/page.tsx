@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { login } from './actions';
 import { Loader2, Lock, Mail, BrainCircuit, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -12,6 +12,12 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
+
+    useEffect(() => {
+        if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+            setError("CRITICAL ERROR: NEXT_PUBLIC_SUPABASE_URL is missing. Verifique as Variáveis de Ambiente na Vercel.");
+        }
+    }, []);
 
     const TEST_USERS = [
         { label: 'Super Admin', email: 'geisonhoehr@gmail.com', role: 'SaaS', color: 'bg-slate-900 text-white' },
@@ -38,6 +44,11 @@ export default function LoginPage() {
             } catch (error: any) {
                 if (error.message === 'NEXT_REDIRECT') return;
                 console.error('Quick login error:', error);
+                if (error.message.includes('unexpected response') || error.message.includes('Server Components render')) {
+                    setError("Erro Crítico no Servidor (500). Possível falha de conexão com Banco de Dados ou Variáveis de Ambiente ausentes.");
+                } else {
+                    setError(error.message || 'Erro desconhecido');
+                }
             }
         });
     };
