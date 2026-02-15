@@ -1,6 +1,6 @@
 {
   "name": "gestao-socioemocional",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "SaaS Multi-tenant de Inteligência Socioemocional - RTI + VIA",
   "private": true,
   "scripts": {
