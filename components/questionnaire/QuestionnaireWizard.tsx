@@ -55,13 +55,15 @@ export function QuestionnaireWizard({
     const currentStepAnswered = stepConfig.items.filter(num => answers[num] !== undefined).length;
 
     const handleAnswerChange = (questionNumber: number, value: number) => {
-        const newAnswers = { ...answers, [questionNumber]: value };
-        setAnswers(newAnswers);
-        setShowValidation(false);
-
-        startTransition(async () => {
-            await saveVIAAnswers(newAnswers, studentId);
+        setAnswers(prev => {
+            const newAnswers = { ...prev, [questionNumber]: value };
+            // Save in background
+            startTransition(async () => {
+                await saveVIAAnswers(newAnswers, studentId);
+            });
+            return newAnswers;
         });
+        setShowValidation(false);
     };
 
     const handleNext = async () => {
@@ -79,16 +81,30 @@ export function QuestionnaireWizard({
             setIsSaving(true);
             const totalAnswered = Object.keys(answers).length;
             console.log('[Wizard] Finalizando com', totalAnswered, 'respostas de 71');
-            const result = await saveVIAAnswers(answers, studentId);
-            console.log('[Wizard] Resultado:', JSON.stringify(result));
-            if (result.success && result.complete) {
-                router.push('/minhas-forcas');
-            } else if (result.error) {
+            console.log('[Wizard] Chaves das respostas:', Object.keys(answers).sort((a, b) => Number(a) - Number(b)).join(','));
+
+            try {
+                const result = await saveVIAAnswers(answers, studentId);
+                console.log('[Wizard] Resultado:', JSON.stringify(result));
+
+                if (result.success && result.complete) {
+                    router.push('/minhas-forcas');
+                } else if (result.error) {
+                    setIsSaving(false);
+                    const msg = `Erro do servidor: ${result.error}`;
+                    toast.error(msg);
+                    alert(msg);
+                } else {
+                    setIsSaving(false);
+                    const msg = `Respostas enviadas: ${totalAnswered}/71. Por favor, verifique se todas as etapas foram preenchidas.`;
+                    toast.error(msg);
+                    alert(msg);
+                }
+            } catch (err: any) {
                 setIsSaving(false);
-                toast.error(`Erro: ${result.error}`);
-            } else {
-                setIsSaving(false);
-                toast.error(`Faltam respostas: ${totalAnswered}/71 respondidas. Verifique se todas as etapas foram preenchidas.`);
+                const msg = `Erro inesperado: ${err.message}`;
+                toast.error(msg);
+                alert(msg);
             }
         } else {
             setCurrentStepIdx(prev => prev + 1);
