@@ -44,6 +44,7 @@ export async function saveVIAAnswers(answers: VIARawAnswers, targetStudentId?: s
     // Verificar quantidade de respostas
     const answeredCount = Object.keys(answers).length;
     const isComplete = answeredCount >= 71;
+    console.log(`[VIA Save] Answers: ${answeredCount}/71, Complete: ${isComplete}, Student: ${studentIdToSave}`);
 
     let processedScores = null;
     let signatureStrengths = null;

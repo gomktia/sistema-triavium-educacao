@@ -77,12 +77,18 @@ export function QuestionnaireWizard({
 
         if (isLastStep) {
             setIsSaving(true);
+            const totalAnswered = Object.keys(answers).length;
+            console.log('[Wizard] Finalizando com', totalAnswered, 'respostas de 71');
             const result = await saveVIAAnswers(answers, studentId);
+            console.log('[Wizard] Resultado:', JSON.stringify(result));
             if (result.success && result.complete) {
                 router.push('/minhas-forcas');
+            } else if (result.error) {
+                setIsSaving(false);
+                toast.error(`Erro: ${result.error}`);
             } else {
                 setIsSaving(false);
-                toast.error('Por favor, responda todas as questões para finalizar.');
+                toast.error(`Faltam respostas: ${totalAnswered}/71 respondidas. Verifique se todas as etapas foram preenchidas.`);
             }
         } else {
             setCurrentStepIdx(prev => prev + 1);
