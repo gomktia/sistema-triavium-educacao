@@ -60,7 +60,7 @@ export async function exportStudentData(studentId: string) {
         metadata: {
             generatedAt: new Date().toISOString(),
             version: "1.0",
-            platform: "Sistema de Gestão Socioemocional - Everest",
+            platform: "Sistema de Gestão Socioemocional",
             organization: data.tenant?.name
         },
         profile: {

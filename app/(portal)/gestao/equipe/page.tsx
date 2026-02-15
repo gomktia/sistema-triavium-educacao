@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { prisma } from '@/lib/prisma';
 import { UserPlus, UserX, Mail, Search, ShieldCheck, Crown } from 'lucide-react';
 import { getLabels } from '@/src/lib/utils/labels';
+import { TeacherClassroomButton } from '@/components/management/TeacherClassroomButton';
 
 export const metadata = {
     title: 'Equipe | Gestão',
@@ -19,6 +20,12 @@ export default async function EquipePage() {
 
     const labels = getLabels(currentUser.organizationType);
 
+    // SECURITY (V3.1): Psicólogos e Orientadores não devem ter acesso a configurações fiscais
+    // TODO: Implementar página /escola/configuracoes com bloqueio de UI para CNPJ/faturamento
+    // if (currentUser.role === 'PSYCHOLOGIST' || currentUser.role === 'COUNSELOR') {
+    //     // Renderizar apenas campos não sensíveis (logo, nome da escola, etc)
+    // }
+
     const teamMembers = await prisma.user.findMany({
         where: {
             tenantId: currentUser.tenantId,
@@ -31,6 +38,28 @@ export default async function EquipePage() {
             }
         },
         orderBy: { createdAt: 'desc' },
+    });
+
+    // V4.1: Buscar turmas e vínculos de professores
+    const classrooms = await prisma.classroom.findMany({
+        where: { tenantId: currentUser.tenantId },
+        select: { id: true, name: true, grade: true }
+    });
+
+    const teacherIds = teamMembers.filter(m => m.role === 'TEACHER').map(m => m.id);
+    const teacherClassroomLinks = await prisma.teacherClassroom.findMany({
+        where: {
+            teacherId: { in: teacherIds },
+            tenantId: currentUser.tenantId
+        },
+        select: { teacherId: true, classroomId: true }
+    });
+
+    // Criar mapa de teacherId -> classroomIds
+    const teacherClassroomMap = new Map<string, string[]>();
+    teacherClassroomLinks.forEach(link => {
+        const existing = teacherClassroomMap.get(link.teacherId) || [];
+        teacherClassroomMap.set(link.teacherId, [...existing, link.classroomId]);
     });
 
     const roleColors: Record<string, string> = {
@@ -112,11 +141,21 @@ export default async function EquipePage() {
                                         </span>
                                     </td>
                                     <td className="p-4 text-right pr-6">
-                                        {member.id !== currentUser.id && (
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-colors active:scale-95" title="Remover acesso">
-                                                <UserX size={16} strokeWidth={1.5} />
-                                            </Button>
-                                        )}
+                                        <div className="flex items-center justify-end gap-2">
+                                            {member.role === 'TEACHER' && (
+                                                <TeacherClassroomButton
+                                                    teacherId={member.id}
+                                                    teacherName={member.name}
+                                                    allClassrooms={classrooms}
+                                                    linkedClassroomIds={teacherClassroomMap.get(member.id) || []}
+                                                />
+                                            )}
+                                            {member.id !== currentUser.id && (
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-colors active:scale-95" title="Remover acesso">
+                                                    <UserX size={16} strokeWidth={1.5} />
+                                                </Button>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

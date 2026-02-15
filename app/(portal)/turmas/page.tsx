@@ -20,10 +20,13 @@ export default async function TurmasPage() {
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">Gestão de Turmas</h1>
                     <p className="text-slate-500 mt-1">Gerencie as unidades de ensino e organize seus {labels.subjects.toLowerCase()}.</p>
                 </div>
-                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl h-12 px-6 font-bold shadow-lg shadow-indigo-200 active:scale-95 transition-all">
-                    <Plus className="mr-2 h-5 w-5" />
-                    Nova Turma
-                </Button>
+                {/* SECURITY V4.1: Apenas MANAGER/ADMIN podem criar turmas */}
+                {(user.role === 'MANAGER' || user.role === 'ADMIN') && (
+                    <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl h-12 px-6 font-bold shadow-lg shadow-indigo-200 active:scale-95 transition-all">
+                        <Plus className="mr-2 h-5 w-5" />
+                        Nova Turma
+                    </Button>
+                )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -58,13 +61,16 @@ export default async function TurmasPage() {
                                 </div>
 
                                 <div className="border-t border-slate-50 p-4 bg-slate-50/50 flex items-center justify-between">
-                                    <Link
-                                        href={`/turmas/${cls.id}`}
-                                        className="text-xs font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-700 flex items-center gap-2 group/link"
-                                    >
-                                        Gerenciar Alunos
-                                        <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" />
-                                    </Link>
+                                    {/* SECURITY V4.1: Apenas MANAGER/ADMIN podem gerenciar alunos */}
+                                    {(user.role === 'MANAGER' || user.role === 'ADMIN') && (
+                                        <Link
+                                            href={`/turmas/${cls.id}`}
+                                            className="text-xs font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-700 flex items-center gap-2 group/link"
+                                        >
+                                            Gerenciar Alunos
+                                            <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" />
+                                        </Link>
+                                    )}
                                     <Link
                                         href={`/turma?classroomId=${cls.id}`}
                                         className="text-[10px] font-black bg-white text-slate-900 px-3 py-2 rounded-xl shadow-sm border border-slate-100 hover:bg-slate-900 hover:text-white transition-all"
@@ -84,9 +90,12 @@ export default async function TurmasPage() {
                         <p className="text-slate-500 max-w-sm">
                             Comece organizando seus {labels.subjects.toLowerCase()} em turmas para facilitar o acompanhamento e triagem.
                         </p>
-                        <Button className="mt-8 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl h-12 px-8 font-bold shadow-lg shadow-indigo-200 active:scale-95 transition-all">
-                            Criar primeira turma agora
-                        </Button>
+                        {/* SECURITY V4.1: Apenas MANAGER/ADMIN podem criar turmas */}
+                        {(user.role === 'MANAGER' || user.role === 'ADMIN') && (
+                            <Button className="mt-8 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl h-12 px-8 font-bold shadow-lg shadow-indigo-200 active:scale-95 transition-all">
+                                Criar primeira turma agora
+                            </Button>
+                        )}
                     </Card>
                 )}
             </div>

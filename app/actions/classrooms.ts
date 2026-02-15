@@ -9,6 +9,26 @@ export async function getClassrooms() {
     const user = await getCurrentUser();
     if (!user) throw new Error('Unauthorized');
 
+    // SECURITY V4.1: TEACHER só vê turmas vinculadas
+    if (user.role === 'TEACHER') {
+        const teacherClassrooms = await prisma.teacherClassroom.findMany({
+            where: {
+                teacherId: user.id,
+                tenantId: user.tenantId
+            },
+            include: {
+                classroom: {
+                    include: {
+                        _count: { select: { students: true } }
+                    }
+                }
+            }
+        });
+
+        return teacherClassrooms.map(tc => tc.classroom).sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    // Outros perfis veem todas as turmas do tenant
     return await prisma.classroom.findMany({
         where: { tenantId: user.tenantId },
         include: { _count: { select: { students: true } } },

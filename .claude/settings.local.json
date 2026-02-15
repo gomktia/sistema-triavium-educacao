@@ -13,7 +13,15 @@
       "Bash(gh api:*)",
       "Bash(where:*)",
       "Bash(vercel ls:*)",
-      "Bash(vercel inspect:*)"
+      "Bash(vercel inspect:*)",
+      "Bash(printf 'postgresql://postgres.terwfdltjoiodcdzyctk:Geison%%402026@aws-0-sa-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true')",
+      "Bash(vercel env add:*)",
+      "Bash(vercel logs:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(vercel --prod:*)",
+      "Bash(vercel env rm:*)",
+      "Bash(printf:*)"
     ]
   }
 }

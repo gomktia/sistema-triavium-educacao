@@ -6,6 +6,7 @@ import { FileText, Users, BarChart3, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { getLabels } from '@/src/lib/utils/labels';
+import { GeneralListExport } from '@/components/reports/GeneralListExport';
 
 export const metadata = {
     title: 'Relatórios Integrados | Central de Exportação',
@@ -61,9 +62,7 @@ export default async function RelatoriosPage() {
                     </CardHeader>
                     <CardContent>
                         <p className="text-xs text-slate-500 mb-4 h-10 leading-relaxed">Exportação completa da base de dados com status de triagem e forças de caráter.</p>
-                        <Button variant="outline" className="w-full text-xs font-extrabold uppercase tracking-wider rounded-2xl active:scale-95 transition-all" disabled>
-                            Disponível em breve
-                        </Button>
+                        <GeneralListExport />
                     </CardContent>
                 </Card>
 

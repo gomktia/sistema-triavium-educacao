@@ -3,13 +3,16 @@ import { getCurrentUser } from '@/lib/auth';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { getNavForRole } from '@/components/sidebar-nav';
+import { requireSuperAdmin } from '@/lib/auth';
 
 export default async function SuperAdminLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const user = await getCurrentUser();
+    // SECURITY (V1.1): Defesa em profundidade - valida\u00e7\u00e3o redundante
+    // N\u00e3o confiar apenas no middleware
+    const user = await requireSuperAdmin();
 
     if (!user) {
         redirect('/login');

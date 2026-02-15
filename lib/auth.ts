@@ -31,6 +31,7 @@ export async function getCurrentUser(): Promise<AppUser | null> {
         let dbUser: any;
 
         if (activeTenantId) {
+            // SECURITY (V5.1): Validar que o tenant no cookie realmente pertence ao usuário
             dbUser = await prisma.user.findFirst({
                 where: {
                     tenantId: activeTenantId,
@@ -45,6 +46,26 @@ export async function getCurrentUser(): Promise<AppUser | null> {
                     }
                 }
             });
+
+            // SECURITY: Se cookie não corresponde ao usuário, limpar e buscar novamente
+            if (!dbUser) {
+                console.warn(`[SECURITY] Invalid active_tenant_id cookie for user ${user.email}`);
+                cookieStore.delete('active_tenant_id');
+                // Buscar sem filtro de tenant
+                dbUser = await prisma.user.findFirst({
+                    where: {
+                        OR: [
+                            { supabaseUid: user.id },
+                            { email: user.email || '' }
+                        ]
+                    },
+                    include: {
+                        tenant: {
+                            select: { organizationType: true }
+                        }
+                    }
+                });
+            }
         }
 
         // Se não encontrou pelo tenant ativo ou não tem cookie, busca o primeiro disponível

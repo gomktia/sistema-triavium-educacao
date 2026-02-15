@@ -14,7 +14,8 @@ export const metadata = {
 
 export default async function EWSPage() {
     const user = await getCurrentUser();
-    const allowedRoles = [UserRole.MANAGER, UserRole.ADMIN, UserRole.COUNSELOR];
+    // PSYCHOLOGIST adicionado para poder lançar indicadores EWS complementares
+    const allowedRoles = [UserRole.MANAGER, UserRole.ADMIN, UserRole.COUNSELOR, UserRole.PSYCHOLOGIST];
 
     if (!user || !allowedRoles.includes(user.role)) {
         redirect('/');

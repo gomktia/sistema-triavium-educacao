@@ -5,6 +5,7 @@ import { UserRole } from '@/src/core/types';
 import { SRSSGrid } from '@/components/teacher/SRSSGrid';
 import { getLabels } from '@/src/lib/utils/labels';
 import { ClipboardCheck, Lightbulb, HelpCircle, Info } from 'lucide-react';
+import { getMyClassrooms } from '@/app/actions/teacher-classrooms';
 import {
     Sheet,
     SheetContent,
@@ -27,8 +28,29 @@ export default async function TriagemPage() {
         redirect('/');
     }
 
+    // SECURITY V4.1: TEACHER só acessa alunos de suas turmas vinculadas
+    const isTeacher = user.role === UserRole.TEACHER;
+    let studentFilter: any = {
+        tenantId: user.tenantId,
+        isActive: true
+    };
+
+    if (isTeacher) {
+        // Buscar turmas vinculadas ao professor
+        const myClassrooms = await getMyClassrooms();
+
+        if (myClassrooms.length === 0) {
+            // Professor sem turmas vinculadas: sem alunos
+            studentFilter.classroomId = 'none';
+        } else {
+            // Filtrar apenas alunos das turmas vinculadas
+            const classroomIds = myClassrooms.map(c => c.id);
+            studentFilter.classroomId = { in: classroomIds };
+        }
+    }
+
     const students = await prisma.student.findMany({
-        where: { tenantId: user.tenantId, isActive: true },
+        where: studentFilter,
         select: { id: true, name: true, grade: true },
         orderBy: { name: 'asc' },
     });

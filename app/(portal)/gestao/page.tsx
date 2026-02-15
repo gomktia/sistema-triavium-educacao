@@ -14,7 +14,8 @@ export const metadata = {
 
 export default async function GestaoPage() {
     const user = await getCurrentUser();
-    const allowedRoles = [UserRole.MANAGER, UserRole.ADMIN];
+    // MANAGER, ADMIN e PSYCHOLOGIST podem ver relatórios de impacto
+    const allowedRoles = [UserRole.MANAGER, UserRole.ADMIN, UserRole.PSYCHOLOGIST];
 
     if (!user || !allowedRoles.includes(user.role)) {
         redirect('/');

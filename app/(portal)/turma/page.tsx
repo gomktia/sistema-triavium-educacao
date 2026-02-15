@@ -2,11 +2,12 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { UserRole } from '@/src/core/types';
+import { getLabels } from '@/src/lib/utils/labels';
 import { ClassDashboard } from '@/components/teacher/ClassDashboard';
+import { getMyClassrooms } from '@/app/actions/teacher-classrooms';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ClipboardList } from 'lucide-react';
-import { getLabels } from '@/src/lib/utils/labels';
 import { cn } from '@/lib/utils';
 
 export const metadata = {
@@ -24,21 +25,60 @@ export default async function TurmaPage(props: { searchParams: Promise<{ classro
 
     const classroomId = searchParams.classroomId;
 
-    const [students, classrooms] = await Promise.all([
-        prisma.student.findMany({
-            where: {
-                tenantId: user.tenantId,
-                isActive: true,
-                ...(classroomId ? { classroomId } : {})
-            },
-            select: { id: true, name: true, grade: true },
-            orderBy: { name: 'asc' },
-        }),
-        prisma.classroom.findMany({
-            where: { tenantId: user.tenantId },
-            select: { id: true, name: true }
-        })
-    ]);
+    // SECURITY V4.1: TEACHER só acessa turmas vinculadas
+    const isTeacher = user.role === UserRole.TEACHER;
+
+    let students: { id: string; name: string; grade: string }[];
+    let classrooms: { id: string; name: string; _count?: { students: number } }[];
+
+    if (isTeacher) {
+        // Buscar turmas vinculadas ao professor
+        classrooms = await getMyClassrooms();
+
+        if (classroomId) {
+            // Validar se professor tem acesso à turma selecionada
+            const hasAccess = classrooms.some(c => c.id === classroomId);
+            if (!hasAccess) {
+                redirect('/turma'); // Redirecionar se tentar acessar turma não vinculada
+            }
+        }
+
+        // Se não especificou turma ou não tem turmas, redirecionar/mostrar vazio
+        if (classrooms.length === 0) {
+            students = [];
+        } else if (!classroomId) {
+            // Redirecionar para primeira turma vinculada
+            redirect(`/turma?classroomId=${classrooms[0].id}`);
+        } else {
+            // Buscar alunos da turma validada
+            students = await prisma.student.findMany({
+                where: {
+                    tenantId: user.tenantId,
+                    isActive: true,
+                    classroomId: classroomId
+                },
+                select: { id: true, name: true, grade: true },
+                orderBy: { name: 'asc' },
+            });
+        }
+    } else {
+        // Outros perfis: lógica normal (todas as turmas do tenant)
+        [students, classrooms] = await Promise.all([
+            prisma.student.findMany({
+                where: {
+                    tenantId: user.tenantId,
+                    isActive: true,
+                    ...(classroomId ? { classroomId } : {})
+                },
+                select: { id: true, name: true, grade: true },
+                orderBy: { name: 'asc' },
+            }),
+            prisma.classroom.findMany({
+                where: { tenantId: user.tenantId },
+                select: { id: true, name: true }
+            })
+        ]);
+    }
 
     const assessments = await prisma.assessment.findMany({
         where: {
@@ -98,7 +138,7 @@ export default async function TurmaPage(props: { searchParams: Promise<{ classro
                             {classrooms.map(c => (
                                 <Link
                                     key={c.id}
-                                    href={`/turma?classroomId=${c.id}`}
+                                    href={`/ turma ? classroomId = ${c.id} `}
                                     className={cn(
                                         "text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-widest transition-all",
                                         classroomId === c.id ? "bg-indigo-600 text-white shadow-md shadow-indigo-100" : "bg-slate-100 text-slate-400 hover:bg-slate-200"
