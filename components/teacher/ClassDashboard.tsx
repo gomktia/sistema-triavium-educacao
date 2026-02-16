@@ -3,9 +3,12 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { TierBadge } from '@/components/domain/TierBadge';
 import { cn } from '@/lib/utils';
-import { Users, AlertTriangle, CheckCircle2, TrendingUp } from 'lucide-react';
+import { Users, AlertTriangle, CheckCircle2, TrendingUp, Zap } from 'lucide-react';
 import Link from 'next/link';
 import type { OrganizationLabels } from '@/src/lib/utils/labels';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { QuickEventCard } from './QuickEventCard';
 
 interface StudentRisk {
     id: string;
@@ -93,9 +96,9 @@ export function ClassDashboard({ students, labels }: ClassDashboardProps) {
                 {atRisk.length > 0 ? (
                     <div className="grid gap-3">
                         {atRisk.map(student => (
-                            <Link key={student.id} href={`/alunos/${student.id}`}>
-                                <Card className="group cursor-pointer overflow-hidden border-none border-l-4 border-l-rose-400 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-2xl hover:ring-1 hover:ring-rose-500/10 transition-all duration-300 hover:-translate-y-1">
-                                    <CardContent className="p-4 flex items-center justify-between">
+                            <Card key={student.id} className="group overflow-hidden border-none border-l-4 border-l-rose-400 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-2xl hover:ring-1 hover:ring-rose-500/10 transition-all duration-300 hover:-translate-y-1">
+                                <CardContent className="p-4 flex items-center justify-between">
+                                    <Link href={`/alunos/${student.id}`} className="flex-1">
                                         <div>
                                             <h4 className="font-extrabold text-slate-800 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{student.name}</h4>
                                             <div className="flex items-center gap-2 mt-0.5">
@@ -105,12 +108,22 @@ export function ClassDashboard({ students, labels }: ClassDashboardProps) {
                                                 <p className="text-[10px] text-slate-400 font-bold uppercase">Alertas críticos: {student.alerts}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3">
-                                            <TierBadge tier={student.overallTier} />
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </Link>
+                                    </Link>
+                                    <div className="flex items-center gap-3">
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button size="icon" variant="ghost" className="h-8 w-8 text-amber-500 bg-amber-50 rounded-full hover:bg-amber-100 hover:text-amber-600 transition-colors" title="Registrar Ocorrência">
+                                                    <Zap className="h-4 w-4" />
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <QuickEventCard studentId={student.id} />
+                                            </DialogContent>
+                                        </Dialog>
+                                        <TierBadge tier={student.overallTier} />
+                                    </div>
+                                </CardContent>
+                            </Card>
                         ))}
                     </div>
                 ) : (

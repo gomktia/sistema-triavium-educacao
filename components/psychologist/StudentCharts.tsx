@@ -11,16 +11,16 @@ interface StudentChartsProps {
         externalizing: number
         internalizing: number
     }[]
-    viaScores?: Record<string, number>
+    viaScores?: any
 }
 
 const VIRTUE_MAPPING: Record<string, string[]> = {
-    'Sabedoria': ['Criatividade', 'Curiosidade', 'Critério', 'Amor ao Aprendizado', 'Perspectiva'],
-    'Coragem': ['Bravura', 'Perseverança', 'Honestidade', 'Vitalidade'],
+    'Sabedoria': ['Criatividade', 'Curiosidade', 'Pensamento Crítico', 'Amor ao Aprendizado', 'Sensatez'],
+    'Coragem': ['Bravura', 'Perseverança', 'Autenticidade', 'Vitalidade'],
     'Humanidade': ['Amor', 'Bondade', 'Inteligência Social'],
-    'Justiça': ['Trabalho em Equipe', 'Equidade', 'Liderança'],
-    'Moderação': ['Perdão', 'Humildade', 'Prudência', 'Autocontrole'],
-    'Transcendência': ['Apreciação da Beleza', 'Gratidão', 'Esperança', 'Humor', 'Espiritualidade']
+    'Justiça': ['Cidadania', 'Imparcialidade', 'Liderança'],
+    'Moderação': ['Perdão', 'Modéstia', 'Prudência', 'Autorregulação'],
+    'Transcendência': ['Apreciação ao Belo', 'Gratidão', 'Esperança', 'Humor', 'Espiritualidade']
 }
 
 const VIRTUE_COLORS: Record<string, string> = {
@@ -50,19 +50,32 @@ export function StudentCharts({ evolutionData, viaScores }: StudentChartsProps) 
         ? enrichedEvolutionData[enrichedEvolutionData.length - 1].overall - enrichedEvolutionData[enrichedEvolutionData.length - 2].overall
         : 0
 
-    // normalizar viaScores (pode vir como Record<string, number> ou StrengthScore[])
+    // normalizar viaScores (pode vir como Record<string, number>, StrengthScore[] ou objeto {strengths: StrengthScore[]})
     const normalizedViaScores: Record<string, number> = {}
     if (viaScores) {
-        if (Array.isArray(viaScores)) {
+        let scoresSource = viaScores;
+
+        // Se for o objeto completo contendo a propriedade strengths
+        if (viaScores.strengths && Array.isArray(viaScores.strengths)) {
+            scoresSource = viaScores.strengths;
+        }
+
+        if (Array.isArray(scoresSource)) {
             // Se for array de StrengthScore, converter para mapa
-            viaScores.forEach((s: any) => {
-                if (s.label && s.normalizedScore !== undefined) {
-                    normalizedViaScores[s.label] = s.normalizedScore / 20; // converter de 0-100 para 0-5
+            scoresSource.forEach((s: any) => {
+                const label = s.label || s.name;
+                const score = s.normalizedScore !== undefined ? s.normalizedScore / 20 : s.score;
+                if (label && score !== undefined) {
+                    normalizedViaScores[label] = typeof score === 'number' ? score : 0;
                 }
             });
-        } else {
-            // Se já for mapa, usar direto
-            Object.assign(normalizedViaScores, viaScores);
+        } else if (typeof scoresSource === 'object') {
+            // Se for mapa, usar direto, mas garantir que não estamos pegando chaves técnicas se for o objeto de perfil
+            Object.entries(scoresSource).forEach(([key, val]) => {
+                if (typeof val === 'number') {
+                    normalizedViaScores[key] = val;
+                }
+            });
         }
     }
 

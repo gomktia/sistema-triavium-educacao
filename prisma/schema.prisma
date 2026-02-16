@@ -278,6 +278,8 @@ model Student {
   tenant             Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   userAccount        User?
   interventionGroups InterventionGroup[] @relation("InterventionGroupToStudent")
+  behaviorLogs       BehaviorLog[]
+  systemAlertLevel   AlertLevel           @default(GREEN)
 
   @@unique([tenantId, cpf])
   @@unique([tenantId, enrollmentId])
@@ -285,6 +287,12 @@ model Student {
   @@index([tenantId, grade])
   @@index([tenantId])
   @@map("students")
+}
+
+enum AlertLevel {
+  GREEN
+  YELLOW
+  RED
 }
 
 model TeacherClassroom {
@@ -333,6 +341,7 @@ model Tenant {
   students            Student[]
   teacherClassrooms  TeacherClassroom[]
   users               User[]
+  behaviorLogs        BehaviorLog[]
 
   @@map("tenants")
 }
@@ -355,6 +364,7 @@ model User {
   interventionPlans InterventionPlan[]
   notifications      Notification[]
   teacherClassrooms  TeacherClassroom[]
+  behaviorLogs       BehaviorLog[]
   student            Student?            @relation(fields: [studentId], references: [id])
   tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
@@ -459,4 +469,33 @@ enum ScreeningWindow {
   DIAGNOSTIC
   MONITORING
   FINAL
+}
+
+enum BehaviorCategory {
+  CONFLITO
+  ISOLAMENTO
+  TRISTEZA
+  AGRESSIVIDADE
+  POSITIVO
+  OUTROS
+}
+
+model BehaviorLog {
+  id          String           @id @default(cuid())
+  tenantId    String
+  studentId   String
+  teacherId   String
+  category    BehaviorCategory
+  severity    Int              @default(1) // 1=Baixo, 2=Médio, 3=Alto/Crise
+  description String?
+  createdAt   DateTime         @default(now())
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher User    @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, studentId])
+  @@index([teacherId])
+  @@index([createdAt])
+  @@map("behavior_logs")
 }

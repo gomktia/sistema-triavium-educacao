@@ -147,10 +147,7 @@ export default async function AlunoDetalhePage(props: { params: Promise<{ id: st
                     externalizing: d.externalizing as number,
                     internalizing: d.internalizing as number
                 }))}
-                // TODO: Extrair scores reais do profile ou assessment. 
-                // Por simplicidade, assumindo que profile tem signatureStrengths com scores simplificados ou precisamos mapear do processedScores
-                // Vou passar null por enquanto se não tiver profile, ou tentar extrair do assessment VIA
-                viaScores={allAssessments.find(a => a.type === 'VIA_STRENGTHS')?.processedScores as any}
+                viaScores={profile?.allStrengths || allAssessments.find(a => a.type === 'VIA_STRENGTHS')?.processedScores}
             />
 
             {!profile ? (

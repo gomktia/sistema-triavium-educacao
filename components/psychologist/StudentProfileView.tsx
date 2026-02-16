@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { DownloadCrisisReportButton } from '@/components/reports/DownloadCrisisReportButton';
 import { InterventionPlanForm } from './InterventionPlanForm';
 import { OrganizationLabels } from '@/src/lib/utils/labels';
+import { StudentSummaryCard } from '@/components/dashboard/StudentSummaryCard';
 
 interface StudentProfileViewProps {
     studentName: string;
@@ -50,6 +51,9 @@ export function StudentProfileView({
 
     return (
         <div className="space-y-8">
+            {/* Resumo Híbrido (Inteligência Nativa + Quantitativa) */}
+            <StudentSummaryCard studentId={profile.studentId || ''} />
+
             {/* EWS Alerta (Early Warning) */}
             {ewsAlert && ewsAlert.alertLevel !== 'NONE' && (
                 <div className={cn(

@@ -6,6 +6,8 @@ import { ExcelExportButton } from '@/components/dashboard/ExcelExportButton';
 import { RiskEvolutionChart } from '@/components/dashboard/RiskEvolutionChart';
 import { getRiskEvolutionData } from '@/app/actions/reports';
 import { getLabels } from '@/src/lib/utils/labels';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RecentAlertsTab } from '@/components/dashboard/RecentAlertsTab';
 
 export const metadata = {
     title: 'Dashboard de Resultados | Sistema Socioemocional',
@@ -24,6 +26,7 @@ export default async function DashboardPage() {
 
     return (
         <div className="space-y-10 animate-in fade-in duration-700">
+
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">
@@ -38,17 +41,30 @@ export default async function DashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card className="lg:col-span-2 border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-                    <CardHeader>
-                        <CardTitle className="text-lg font-black text-slate-900 tracking-tight">Evolução do Risco</CardTitle>
-                        <CardDescription className="text-sm">
-                            Migração de {labels.subjects.toLowerCase()} entre os níveis de risco ao longo do ano.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pl-0">
-                        <RiskEvolutionChart data={evolutionData} />
-                    </CardContent>
-                </Card>
+                <div className="lg:col-span-2">
+                    <Tabs defaultValue="overview" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 mb-4">
+                            <TabsTrigger value="overview">Visão Geral (Risco)</TabsTrigger>
+                            <TabsTrigger value="alerts">Alertas Recentes (IA Nativa)</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="overview">
+                            <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                                <CardHeader>
+                                    <CardTitle className="text-lg font-black text-slate-900 tracking-tight">Evolução do Risco</CardTitle>
+                                    <CardDescription className="text-sm">
+                                        Migração de {labels.subjects.toLowerCase()} entre os níveis de risco ao longo do ano.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="pl-0">
+                                    <RiskEvolutionChart data={evolutionData} />
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                        <TabsContent value="alerts">
+                            <RecentAlertsTab />
+                        </TabsContent>
+                    </Tabs>
+                </div>
 
                 <div className="space-y-6">
                     {(user.role === 'MANAGER' || user.role === 'ADMIN') && (

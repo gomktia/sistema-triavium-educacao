@@ -98,32 +98,50 @@ export function NotificationBell() {
                     {notifications.length > 0 ? (
                         <div className="divide-y divide-slate-50">
                             {notifications.map((n) => (
-                                <Link
-                                    key={n.id}
-                                    href={getNotificationLink(n)}
-                                    onClick={() => markAsRead(n.id, n.isRead)}
-                                    className={cn(
-                                        "flex items-start gap-4 p-4 hover:bg-slate-50 transition-colors group",
-                                        !n.isRead && "bg-indigo-50/30"
+                                <div key={n.id} className="relative group">
+                                    <Link
+                                        href={getNotificationLink(n)}
+                                        onClick={() => markAsRead(n.id, n.isRead)}
+                                        className={cn(
+                                            "flex items-start gap-4 p-4 hover:bg-slate-50 transition-colors",
+                                            !n.isRead && "bg-indigo-50/30"
+                                        )}
+                                    >
+                                        <div className={cn(
+                                            "h-2 w-2 rounded-full mt-2 shrink-0",
+                                            !n.isRead ? "bg-indigo-500" : "bg-transparent"
+                                        )} />
+                                        <div className="flex-1 space-y-1">
+                                            <p className="text-xs font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">
+                                                {n.title}
+                                            </p>
+                                            <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
+                                                {n.message}
+                                            </p>
+                                            <p className="text-[9px] text-slate-400 font-medium uppercase tracking-tighter">
+                                                {new Date(n.createdAt).toLocaleString('pt-BR')}
+                                            </p>
+                                        </div>
+                                        <ChevronRight size={14} className="text-slate-300 group-hover:text-indigo-400 mt-1" />
+                                    </Link>
+                                    {!n.isRead && (
+                                        <div className="absolute top-4 right-4 bg-white/90 rounded-md shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-6 text-[10px] font-bold text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-2"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    markAsRead(n.id, false);
+                                                }}
+                                            >
+                                                <CheckCheck size={12} className="mr-1" />
+                                                Dar Ciência
+                                            </Button>
+                                        </div>
                                     )}
-                                >
-                                    <div className={cn(
-                                        "h-2 w-2 rounded-full mt-2 shrink-0",
-                                        !n.isRead ? "bg-indigo-500" : "bg-transparent"
-                                    )} />
-                                    <div className="flex-1 space-y-1">
-                                        <p className="text-xs font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">
-                                            {n.title}
-                                        </p>
-                                        <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
-                                            {n.message}
-                                        </p>
-                                        <p className="text-[9px] text-slate-400 font-medium uppercase tracking-tighter">
-                                            {new Date(n.createdAt).toLocaleString('pt-BR')}
-                                        </p>
-                                    </div>
-                                    <ChevronRight size={14} className="text-slate-300 group-hover:text-indigo-400 mt-1" />
-                                </Link>
+                                </div>
                             ))}
                         </div>
                     ) : (
@@ -142,6 +160,6 @@ export function NotificationBell() {
                     </Link>
                 </div>
             </PopoverContent>
-        </Popover>
+        </Popover >
     );
 }
