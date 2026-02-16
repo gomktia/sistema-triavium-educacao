@@ -96,7 +96,7 @@ async function processBehaviorAlerts(studentId: string, tenantId: string) {
     let shouldNotify = false;
     let notificationTitle = '';
     let notificationMessage = '';
-    let notificationType: NotificationType = NotificationType.CRITICAL_RISK;
+    let notificationType = 'CRITICAL_RISK';
 
     // Gatilho 1: Log Atual é Severidade 3
     if (latestLog.severity === 3) {
@@ -128,7 +128,7 @@ async function processBehaviorAlerts(studentId: string, tenantId: string) {
                     tenantId,
                     userId: u.id,
                     studentId: student.id,
-                    type: notificationType,
+                    type: notificationType as any, // Cast to any to avoid Enum import issues during build
                     title: notificationTitle,
                     message: notificationMessage,
                     isRead: false,
