@@ -50,9 +50,25 @@ export function StudentCharts({ evolutionData, viaScores }: StudentChartsProps) 
         ? enrichedEvolutionData[enrichedEvolutionData.length - 1].overall - enrichedEvolutionData[enrichedEvolutionData.length - 2].overall
         : 0
 
+    // normalizar viaScores (pode vir como Record<string, number> ou StrengthScore[])
+    const normalizedViaScores: Record<string, number> = {}
+    if (viaScores) {
+        if (Array.isArray(viaScores)) {
+            // Se for array de StrengthScore, converter para mapa
+            viaScores.forEach((s: any) => {
+                if (s.label && s.normalizedScore !== undefined) {
+                    normalizedViaScores[s.label] = s.normalizedScore / 20; // converter de 0-100 para 0-5
+                }
+            });
+        } else {
+            // Se já for mapa, usar direto
+            Object.assign(normalizedViaScores, viaScores);
+        }
+    }
+
     // Processar Top 5 forças VIA
-    const top5Strengths = viaScores
-        ? Object.entries(viaScores)
+    const top5Strengths = Object.entries(normalizedViaScores).length > 0
+        ? Object.entries(normalizedViaScores)
             .sort(([, a], [, b]) => b - a)
             .slice(0, 5)
             .map(([name, score]) => {
@@ -61,18 +77,23 @@ export function StudentCharts({ evolutionData, viaScores }: StudentChartsProps) 
                     strengths.includes(name)
                 )?.[0] || 'Sabedoria'
 
+                const numericScore = typeof score === 'number' ? score : 0;
+
                 return {
                     name,
-                    score: Number(score.toFixed(1)),
-                    percentage: (score / 5) * 100,
+                    score: numericScore.toFixed(1),
+                    percentage: (numericScore / 5) * 100,
                     color: VIRTUE_COLORS[virtue]
                 }
             })
         : []
 
     // Processar dados para o Radar Chart (Agrupado por Virtude)
-    const radarData = viaScores ? Object.entries(VIRTUE_MAPPING).map(([virtue, strengths]) => {
-        const totalScore = strengths.reduce((acc, strength) => acc + (viaScores[strength] || 0), 0)
+    const radarData = Object.entries(normalizedViaScores).length > 0 ? Object.entries(VIRTUE_MAPPING).map(([virtue, strengths]) => {
+        const totalScore = strengths.reduce((acc, strength) => {
+            const val = normalizedViaScores[strength] || 0;
+            return acc + (typeof val === 'number' ? val : 0);
+        }, 0)
         const average = strengths.length ? Math.round((totalScore / strengths.length) * 10) / 10 : 0
         return {
             subject: virtue,
@@ -82,8 +103,9 @@ export function StudentCharts({ evolutionData, viaScores }: StudentChartsProps) 
     }) : []
 
     // Score VIA médio
-    const avgViaScore = viaScores
-        ? Object.values(viaScores).reduce((a, b) => a + b, 0) / Object.values(viaScores).length
+    const scoresArray = Object.values(normalizedViaScores).filter(v => typeof v === 'number');
+    const avgViaScore = scoresArray.length > 0
+        ? scoresArray.reduce((a, b) => a + b, 0) / scoresArray.length
         : 0
 
     // Dados comparativos (mock - idealmente viria do servidor)
@@ -133,8 +155,8 @@ export function StudentCharts({ evolutionData, viaScores }: StudentChartsProps) 
                                 {trend > 0 && <TrendingUp className="text-rose-600" size={16} />}
                                 {trend === 0 && <Minus className="text-slate-400" size={16} />}
                                 <span className={`text-xs font-bold ${trend < 0 ? 'text-emerald-600' :
-                                        trend > 0 ? 'text-rose-600' :
-                                            'text-slate-400'
+                                    trend > 0 ? 'text-rose-600' :
+                                        'text-slate-400'
                                     }`}>
                                     {trend !== 0 && (trend > 0 ? '+' : '')}{trend}
                                 </span>
