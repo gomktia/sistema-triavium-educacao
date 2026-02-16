@@ -16,8 +16,8 @@ export async function saveVIAAnswers(answers: VIARawAnswers, targetStudentId?: s
 
     let studentIdToSave = user.studentId;
 
-    if (targetStudentId) {
-        // Modo Entrevista (Psicólogo/Staff)
+    if (targetStudentId && targetStudentId !== user.studentId) {
+        // Modo Entrevista (Psicólogo/Staff) apenas se for para OUTRO aluno
         if (!['PSYCHOLOGIST', 'MANAGER', 'ADMIN', 'COUNSELOR'].includes(user.role)) {
             return { error: 'Permissão negada para realizar entrevista.' };
         }
@@ -33,8 +33,14 @@ export async function saveVIAAnswers(answers: VIARawAnswers, targetStudentId?: s
         }
         studentIdToSave = targetStudentId;
     } else {
-        // Auto-aplicação (Aluno)
-        if (user.role !== UserRole.STUDENT || !user.studentId) {
+        // Auto-aplicação (Aluno) ou salvando o próprio perfil
+        studentIdToSave = user.studentId || (targetStudentId ?? null);
+
+        if (!studentIdToSave && user.role !== UserRole.STUDENT) {
+            return { error: 'ID do aluno não definido para esta operação.' };
+        }
+
+        if (user.role === UserRole.STUDENT && !user.studentId) {
             return { error: 'Perfil de aluno não encontrado.' };
         }
     }
@@ -43,7 +49,7 @@ export async function saveVIAAnswers(answers: VIARawAnswers, targetStudentId?: s
 
     // Verificar quantidade de respostas
     const answeredCount = Object.keys(answers).length;
-    const isComplete = answeredCount >= 70; // Relaxado de 71 para 70 para evitar falso-positivo de erro
+    const isComplete = answeredCount >= 71;
     console.log(`[VIA Save] Answers: ${answeredCount}/71, Complete: ${isComplete}, Student: ${studentIdToSave}`);
     if (!isComplete) {
         console.log('[VIA Save] Missing questions:', Object.keys(answers).sort().join(','));

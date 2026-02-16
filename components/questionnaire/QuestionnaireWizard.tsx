@@ -55,15 +55,19 @@ export function QuestionnaireWizard({
     const currentStepAnswered = stepConfig.items.filter(num => answers[num] !== undefined).length;
 
     const handleAnswerChange = (questionNumber: number, value: number) => {
-        setAnswers(prev => {
-            const newAnswers = { ...prev, [questionNumber]: value };
-            // Save in background
-            startTransition(async () => {
-                await saveVIAAnswers(newAnswers, studentId);
-            });
-            return newAnswers;
-        });
+        const newAnswers = { ...answers, [questionNumber]: value };
+        setAnswers(newAnswers);
         setShowValidation(false);
+
+        // Save in background
+        startTransition(async () => {
+            try {
+                await saveVIAAnswers(newAnswers, studentId);
+            } catch (err) {
+                console.error('[Wizard] Background save error:', err);
+                // Non-blocking error for background sync
+            }
+        });
     };
 
     const handleNext = async () => {
@@ -79,24 +83,27 @@ export function QuestionnaireWizard({
 
         if (isLastStep) {
             setIsSaving(true);
+            // Garantir que todas as 71 questões estão no objeto
             const totalAnswered = Object.keys(answers).length;
             console.log('[Wizard] Finalizando com', totalAnswered, 'respostas de 71');
-            console.log('[Wizard] Chaves das respostas:', Object.keys(answers).sort((a, b) => Number(a) - Number(b)).join(','));
 
             try {
+                // Forçar o envio do estado atual direto
                 const result = await saveVIAAnswers(answers, studentId);
-                console.log('[Wizard] Resultado:', JSON.stringify(result));
+                console.log('[Wizard] Resultado final:', JSON.stringify(result));
 
                 if (result.success && result.complete) {
+                    toast.success('Questionário finalizado com sucesso!');
                     router.push('/minhas-forcas');
+                    router.refresh();
                 } else if (result.error) {
                     setIsSaving(false);
-                    const msg = `Erro do servidor: ${result.error}`;
+                    const msg = `Erro no servidor: ${result.error}`;
                     toast.error(msg);
                     alert(msg);
                 } else {
                     setIsSaving(false);
-                    const msg = `Respostas enviadas: ${totalAnswered}/71. Por favor, verifique se todas as etapas foram preenchidas.`;
+                    const msg = `Respostas enviadas: ${totalAnswered}/71. Por favor, responda todas as questões para finalizar.`;
                     toast.error(msg);
                     alert(msg);
                 }
