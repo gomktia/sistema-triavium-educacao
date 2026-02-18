@@ -160,6 +160,8 @@ model InterventionPlan {
   reviewDate        DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+  isPDI             Boolean   @default(false)
+  pdiGoals          Json?
   author            User     @relation(fields: [authorId], references: [id])
   student           Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -280,6 +282,8 @@ model Student {
   interventionGroups InterventionGroup[] @relation("InterventionGroupToStudent")
   behaviorLogs       BehaviorLog[]
   systemAlertLevel   AlertLevel           @default(GREEN)
+  specialEducationNeeds Json?
+  studentMessages      StudentMessage[]
 
   @@unique([tenantId, cpf])
   @@unique([tenantId, enrollmentId])
@@ -287,6 +291,20 @@ model Student {
   @@index([tenantId, grade])
   @@index([tenantId])
   @@map("students")
+}
+
+model StudentMessage {
+  id          String   @id @default(cuid())
+  studentId   String
+  content     String   @db.Text
+  riskLevel   String   @default("LOW") // LOW, MEDIUM, HIGH, CRITICAL
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([riskLevel])
+  @@map("student_messages")
 }
 
 enum AlertLevel {
@@ -401,6 +419,7 @@ model ViaStrengthMapping {
 enum AssessmentType {
   VIA_STRENGTHS
   SRSS_IE
+  BIG_FIVE
 }
 
 enum EducationalLevel {

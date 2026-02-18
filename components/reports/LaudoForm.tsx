@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -24,11 +24,9 @@ export function LaudoForm({ student, labels, currentUser }: LaudoFormProps) {
     const [isClient, setIsClient] = useState(false);
 
     // Hydration fix for PDF link
-    // We use useEffect instead of useState initial since it must run on client
-    useState(() => {
-        // This is actually not enough, we need useEffect to be sure
-        if (typeof window !== 'undefined') setIsClient(true);
-    });
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     const handleGenerateDraft = async () => {
         setGenerating(true);

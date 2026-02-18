@@ -38,40 +38,40 @@ export interface StrengthDefinition {
 
 export const VIA_STRENGTH_MAP: StrengthDefinition[] = [
   // --- 1. SABEDORIA E CONHECIMENTO ---
-  { strength: CharacterStrength.CRIATIVIDADE,       virtue: VirtueCategory.SABEDORIA,       label: 'Criatividade',        items: [3, 30, 48] },
-  { strength: CharacterStrength.CURIOSIDADE,         virtue: VirtueCategory.SABEDORIA,       label: 'Curiosidade',         items: [23, 25, 69] },
-  { strength: CharacterStrength.PENSAMENTO_CRITICO,  virtue: VirtueCategory.SABEDORIA,       label: 'Pensamento Crítico',  items: [7, 9, 71] },
-  { strength: CharacterStrength.AMOR_APRENDIZADO,    virtue: VirtueCategory.SABEDORIA,       label: 'Amor ao Aprendizado', items: [5, 17, 45] },
-  { strength: CharacterStrength.SENSATEZ,            virtue: VirtueCategory.SABEDORIA,       label: 'Sensatez',            items: [4, 63, 6] },
+  { strength: CharacterStrength.CRIATIVIDADE, virtue: VirtueCategory.SABEDORIA, label: 'Criatividade', items: [3, 30, 48] },
+  { strength: CharacterStrength.CURIOSIDADE, virtue: VirtueCategory.SABEDORIA, label: 'Curiosidade', items: [23, 25, 69] },
+  { strength: CharacterStrength.PENSAMENTO_CRITICO, virtue: VirtueCategory.SABEDORIA, label: 'Pensamento Crítico', items: [7, 9, 71] },
+  { strength: CharacterStrength.AMOR_APRENDIZADO, virtue: VirtueCategory.SABEDORIA, label: 'Amor ao Aprendizado', items: [5, 17, 45] },
+  { strength: CharacterStrength.SENSATEZ, virtue: VirtueCategory.SABEDORIA, label: 'Sensatez', items: [4, 63, 6] },
 
   // --- 2. CORAGEM ---
-  { strength: CharacterStrength.BRAVURA,             virtue: VirtueCategory.CORAGEM,         label: 'Bravura',             items: [35, 57, 67] },
-  { strength: CharacterStrength.PERSEVERANCA,        virtue: VirtueCategory.CORAGEM,         label: 'Perseverança',        items: [40, 47, 52] },
-  { strength: CharacterStrength.AUTENTICIDADE,       virtue: VirtueCategory.CORAGEM,         label: 'Autenticidade',       items: [10, 33, 41] },
-  { strength: CharacterStrength.VITALIDADE,          virtue: VirtueCategory.CORAGEM,         label: 'Vitalidade',          items: [13, 18, 53] },
+  { strength: CharacterStrength.BRAVURA, virtue: VirtueCategory.CORAGEM, label: 'Bravura', items: [35, 57, 67] },
+  { strength: CharacterStrength.PERSEVERANCA, virtue: VirtueCategory.CORAGEM, label: 'Perseverança', items: [40, 47, 52] },
+  { strength: CharacterStrength.AUTENTICIDADE, virtue: VirtueCategory.CORAGEM, label: 'Autenticidade', items: [10, 33, 41] },
+  { strength: CharacterStrength.VITALIDADE, virtue: VirtueCategory.CORAGEM, label: 'Vitalidade', items: [13, 18, 53] },
 
   // --- 3. HUMANIDADE ---
-  { strength: CharacterStrength.AMOR,                virtue: VirtueCategory.HUMANIDADE,      label: 'Amor',                items: [16, 37, 70] },
-  { strength: CharacterStrength.BONDADE,             virtue: VirtueCategory.HUMANIDADE,      label: 'Bondade',             items: [21, 50, 66] },
-  { strength: CharacterStrength.INTELIGENCIA_SOCIAL, virtue: VirtueCategory.HUMANIDADE,      label: 'Inteligência Social', items: [1, 20, 59] },
+  { strength: CharacterStrength.AMOR, virtue: VirtueCategory.HUMANIDADE, label: 'Amor', items: [16, 37, 70] },
+  { strength: CharacterStrength.BONDADE, virtue: VirtueCategory.HUMANIDADE, label: 'Bondade', items: [21, 50, 66] },
+  { strength: CharacterStrength.INTELIGENCIA_SOCIAL, virtue: VirtueCategory.HUMANIDADE, label: 'Inteligência Social', items: [1, 20, 59] },
 
   // --- 4. JUSTIÇA ---
-  { strength: CharacterStrength.CIDADANIA,           virtue: VirtueCategory.JUSTICA,         label: 'Cidadania',           items: [31, 34, 61] },
-  { strength: CharacterStrength.IMPARCIALIDADE,      virtue: VirtueCategory.JUSTICA,         label: 'Imparcialidade',      items: [2, 58, 68] },
-  { strength: CharacterStrength.LIDERANCA,           virtue: VirtueCategory.JUSTICA,         label: 'Liderança',           items: [19, 62, 55] },
+  { strength: CharacterStrength.CIDADANIA, virtue: VirtueCategory.JUSTICA, label: 'Cidadania', items: [31, 34, 61] },
+  { strength: CharacterStrength.IMPARCIALIDADE, virtue: VirtueCategory.JUSTICA, label: 'Imparcialidade', items: [2, 58, 68] },
+  { strength: CharacterStrength.LIDERANCA, virtue: VirtueCategory.JUSTICA, label: 'Liderança', items: [19, 62, 55] },
 
   // --- 5. MODERAÇÃO ---
-  { strength: CharacterStrength.PERDAO,              virtue: VirtueCategory.MODERACAO,       label: 'Perdão',              items: [26, 32, 54] },
-  { strength: CharacterStrength.MODESTIA,            virtue: VirtueCategory.MODERACAO,       label: 'Modéstia',            items: [11, 46, 56] },
-  { strength: CharacterStrength.PRUDENCIA,           virtue: VirtueCategory.MODERACAO,       label: 'Prudência',           items: [29, 36, 65] },
-  { strength: CharacterStrength.AUTORREGULACAO,      virtue: VirtueCategory.MODERACAO,       label: 'Autorregulação',      items: [12, 38, 60] },
+  { strength: CharacterStrength.PERDAO, virtue: VirtueCategory.MODERACAO, label: 'Perdão', items: [26, 32, 54] },
+  { strength: CharacterStrength.MODESTIA, virtue: VirtueCategory.MODERACAO, label: 'Modéstia', items: [11, 46, 56] },
+  { strength: CharacterStrength.PRUDENCIA, virtue: VirtueCategory.MODERACAO, label: 'Prudência', items: [29, 36, 65] },
+  { strength: CharacterStrength.AUTORREGULACAO, virtue: VirtueCategory.MODERACAO, label: 'Autorregulação', items: [12, 38, 60] },
 
   // --- 6. TRANSCENDÊNCIA ---
-  { strength: CharacterStrength.APRECIACAO_BELO,     virtue: VirtueCategory.TRANSCENDENCIA,  label: 'Apreciação ao Belo',  items: [39, 43] },  // Nota: apenas 2 itens
-  { strength: CharacterStrength.GRATIDAO,            virtue: VirtueCategory.TRANSCENDENCIA,  label: 'Gratidão',            items: [22, 24, 44] },
-  { strength: CharacterStrength.HUMOR,               virtue: VirtueCategory.TRANSCENDENCIA,  label: 'Humor',               items: [14, 42, 64] },
-  { strength: CharacterStrength.ESPERANCA,           virtue: VirtueCategory.TRANSCENDENCIA,  label: 'Esperança',           items: [15, 27, 49] },
-  { strength: CharacterStrength.ESPIRITUALIDADE,     virtue: VirtueCategory.TRANSCENDENCIA,  label: 'Espiritualidade',     items: [8, 28, 51] },
+  { strength: CharacterStrength.APRECIACAO_BELO, virtue: VirtueCategory.TRANSCENDENCIA, label: 'Apreciação ao Belo', items: [39, 43] },  // Nota: apenas 2 itens
+  { strength: CharacterStrength.GRATIDAO, virtue: VirtueCategory.TRANSCENDENCIA, label: 'Gratidão', items: [22, 24, 44] },
+  { strength: CharacterStrength.HUMOR, virtue: VirtueCategory.TRANSCENDENCIA, label: 'Humor', items: [14, 42, 64] },
+  { strength: CharacterStrength.ESPERANCA, virtue: VirtueCategory.TRANSCENDENCIA, label: 'Esperança', items: [15, 27, 49] },
+  { strength: CharacterStrength.ESPIRITUALIDADE, virtue: VirtueCategory.TRANSCENDENCIA, label: 'Espiritualidade', items: [8, 28, 51] },
 ];
 
 // ============================================================
@@ -82,17 +82,17 @@ export const VIA_STRENGTH_MAP: StrengthDefinition[] = [
 
 export const SRSS_ITEMS = {
   externalizing: [
-    { item: 1,  label: 'Furto / Pegar coisas sem permissão' },
-    { item: 2,  label: 'Mentira, trapaça ou dissimulação' },
-    { item: 3,  label: 'Problemas de comportamento (indisciplina ativa)' },
-    { item: 4,  label: 'Rejeição pelos colegas (isolado pelo grupo)' },
-    { item: 5,  label: 'Baixo desempenho acadêmico (aquém do potencial)' },
-    { item: 6,  label: 'Atitude negativa / Desafiadora' },
-    { item: 7,  label: 'Comportamento agressivo (físico ou verbal)' },
+    { item: 1, label: 'Furto / Pegar coisas sem permissão' },
+    { item: 2, label: 'Mentira, trapaça ou dissimulação' },
+    { item: 3, label: 'Problemas de comportamento (indisciplina ativa)' },
+    { item: 4, label: 'Rejeição pelos colegas (isolado pelo grupo)' },
+    { item: 5, label: 'Baixo desempenho acadêmico (aquém do potencial)' },
+    { item: 6, label: 'Atitude negativa / Desafiadora' },
+    { item: 7, label: 'Comportamento agressivo (físico ou verbal)' },
   ],
   internalizing: [
-    { item: 8,  label: 'Apatia emocional (pouca expressão facial/reação)' },
-    { item: 9,  label: 'Tímido / Retraído / Evita interação' },
+    { item: 8, label: 'Apatia emocional (pouca expressão facial/reação)' },
+    { item: 9, label: 'Tímido / Retraído / Evita interação' },
     { item: 10, label: 'Triste / Deprimido / Melancólico' },
     { item: 11, label: 'Ansioso / Nervoso / Preocupado excessivamente' },
     { item: 12, label: 'Solitário (passa intervalos sozinho)' },
@@ -129,25 +129,25 @@ export const GRADE_FOCUS_ITEMS: Record<GradeLevel, {
   [GradeLevel.PRIMEIRO_ANO]: {
     label: '1ª Série - Foco na Adaptação',
     focusItems: [
-      { item: 4,  severity: 'CRITICAL', rationale: 'Rejeição pelos colegas indica falha na integração ao Ensino Médio. Risco de evasão precoce.' },
+      { item: 4, severity: 'CRITICAL', rationale: 'Rejeição pelos colegas indica falha na integração ao Ensino Médio. Risco de evasão precoce.' },
       { item: 12, severity: 'CRITICAL', rationale: 'Solidão indica falha na construção de vínculos na transição. Necessidade de acolhimento estruturado.' },
-      { item: 9,  severity: 'WATCH',    rationale: 'Retraimento pode indicar ansiedade social na adaptação ao novo ambiente escolar.' },
+      { item: 9, severity: 'WATCH', rationale: 'Retraimento pode indicar ansiedade social na adaptação ao novo ambiente escolar.' },
     ],
   },
   [GradeLevel.SEGUNDO_ANO]: {
     label: '2ª Série - Foco no Comportamento',
     focusItems: [
-      { item: 3,  severity: 'CRITICAL', rationale: 'Indisciplina ativa é comum na fase de teste de limites. Necessidade de grupo de habilidades sociais.' },
-      { item: 6,  severity: 'CRITICAL', rationale: 'Atitude desafiadora indica desengajamento escolar. Risco de deterioração do clima da turma.' },
-      { item: 7,  severity: 'WATCH',    rationale: 'Agressividade nesta fase pode escalar para conflitos sérios com pares.' },
+      { item: 3, severity: 'CRITICAL', rationale: 'Indisciplina ativa é comum na fase de teste de limites. Necessidade de grupo de habilidades sociais.' },
+      { item: 6, severity: 'CRITICAL', rationale: 'Atitude desafiadora indica desengajamento escolar. Risco de deterioração do clima da turma.' },
+      { item: 7, severity: 'WATCH', rationale: 'Agressividade nesta fase pode escalar para conflitos sérios com pares.' },
     ],
   },
   [GradeLevel.TERCEIRO_ANO]: {
     label: '3ª Série - Foco na Ansiedade',
     focusItems: [
       { item: 11, severity: 'CRITICAL', rationale: 'Ansiedade elevada sugere crise pré-vestibular/burnout. Contexto de "Ansiedade de Futuro".' },
-      { item: 5,  severity: 'CRITICAL', rationale: 'Queda abrupta de desempenho no 3º ano pode indicar paralisia decisória ou burnout acadêmico.' },
-      { item: 10, severity: 'WATCH',    rationale: 'Tristeza/depressão pode ser amplificada pela pressão de saída (ENEM, mercado de trabalho).' },
+      { item: 5, severity: 'CRITICAL', rationale: 'Queda abrupta de desempenho no 3º ano pode indicar paralisia decisória ou burnout acadêmico.' },
+      { item: 10, severity: 'WATCH', rationale: 'Tristeza/depressão pode ser amplificada pela pressão de saída (ENEM, mercado de trabalho).' },
     ],
   },
 };
@@ -365,15 +365,15 @@ export function generateInterventionSuggestions(
 
   // Mapear itens SRSS-IE elevados (>= 2) aos riscos correspondentes
   const riskItemMapping: { item: number; riskLabel: string }[] = [
-    { item: 1,  riskLabel: 'Furto' },
-    { item: 2,  riskLabel: 'Mentira' },
-    { item: 3,  riskLabel: 'Indisciplina' },
-    { item: 4,  riskLabel: 'Rejeição pelos colegas' },
-    { item: 5,  riskLabel: 'Baixo desempenho' },
-    { item: 6,  riskLabel: 'Atitude desafiadora' },
-    { item: 7,  riskLabel: 'Agressividade' },
-    { item: 8,  riskLabel: 'Apatia emocional' },
-    { item: 9,  riskLabel: 'Timidez/Retraimento' },
+    { item: 1, riskLabel: 'Furto' },
+    { item: 2, riskLabel: 'Mentira' },
+    { item: 3, riskLabel: 'Indisciplina' },
+    { item: 4, riskLabel: 'Rejeição pelos colegas' },
+    { item: 5, riskLabel: 'Baixo desempenho' },
+    { item: 6, riskLabel: 'Atitude desafiadora' },
+    { item: 7, riskLabel: 'Agressividade' },
+    { item: 8, riskLabel: 'Apatia emocional' },
+    { item: 9, riskLabel: 'Timidez/Retraimento' },
     { item: 10, riskLabel: 'Tristeza/Depressão' },
     { item: 11, riskLabel: 'Ansiedade' },
     { item: 12, riskLabel: 'Solidão' },
@@ -416,10 +416,14 @@ export function generateInterventionSuggestions(
  * - Alertas específicos por série
  * - Sugestões de intervenção cruzadas (Risco × Forças)
  */
+import { BigFiveScore } from '../types';
+
+// ... (keep lines 419-423 same signature start)
 export function calculateStudentProfile(
   viaAnswers: VIARawAnswers,
   srssAnswers: SRSSRawAnswers,
-  grade: GradeLevel
+  grade: GradeLevel,
+  bigFiveScores?: BigFiveScore[]
 ): StudentProfile {
   // 1. Calcular forças
   const allStrengths = calculateStrengthScores(viaAnswers);
@@ -466,5 +470,9 @@ export function calculateStudentProfile(
     developmentAreas,
     gradeAlerts,
     interventionSuggestions,
+    bigFive: bigFiveScores ? {
+      scores: bigFiveScores,
+      radarData: bigFiveScores.map(s => ({ subject: s.label, A: s.score, fullMark: 5 }))
+    } : undefined
   };
 }

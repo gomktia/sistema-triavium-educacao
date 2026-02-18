@@ -20,6 +20,11 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { UserRole } from '@/src/core/types';
+import { cn } from '@/lib/utils';
+import { MinhaVozWidget } from '@/components/student/MinhaVozWidget';
+import { BigFiveStatus } from '@/components/student/BigFiveStatus';
+
+// ... (keep previous imports)
 
 export default async function InicioPage() {
     const user = await getCurrentUser();
@@ -48,8 +53,10 @@ export default async function InicioPage() {
 
     // Data for Student
     let studentData = null;
+    let bigFiveScores = [];
+
     if (isStudent && user.studentId) {
-        const [lastAssessment, lastVIA, activePlan] = await Promise.all([
+        const [lastAssessment, lastVIA, activePlan, bigFiveAssessment] = await Promise.all([
             prisma.assessment.findFirst({
                 where: { studentId: user.studentId },
                 orderBy: { appliedAt: 'desc' },
@@ -64,6 +71,10 @@ export default async function InicioPage() {
                 where: { studentId: user.studentId },
                 orderBy: { createdAt: 'desc' },
                 select: { status: true, author: { select: { name: true, role: true } } }
+            }),
+            prisma.assessment.findFirst({
+                where: { studentId: user.studentId, type: 'BIG_FIVE' },
+                select: { processedScores: true }
             })
         ]);
 
@@ -75,6 +86,10 @@ export default async function InicioPage() {
             }
         }
 
+        if (bigFiveAssessment?.processedScores) {
+            bigFiveScores = bigFiveAssessment.processedScores as any[];
+        }
+
         studentData = {
             lastAssessmentDate: lastAssessment?.appliedAt,
             topStrength,
@@ -84,50 +99,46 @@ export default async function InicioPage() {
     }
 
     return (
-        <div className="space-y-6">
-            {/* Boas-vindas Hero (Compacto) */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-600 to-violet-700 p-6 sm:px-8 sm:py-6 text-white shadow-[0_20px_60px_rgba(79,70,229,0.15)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 min-h-[120px] max-h-auto sm:max-h-[140px]">
-                <div className="relative z-10 max-w-xl">
-                    <p className="text-indigo-200 text-[10px] font-black uppercase tracking-[0.2em] mb-2">
-                        {isStudent ? 'Minha Jornada' : 'Painel de Inteligência'}
-                    </p>
-                    <h1 className="text-2xl sm:text-2xl font-black mb-1 leading-tight tracking-tight">
-                        {isStudent ? 'Olá, ' : 'Bem-vindo, '}{user.name.split(' ')[0]}!
-                    </h1>
-                    <p className="text-indigo-100/80 text-sm font-medium leading-normal max-w-lg hidden sm:block">
-                        {isStudent
-                            ? 'Acompanhe sua evolução socioemocional aqui.'
-                            : 'Monitore o engajamento e a saúde emocional de suas turmas.'
-                        }
-                    </p>
-                </div>
+        <div className="space-y-8 animate-in fade-in duration-700 pb-20">
+            {/* Student Experience: Minha Voz & Big Five */}
+            {isStudent ? (
+                <>
+                    <MinhaVozWidget studentName={user.name} />
 
-                <div className="flex flex-wrap gap-3 relative z-10">
-                    {isStudent ? (
-                        <>
-                            <Link href="/questionario">
-                                <button className="bg-white text-indigo-600 px-4 py-2 rounded-2xl font-extrabold text-[11px] hover:bg-indigo-50 transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-indigo-800/20 uppercase tracking-wider">
-                                    <Sparkles size={14} strokeWidth={2} />
-                                    Responder VIA
-                                </button>
-                            </Link>
-                        </>
-                    ) : (
-                        <>
-                            <Link href="/turma/triagem">
-                                <button className="bg-white text-indigo-600 px-4 py-2 rounded-2xl font-extrabold text-[11px] hover:bg-indigo-50 transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-indigo-800/20 uppercase tracking-wider">
-                                    <ClipboardList size={14} strokeWidth={2} />
-                                    Nova Triagem
-                                </button>
-                            </Link>
-                        </>
-                    )}
-                </div>
+                    <section className="space-y-4">
+                        <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest px-1">Seu Perfil Sócioemocional</h2>
+                        <BigFiveStatus scores={bigFiveScores} studentName={user.name} />
+                    </section>
+                </>
+            ) : (
+                /* Staff Experience: Standard Dashboard Header */
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0B1120] to-[#1e293b] p-6 sm:px-8 sm:py-6 text-white shadow-[0_20px_60px_rgba(15,23,42,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 min-h-[120px] max-h-auto sm:max-h-[140px]">
+                    <div className="relative z-10 max-w-xl">
+                        <p className="text-indigo-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2">
+                            Painel de Inteligência
+                        </p>
+                        <h1 className="text-2xl sm:text-2xl font-black mb-1 leading-tight tracking-tight">
+                            Bem-vindo, {user.name.split(' ')[0]}!
+                        </h1>
+                        <p className="text-slate-400 text-sm font-medium leading-normal max-w-lg hidden sm:block">
+                            Monitore o engajamento e a saúde emocional de suas turmas.
+                        </p>
+                    </div>
 
-                {/* Decorations */}
-                <div className="absolute top-0 right-0 -mr-10 h-32 w-32 rounded-full bg-white/5 blur-2xl" />
-                <div className="absolute bottom-0 right-1/4 -mb-10 h-24 w-24 rounded-full bg-violet-400/10 blur-xl" />
-            </div>
+                    <div className="flex flex-wrap gap-3 relative z-10">
+                        <Link href="/turma/triagem">
+                            <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-2xl font-extrabold text-[11px] transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-indigo-900/40 uppercase tracking-wider border border-indigo-500/50">
+                                <ClipboardList size={14} strokeWidth={2} />
+                                Nova Triagem
+                            </button>
+                        </Link>
+                    </div>
+
+                    {/* Decorations */}
+                    <div className="absolute top-0 right-0 -mr-10 h-32 w-32 rounded-full bg-white/5 blur-2xl" />
+                    <div className="absolute bottom-0 right-1/4 -mb-10 h-24 w-24 rounded-full bg-violet-400/10 blur-xl" />
+                </div>
+            )}
 
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -367,7 +378,4 @@ export default async function InicioPage() {
     );
 }
 
-// Utility to merge class names
-function cn(...classes: (string | boolean | undefined)[]) {
-    return classes.filter(Boolean).join(' ');
-}
+

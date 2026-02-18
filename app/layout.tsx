@@ -8,8 +8,8 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-    title: 'Gestao Socioemocional',
-    description: 'Sistema de Gestao Socioemocional - RTI + VIA',
+    title: 'Triavium',
+    description: 'Triavium Educação e Desenvolvimento LTDA',
 };
 
 import { Toaster } from 'sonner';

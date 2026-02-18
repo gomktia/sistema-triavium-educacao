@@ -36,7 +36,8 @@ export default async function AlunoDetalhePage(props: { params: Promise<{ id: st
             },
             tenant: {
                 select: { name: true, logoUrl: true }
-            }
+            },
+            specialEducationNeeds: true
         },
     });
 
@@ -53,6 +54,7 @@ export default async function AlunoDetalhePage(props: { params: Promise<{ id: st
 
     const viaAnswers = allAssessments.find(a => a.type === 'VIA_STRENGTHS')?.rawAnswers;
     const srssAnswers = allAssessments.find(a => a.type === 'SRSS_IE')?.rawAnswers;
+    const bigFiveScores = allAssessments.find(a => a.type === 'BIG_FIVE')?.processedScores as any;
 
     // Dados para o Gráfico de Evolução
     const evolutionData = allAssessments
@@ -93,11 +95,17 @@ export default async function AlunoDetalhePage(props: { params: Promise<{ id: st
 
         const coreGrade = gradeMap[student.grade] || CoreGradeLevel.PRIMEIRO_ANO;
 
-        profile = calculateStudentProfile(
+        const baseProfile = calculateStudentProfile(
             viaAnswers as any,
             srssAnswers as any,
-            coreGrade
+            coreGrade,
+            bigFiveScores
         );
+
+        profile = {
+            ...baseProfile,
+            specialEducationNeeds: student.specialEducationNeeds
+        };
     }
 
     // Obter Planos de Intervenção (PEI)

@@ -84,17 +84,17 @@ export function Sidebar({ items, userName, userEmail, userRole, organizationType
         <div className={cn("p-6 pb-2 flex items-center justify-between transition-all duration-300 relative z-20", isCollapsed && "p-4 justify-center")}>
             <div className={cn("flex items-center gap-3.5 transition-opacity duration-300 overflow-hidden", isCollapsed ? "w-0 opacity-0 hidden" : "w-auto opacity-100")}>
                 <div className="h-10 w-10 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(79,70,229,0.3)]">
-                    <span className="text-white font-black text-lg">GS</span>
+                    <span className="text-white font-black text-lg">TR</span>
                 </div>
                 <div>
-                    <h2 className="text-lg font-black text-white whitespace-nowrap tracking-tight">EduInteligência</h2>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">SaaS Edition</p>
+                    <h2 className="text-lg font-black text-white whitespace-nowrap tracking-tight">Triavium</h2>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Educação e Desenv.</p>
                 </div>
             </div>
 
             {isCollapsed && (
                 <div className="h-10 w-10 bg-indigo-600 rounded-2xl flex items-center justify-center shrink-0 shadow-lg cursor-pointer" onClick={toggleCollapse}>
-                    <span className="text-white font-black text-lg">GS</span>
+                    <span className="text-white font-black text-lg">TR</span>
                 </div>
             )}
         </div>
@@ -245,9 +245,9 @@ export function Sidebar({ items, userName, userEmail, userRole, organizationType
             <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-[#0f172a]/95 backdrop-blur-xl border-b border-white/5 shadow-2xl w-full">
                 <div className="flex items-center gap-2.5">
                     <div className="h-8 w-8 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                        <span className="text-white font-black text-sm">GS</span>
+                        <span className="text-white font-black text-sm">TR</span>
                     </div>
-                    <span className="text-white font-extrabold text-sm tracking-tight">EduInteligência</span>
+                    <span className="text-white font-extrabold text-sm tracking-tight">Triavium</span>
                 </div>
                 <button
                     onClick={() => setIsMobileOpen(!isMobileOpen)}

@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 interface CriticalAlertEmailProps {
     to: string[];
@@ -19,7 +19,7 @@ export async function sendCriticalAlertEmail({
     lastLogDescription,
     alertLink,
 }: CriticalAlertEmailProps) {
-    if (!process.env.RESEND_API_KEY) {
+    if (!process.env.RESEND_API_KEY || !resend) {
         console.warn('⚠️ RESEND_API_KEY não configurada. E-mail não enviado.');
         return;
     }

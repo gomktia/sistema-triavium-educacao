@@ -15,7 +15,9 @@ export function getNavForRole(role: string, organizationType?: string): NavItem[
     const NAV_BY_ROLE: Record<string, NavItem[]> = {
         STUDENT: [
             { label: 'Início', href: '/inicio', iconName: 'Home' },
+            { label: 'Minha Voz', href: '/minha-voz', iconName: 'MessageCircleHeart' },
             { label: 'Responder VIA', href: '/questionario', iconName: 'ClipboardList' },
+            { label: 'Big Five', href: '/bigfive', iconName: 'BrainCircuit' },
             { label: 'Minhas Forças', href: '/minhas-forcas', iconName: 'Trophy' },
             { label: 'Perfil', href: '/configuracoes', iconName: 'Settings' },
         ],
@@ -35,6 +37,7 @@ export function getNavForRole(role: string, organizationType?: string): NavItem[
         ],
         PSYCHOLOGIST: [
             { label: 'Início', href: '/inicio', iconName: 'Home' },
+            { label: 'Dashboard Híbrido', href: '/dashboard-hibrido', iconName: 'Activity' },
             {
                 label: 'Turmas',
                 href: '/turmas',
@@ -68,6 +71,7 @@ export function getNavForRole(role: string, organizationType?: string): NavItem[
             { label: 'Início', href: '/inicio', iconName: 'Home' },
             { label: 'Turmas', href: '/turmas', iconName: 'School' },
             { label: 'Dashboard', href: '/dashboard', iconName: 'LayoutDashboard' },
+            { label: 'Análise Híbrida', href: '/dashboard-hibrido', iconName: 'Activity' },
             { label: 'Gestão de Impacto', href: '/gestao', iconName: 'Trophy' },
             { label: 'Equipe Pedagógica', href: '/gestao/equipe', iconName: 'Users' },
             { label: 'Financeiro', href: '/gestao/financeiro', iconName: 'CreditCard' },

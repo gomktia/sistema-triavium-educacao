@@ -3,7 +3,8 @@
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 import { calculateStudentProfile, calculateStrengthScores, calculateRiskScores } from '@/src/core/logic/scoring';
-import { GradeLevel, VIARawAnswers, SRSSRawAnswers, UserRole } from '@/src/core/types';
+import { calculateBigFiveScores } from '@/src/core/logic/bigfive';
+import { GradeLevel, VIARawAnswers, SRSSRawAnswers, UserRole, BigFiveRawAnswers } from '@/src/core/types';
 import { revalidatePath } from 'next/cache';
 
 /**
@@ -220,6 +221,97 @@ export async function saveSRSSScreening(studentId: string, answers: SRSSRawAnswe
         await notifyCriticalRisk(user.tenantId, studentId, student.name);
     }
 
+
     revalidatePath('/turma');
     return { success: true, risk };
+}
+
+/**
+ * Salva as respostas do questionário Big Five.
+ */
+export async function saveBigFiveAnswers(answers: BigFiveRawAnswers, targetStudentId?: string) {
+    const user = await getCurrentUser();
+    if (!user) return { error: 'Não autorizado.' };
+
+    let studentIdToSave = user.studentId;
+
+    if (targetStudentId && targetStudentId !== user.studentId) {
+        if (!['PSYCHOLOGIST', 'MANAGER', 'ADMIN', 'COUNSELOR'].includes(user.role)) {
+            return { error: 'Permissão negada.' };
+        }
+        const targetStudent = await prisma.student.findUnique({
+            where: { id: targetStudentId, tenantId: user.tenantId },
+            select: { id: true }
+        });
+        if (!targetStudent) return { error: 'Aluno não encontrado.' };
+        studentIdToSave = targetStudentId;
+    } else {
+        if (!studentIdToSave && user.role !== UserRole.STUDENT) {
+            return { error: 'ID do aluno não definido.' };
+        }
+    }
+
+    if (!studentIdToSave) return { error: 'ID do aluno não definido.' };
+
+    const answeredCount = Object.keys(answers).length;
+    const isComplete = answeredCount >= 50;
+
+    let processedScores = null;
+    if (isComplete) {
+        processedScores = calculateBigFiveScores(answers);
+    }
+
+    try {
+        const existing = await prisma.assessment.findFirst({
+            where: {
+                tenantId: user.tenantId,
+                studentId: studentIdToSave,
+                type: 'BIG_FIVE',
+            },
+        });
+
+        const dataToSave = {
+            rawAnswers: answers as any,
+            processedScores: processedScores as any,
+            appliedAt: new Date(),
+        };
+
+        if (existing) {
+            await prisma.assessment.update({
+                where: { id: existing.id },
+                data: dataToSave,
+            });
+        } else {
+            await prisma.assessment.create({
+                data: {
+                    tenantId: user.tenantId,
+                    studentId: studentIdToSave,
+                    type: 'BIG_FIVE',
+                    screeningWindow: 'DIAGNOSTIC',
+                    academicYear: new Date().getFullYear(),
+                    screeningTeacherId: targetStudentId ? user.id : undefined,
+                    ...dataToSave
+                },
+            });
+        }
+    } catch (e: any) {
+        console.error('Error saving Big Five:', e);
+        return { error: 'Erro ao salvar Big Five.' };
+    }
+
+    revalidatePath('/bigfive-results');
+    return { success: true, complete: isComplete, scores: processedScores };
+}
+
+export async function getMyBigFive() {
+    const user = await getCurrentUser();
+    if (!user || !user.studentId) return null;
+
+    return await prisma.assessment.findFirst({
+        where: {
+            studentId: user.studentId,
+            type: 'BIG_FIVE',
+        },
+        orderBy: { appliedAt: 'desc' },
+    });
 }

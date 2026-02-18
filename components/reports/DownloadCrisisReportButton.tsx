@@ -4,6 +4,7 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import { CrisisProtocolReport } from './CrisisProtocolReport';
 import { Button } from '@/components/ui/button';
 import { ShieldAlert, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 interface DownloadCrisisReportButtonProps {
     studentName: string;
@@ -16,6 +17,24 @@ interface DownloadCrisisReportButtonProps {
 }
 
 export function DownloadCrisisReportButton(props: DownloadCrisisReportButtonProps) {
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) {
+        return (
+            <Button
+                className="w-full bg-rose-600 opacity-50 cursor-not-allowed"
+                disabled
+                size="sm"
+            >
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Carregando PDF...
+            </Button>
+        );
+    }
     return (
         <PDFDownloadLink
             document={<CrisisProtocolReport {...props} />}

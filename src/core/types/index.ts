@@ -152,4 +152,30 @@ export interface StudentProfile {
   // Cruzamento Preditivo
   gradeAlerts: GradeSpecificAlert[];
   interventionSuggestions: InterventionSuggestion[];
+
+  // Big Five
+  bigFive?: {
+    scores: BigFiveScore[];
+    radarData: any; // Para o gráfico
+  };
+}
+
+export enum BigFiveDomain {
+  ABERTURA = 'ABERTURA',
+  CONSCIENCIOSIDADE = 'CONSCIENCIOSIDADE',
+  ESTABILIDADE = 'ESTABILIDADE',
+  EXTROVERSAO = 'EXTROVERSAO',
+  AMABILIDADE = 'AMABILIDADE',
+}
+
+export interface BigFiveRawAnswers {
+  [itemNumber: number]: number;
+}
+
+export interface BigFiveScore {
+  domain: BigFiveDomain;
+  score: number;
+  label: string;
+  description: string;
+  level: 'Baixo' | 'Médio' | 'Alto';
 }

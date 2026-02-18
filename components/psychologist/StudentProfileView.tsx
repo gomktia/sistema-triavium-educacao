@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -5,7 +6,7 @@ import { RiskSummaryCard } from '@/components/domain/RiskSummaryCard';
 import { CrossoverCard } from '@/components/domain/CrossoverCard';
 import { TierBadge } from '@/components/domain/TierBadge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Sparkles, AlertTriangle, ListChecks, UserCircle2, ShieldAlert, FilePlus2, History, Target } from 'lucide-react';
+import { Sparkles, AlertTriangle, ListChecks, UserCircle2, ShieldAlert, FilePlus2, History, Target, BrainCircuit } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EvolutionChart } from '@/components/charts/EvolutionChart';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,8 @@ import { DownloadCrisisReportButton } from '@/components/reports/DownloadCrisisR
 import { InterventionPlanForm } from './InterventionPlanForm';
 import { OrganizationLabels } from '@/src/lib/utils/labels';
 import { StudentSummaryCard } from '@/components/dashboard/StudentSummaryCard';
+import { InclusionCard } from '@/components/special-education/InclusionCard';
+import { BigFiveRadarResult } from '@/components/bigfive/BigFiveRadarResult';
 
 interface StudentProfileViewProps {
     studentName: string;
@@ -40,7 +43,9 @@ export function StudentProfileView({
         overallTier,
         signatureStrengths,
         gradeAlerts,
-        interventionSuggestions
+        interventionSuggestions,
+        bigFive,
+        specialEducationNeeds
     } = profile;
 
     // Tradução visual de Grades
@@ -53,6 +58,37 @@ export function StudentProfileView({
         <div className="space-y-8">
             {/* Resumo Híbrido (Inteligência Nativa + Quantitativa) */}
             <StudentSummaryCard studentId={profile.studentId || ''} />
+
+            {/* Módulo de Educação Especial */}
+            <InclusionCard needs={specialEducationNeeds} />
+
+            {/* Big Five - Personalidade */}
+            {bigFive && (
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm items-center">
+                    <div className="md:col-span-5 relative h-[300px]">
+                        <h3 className="absolute top-0 left-0 text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 z-10">
+                            <BrainCircuit className="text-violet-500" size={16} />
+                            Big Five (Personalidade)
+                        </h3>
+                        <BigFiveRadarResult scores={bigFive.scores} />
+                    </div>
+                    <div className="md:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {bigFive.scores.map((s: any) => (
+                            <div key={s.domain} className="flex flex-col justify-center p-3 bg-slate-50/50 rounded-xl border border-slate-100">
+                                <div className="flex justify-between items-center mb-1">
+                                    <span className="font-bold text-slate-700 text-xs">{s.label}</span>
+                                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wide ${s.level === 'Alto' ? 'bg-violet-100 text-violet-700' :
+                                            s.level === 'Baixo' ? 'bg-amber-100 text-amber-700' : 'bg-slate-200 text-slate-500'
+                                        }`}>{s.level}</span>
+                                </div>
+                                <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                                    <div className="bg-violet-500 h-full rounded-full" style={{ width: `${(s.score / 5) * 100}%` }} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* EWS Alerta (Early Warning) */}
             {ewsAlert && ewsAlert.alertLevel !== 'NONE' && (
