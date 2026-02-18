@@ -18,7 +18,7 @@ interface FormQuestion {
     number: number
     text: string
     category: string | null
-    type: 'VIA_STRENGTHS' | 'SRSS_IE'
+    type: 'VIA_STRENGTHS' | 'SRSS_IE' | 'BIG_FIVE'
     educationalLevel: 'KINDERGARTEN' | 'ELEMENTARY' | 'HIGH_SCHOOL'
     isActive: boolean
     order: number
@@ -33,7 +33,7 @@ interface FormQuestionsManagerProps {
 export function FormQuestionsManager({ initialQuestions, canEdit = false }: FormQuestionsManagerProps) {
     const [questions, setQuestions] = useState<FormQuestion[]>(initialQuestions)
     const [search, setSearch] = useState('')
-    const [selectedType, setSelectedType] = useState<'ALL' | 'VIA_STRENGTHS' | 'SRSS_IE'>('ALL')
+    const [selectedType, setSelectedType] = useState<'ALL' | 'VIA_STRENGTHS' | 'SRSS_IE' | 'BIG_FIVE'>('ALL')
 
     // Estado do Modal
     const [isOpen, setIsOpen] = useState(false)
@@ -158,6 +158,7 @@ export function FormQuestionsManager({ initialQuestions, canEdit = false }: Form
                         <option value="ALL">Todos os Tipos</option>
                         <option value="VIA_STRENGTHS">VIA (Forças)</option>
                         <option value="SRSS_IE">SRSS-IE (Risco)</option>
+                        <option value="BIG_FIVE">BIG FIVE (Personalidade)</option>
                     </select>
 
                     {canEdit && (
@@ -173,8 +174,17 @@ export function FormQuestionsManager({ initialQuestions, canEdit = false }: Form
                     <Card key={question.id} className="w-full bg-white hover:shadow-md transition-shadow">
                         <CardHeader className="flex flex-row items-start justify-between space-y-0 p-4 pb-2">
                             <div className="flex items-center gap-3">
-                                <Badge variant={question.type === 'VIA_STRENGTHS' ? 'default' : 'secondary'} className={question.type === 'VIA_STRENGTHS' ? 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200' : 'bg-orange-100 text-orange-800 hover:bg-orange-200'}>
-                                    {question.type === 'VIA_STRENGTHS' ? 'VIA' : 'SRSS'}
+                                <Badge variant={
+                                    question.type === 'VIA_STRENGTHS' ? 'default' :
+                                        question.type === 'SRSS_IE' ? 'secondary' :
+                                            'outline'
+                                }
+                                    className={
+                                        question.type === 'VIA_STRENGTHS' ? 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200' :
+                                            question.type === 'SRSS_IE' ? 'bg-orange-100 text-orange-800 hover:bg-orange-200' :
+                                                'bg-purple-100 text-purple-800 hover:bg-purple-200 border-none'
+                                    }>
+                                    {question.type === 'VIA_STRENGTHS' ? 'VIA' : question.type === 'SRSS_IE' ? 'SRSS' : 'BIG FIVE'}
                                 </Badge>
                                 <span className="font-mono text-sm text-muted-foreground">#{question.number}</span>
                                 {question.category && (
@@ -236,6 +246,7 @@ export function FormQuestionsManager({ initialQuestions, canEdit = false }: Form
                             >
                                 <option value="VIA_STRENGTHS">VIA (Forças)</option>
                                 <option value="SRSS_IE">SRSS-IE (Risco)</option>
+                                <option value="BIG_FIVE">BIG FIVE (Personalidade)</option>
                             </select>
                         </div>
 
