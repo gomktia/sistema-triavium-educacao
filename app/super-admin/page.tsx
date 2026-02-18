@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
 export const metadata = {
-    title: 'Super Admin | EduInteligência SaaS',
+    title: 'Super Admin | Triavium SaaS',
 };
 
 function getSuggestedPlan(studentCount: number, reportCount: number, assessmentCount: number) {

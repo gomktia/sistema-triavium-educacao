@@ -146,7 +146,7 @@ export function QuestionnaireWizard({
                             <span className="text-white font-black text-lg">GS</span>
                         </div>
                         <div className="hidden sm:block">
-                            <h2 className="text-lg font-black text-slate-900 tracking-tight leading-none">EduInteligência</h2>
+                            <h2 className="text-lg font-black text-slate-900 tracking-tight leading-none">Triavium</h2>
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Avaliação Socioemocional</span>
                         </div>
                     </div>

@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { login } from './actions';
-import { Loader2, Lock, Mail, BrainCircuit, ArrowRight } from 'lucide-react';
+import { Loader2, Lock, Mail, ArrowRight, Building2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -13,9 +13,18 @@ export default function LoginPage() {
     const [error, setError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
 
+    const [tenantName, setTenantName] = useState<string | null>(null);
+
     useEffect(() => {
         if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
             setError("CRITICAL ERROR: NEXT_PUBLIC_SUPABASE_URL is missing. Verifique as Variáveis de Ambiente na Vercel.");
+        }
+
+        // Simulação de detecção de tenant por subdomínio
+        const hostname = window.location.hostname;
+        const parts = hostname.split('.');
+        if (parts.length > 2 && (parts[0] === 'totem' || parts[0] === 'demo')) {
+            setTenantName('Colégio Modelo Integrado');
         }
     }, []);
 
@@ -81,13 +90,26 @@ export default function LoginPage() {
                 <div className="bg-white/70 backdrop-blur-2xl rounded-[2.5rem] border border-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden">
                     <div className="p-8 sm:p-12">
                         {/* Header */}
-                        <div className="mb-10 text-center">
-                            <Link href="/" className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 text-white shadow-xl shadow-indigo-100 mb-6 hover:scale-110 transition-transform duration-500">
-                                <BrainCircuit size={32} />
-                            </Link>
-                            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Portal de Comando</h1>
-                            <p className="text-sm text-slate-500 mt-2 font-medium">Acesse a inteligência socioemocional</p>
-                        </div>
+                        {tenantName ? (
+                            <div className="mb-10 text-center animate-in zoom-in duration-500">
+                                <div className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-white border-2 border-slate-100 shadow-xl shadow-slate-200/50 mb-6">
+                                    <Building2 className="text-indigo-600" size={32} strokeWidth={1.5} />
+                                </div>
+                                <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-tight mb-2">{tenantName}</h1>
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100/50 border border-slate-200/50">
+                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Powered by</span>
+                                    <span className="font-black text-[10px] text-indigo-600 uppercase tracking-widest">Triavium</span>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="mb-10 text-center">
+                                <Link href="/" className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 text-white shadow-xl shadow-indigo-100 mb-6 hover:scale-110 transition-transform duration-500">
+                                    <span className="font-black text-2xl tracking-tight">TR</span>
+                                </Link>
+                                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Triavium</h1>
+                                <p className="text-sm text-slate-500 mt-2 font-medium">Plataforma de Gestão Socioemocional</p>
+                            </div>
+                        )}
 
                         {/* Form */}
                         <form action={handleSubmit} className="space-y-6">
@@ -210,7 +232,7 @@ export default function LoginPage() {
 
                     <div className="bg-slate-50/50 p-6 text-center border-t border-slate-100">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            © 2026 GomkTia Intelligence Systems
+                            © 2026 Triavium Educação e Desenvolvimento LTDA
                         </p>
                     </div>
                 </div>

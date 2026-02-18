@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
 export const metadata = {
-    title: 'Gerenciar Escolas | EduInteligência SaaS',
+    title: 'Gerenciar Escolas | Triavium SaaS',
 };
 
 export default async function SchoolsPage() {

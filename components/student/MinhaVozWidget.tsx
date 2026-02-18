@@ -105,7 +105,7 @@ export function MinhaVozWidget({ studentName }: { studentName: string }) {
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             placeholder="Digite sua mensagem aqui (ou use o microfone)..."
-                            className="w-full h-40 sm:h-32 bg-transparent text-white placeholder:text-slate-500 p-4 text-sm font-medium resize-none focus:outline-none focus:bg-slate-900/50 transition-colors rounded-t-xl"
+                            className="w-full h-24 sm:h-32 bg-transparent text-white placeholder:text-slate-500 p-4 text-sm font-medium resize-none focus:outline-none focus:bg-slate-900/50 transition-colors rounded-t-xl"
                         />
 
                         <div className="flex items-center justify-between px-3 pb-3 pt-2 border-t border-white/5 bg-slate-900/30 rounded-b-xl gap-3">

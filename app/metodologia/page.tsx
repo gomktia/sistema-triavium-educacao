@@ -18,7 +18,7 @@ export default function MetodologiaPage() {
                         <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
                             <BrainCircuit size={18} />
                         </div>
-                        EduInteligência
+                        Triavium
                     </div>
                     <div className="flex gap-4">
                         <Link href="/login">

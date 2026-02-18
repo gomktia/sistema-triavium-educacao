@@ -45,7 +45,7 @@ export async function sendWelcomeEmail({
 
     try {
         const { data, error } = await resend.emails.send({
-            from: 'SocioIntelligence <onboarding@seudominio.com.br>',
+            from: 'Triavium <onboarding@seudominio.com.br>',
             to: [userEmail],
             subject: `Bem-vindo à nossa plataforma, ${userName}!`,
             html: `
@@ -61,7 +61,7 @@ export async function sendWelcomeEmail({
             <li><strong>Gere Relatórios:</strong> Assim que os dados forem inseridos, poderá gerar laudos profissionais em PDF.</li>
           </ul>
           <p>Estamos aqui para devolver o seu tempo de gestão e focar no que importa: as pessoas.</p>
-          <p>Abraço,<br />Equipe SocioIntelligence</p>
+          <p>Abraço,<br />Equipe Triavium</p>
         </div>
       `,
         });
@@ -96,7 +96,7 @@ export async function sendIADraftTipEmail(userId: string) {
 
     try {
         await resend.emails.send({
-            from: 'SocioIntelligence <suporte@seudominio.com.br>',
+            from: 'Triavium <suporte@seudominio.com.br>',
             to: [user.email],
             subject: 'Dica Pro: Como poupar 80% do tempo nos laudos',
             html: `
@@ -126,7 +126,7 @@ export async function sendRiskAlertEmail(managerEmail: string, studentName: stri
 
     try {
         await resend.emails.send({
-            from: 'SocioIntelligence Alertas <alerts@seudominio.com.br>',
+            from: 'Triavium Alertas <alerts@seudominio.com.br>',
             to: [managerEmail],
             subject: `ALERTA CRÍTICO: ${studentName}`,
             html: `
@@ -156,7 +156,7 @@ export async function sendPlanUpgradeEmail(adminEmail: string, currentUsage: num
 
     try {
         await resend.emails.send({
-            from: 'SocioIntelligence Comercial <sales@seudominio.com.br>',
+            from: 'Triavium Comercial <sales@seudominio.com.br>',
             to: [adminEmail],
             subject: 'Potencialize sua Gestão com o Plano Sovereign',
             html: `
@@ -195,7 +195,7 @@ export async function sendMonthlyDirectionReport({ directorEmail, schoolName, cr
 
     try {
         await resend.emails.send({
-            from: 'SocioIntelligence Relatórios <reports@seudominio.com.br>',
+            from: 'Triavium Relatórios <reports@seudominio.com.br>',
             to: [directorEmail],
             subject: `Relatório de Impacto Socioemocional - ${month}`,
             html: `
@@ -217,7 +217,7 @@ export async function sendMonthlyDirectionReport({ directorEmail, schoolName, cr
 
                     <p>Ação Recomendada: Agendar reunião com a equipe de orientação para analisar os casos que apresentaram melhora e replicar as práticas de sucesso.</p>
                     <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-                    <p style="font-size: 12px; color: #94a3b8;">EduInteligência - Dados que transformam vidas.</p>
+                    <p style="font-size: 12px; color: #94a3b8;">Triavium - Dados que transformam vidas.</p>
                 </div>
             `
         });

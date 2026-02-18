@@ -46,7 +46,7 @@ export default function LandingPage() {
                     <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center text-white shadow-xl shadow-indigo-200 group-hover:scale-110 transition-all duration-500">
                         <BrainCircuit size={22} className="group-hover:rotate-12 transition-transform" />
                     </div>
-                    <span className="font-black text-2xl tracking-tighter text-slate-900">EduInteligência</span>
+                    <span className="font-black text-2xl tracking-tighter text-slate-900">Triavium</span>
                 </Link>
                 <nav className="ml-auto flex gap-4 sm:gap-10 items-center">
                     <Link className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors hidden md:block" href="#solutions">Soluções</Link>
@@ -463,10 +463,10 @@ export default function LandingPage() {
                                 <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
                                     <BrainCircuit size={18} />
                                 </div>
-                                <span className="font-black text-xl tracking-tighter text-slate-900">EduInteligência</span>
+                                <span className="font-black text-xl tracking-tighter text-slate-900">Triavium</span>
                             </Link>
                             <p className="text-sm text-slate-500 font-medium leading-relaxed">
-                                A primeira plataforma de inteligência socioemocional e psicossocial multi-tenant nativa de alta performance.
+                                A primeira plataforma de gestão socioemocional e psicossocial multi-tenant nativa de alta performance.
                             </p>
                         </div>
                         <div>
@@ -495,7 +495,7 @@ export default function LandingPage() {
                         </div>
                     </div>
                     <div className="pt-12 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-6">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">© 2026 GomkTia Intelligence Systems. All rights reserved.</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">© 2026 Triavium Educação e Desenvolvimento LTDA. All rights reserved.</p>
                         <div className="flex gap-6">
                             <Link href="#" className="h-10 w-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-600 transition-all"><Globe size={18} /></Link>
                         </div>
