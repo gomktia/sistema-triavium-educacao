@@ -32,7 +32,9 @@
       "Bash(grep:*)",
       "Bash(git branch:*)",
       "Bash(git reset:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx prisma generate:*)"
     ]
   }
 }

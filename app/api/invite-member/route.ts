@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 import { randomBytes } from 'crypto';
 import { Resend } from 'resend';
+import { getTenantUrl } from '@/lib/tenant-resolver';
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
@@ -126,10 +127,10 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Buscar nome do tenant para o email
+        // Buscar dados do tenant para o email e URL
         const tenant = await prisma.tenant.findUnique({
             where: { id: tenantId || user.tenantId },
-            select: { name: true }
+            select: { name: true, slug: true, customDomain: true }
         });
 
         // Criar usuario pendente (sera ativado quando fizer login)
@@ -145,7 +146,12 @@ export async function POST(request: NextRequest) {
 
         // Gerar token seguro usando crypto
         const inviteToken = randomBytes(32).toString('hex');
-        const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://triavium.com.br'}/convite/${inviteToken}`;
+
+        // Usar domínio personalizado se existir, senão subdomínio
+        const tenantBaseUrl = tenant
+            ? getTenantUrl({ slug: tenant.slug, customDomain: tenant.customDomain })
+            : (process.env.NEXT_PUBLIC_APP_URL || 'https://triavium.com.br');
+        const inviteLink = `${tenantBaseUrl}/convite/${inviteToken}`;
 
         // Armazenar token no usuario para validacao posterior
         await prisma.user.update({
