@@ -112,3 +112,47 @@ export async function removeStudentFromClass(studentId: string) {
     revalidatePath('/turmas');
     return { success: true };
 }
+
+/**
+ * Enables IEAA questionnaire for all students in a classroom.
+ * This sets the isFormEnabled flag so students can access the IEAA.
+ */
+export async function enableIEAAForClassroom(classroomId: string) {
+    const user = await getCurrentUser();
+
+    // Only MANAGER and ADMIN can enable assessments
+    if (!user || !['MANAGER', 'ADMIN'].includes(user.role)) {
+        return { success: false, error: 'Permissao negada.' };
+    }
+
+    try {
+        // Verify classroom belongs to tenant
+        const classroom = await prisma.classroom.findUnique({
+            where: { id: classroomId, tenantId: user.tenantId },
+            select: { id: true, name: true }
+        });
+
+        if (!classroom) {
+            return { success: false, error: 'Turma nao encontrada.' };
+        }
+
+        // Update all students in the classroom to enable form access
+        const result = await prisma.student.updateMany({
+            where: {
+                classroomId: classroomId,
+                tenantId: user.tenantId
+            },
+            data: {
+                isFormEnabled: true
+            }
+        });
+
+        revalidatePath(`/turmas/${classroomId}`);
+        revalidatePath('/turmas');
+
+        return { success: true, count: result.count };
+    } catch (error) {
+        console.error('Error enabling IEAA:', error);
+        return { success: false, error: 'Erro ao liberar IEAA.' };
+    }
+}

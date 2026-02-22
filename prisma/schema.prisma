@@ -39,14 +39,17 @@ model Assessment {
 
 model AuditLog {
   id        String   @id @default(cuid())
+  tenantId  String
   userId    String
   action    String
   targetId  String?
   details   Json?
   timestamp DateTime @default(now())
   ip        String?
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([tenantId])
   @@index([action])
   @@index([userId])
   @@map("audit_logs")
@@ -295,13 +298,16 @@ model Student {
 
 model StudentMessage {
   id          String   @id @default(cuid())
+  tenantId    String
   studentId   String
   content     String   @db.Text
   riskLevel   String   @default("LOW") // LOW, MEDIUM, HIGH, CRITICAL
   isRead      Boolean  @default(false)
   createdAt   DateTime @default(now())
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
+  @@index([tenantId])
   @@index([studentId])
   @@index([riskLevel])
   @@map("student_messages")
@@ -360,6 +366,9 @@ model Tenant {
   teacherClassrooms  TeacherClassroom[]
   users               User[]
   behaviorLogs        BehaviorLog[]
+  productFeedbacks    ProductFeedback[]
+  auditLogs           AuditLog[]
+  studentMessages     StudentMessage[]
 
   @@map("tenants")
 }
@@ -383,6 +392,7 @@ model User {
   notifications      Notification[]
   teacherClassrooms  TeacherClassroom[]
   behaviorLogs       BehaviorLog[]
+  productFeedbacks   ProductFeedback[]
   student            Student?            @relation(fields: [studentId], references: [id])
   tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
@@ -420,6 +430,7 @@ enum AssessmentType {
   VIA_STRENGTHS
   SRSS_IE
   BIG_FIVE
+  IEAA
 }
 
 enum EducationalLevel {
@@ -517,4 +528,31 @@ model BehaviorLog {
   @@index([teacherId])
   @@index([createdAt])
   @@map("behavior_logs")
+}
+
+model ProductFeedback {
+  id          String         @id @default(cuid())
+  tenantId    String
+  userId      String
+  subject     String
+  description String         @db.Text
+  status      FeedbackStatus @default(PENDING)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([status])
+  @@map("product_feedbacks")
+}
+
+enum FeedbackStatus {
+  PENDING
+  REVIEWING
+  PLANNED
+  IMPLEMENTED
+  REJECTED
 }

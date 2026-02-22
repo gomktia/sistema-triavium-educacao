@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserSearch, ChevronRight } from 'lucide-react';
 import { getLabels } from '@/src/lib/utils/labels';
+import { ExportStudentsPDF } from '@/components/reports/ExportStudentsPDF';
 
 export const metadata = {
     title: 'Gestão de Membros',
@@ -40,6 +41,14 @@ export default async function AlunosPage() {
 
     const tierMap = new Map(assessments.map(a => [a.studentId, a.overallTier]));
 
+    // Preparar dados para exportacao
+    const studentsForExport = students.map(student => ({
+        id: student.id,
+        name: student.name,
+        grade: student.grade,
+        tier: tierMap.get(student.id) || null,
+    }));
+
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -47,6 +56,9 @@ export default async function AlunosPage() {
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">Gestão de {labels.subjects}</h1>
                     <p className="text-slate-500 mt-1.5 text-sm">Monitore o risco socioemocional e planeje intervenções.</p>
                 </div>
+                {students.length > 0 && (
+                    <ExportStudentsPDF students={studentsForExport} />
+                )}
             </div>
 
             {students.length > 0 ? (

@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { requireSuperAdmin } from '@/lib/auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -10,8 +9,6 @@ import {
     Users,
     CreditCard,
     Clock,
-    AlertCircle,
-    Settings2,
     ExternalLink,
     FileText,
     Activity,
@@ -19,6 +16,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { CreateSchoolDialog } from '@/components/admin/CreateSchoolDialog';
 
 export const metadata = {
     title: 'Super Admin | Triavium SaaS',
@@ -88,9 +86,7 @@ export default async function SuperAdminPage() {
                                 Landing Page
                             </Button>
                         </Link>
-                        <Button className="bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-100 font-black text-xs uppercase">
-                            Cadastrar Nova Escola
-                        </Button>
+                        <CreateSchoolDialog />
                     </div>
                 </div>
 

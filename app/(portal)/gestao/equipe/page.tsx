@@ -4,9 +4,10 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { prisma } from '@/lib/prisma';
-import { UserPlus, UserX, Mail, Search, ShieldCheck, Crown } from 'lucide-react';
+import { UserX, Mail, Search, ShieldCheck, Crown } from 'lucide-react';
 import { getLabels } from '@/src/lib/utils/labels';
 import { TeacherClassroomButton } from '@/components/management/TeacherClassroomButton';
+import { InviteMemberDialog } from '@/components/management/InviteMemberDialog';
 
 export const metadata = {
     title: 'Equipe | Gestão',
@@ -85,9 +86,7 @@ export default async function EquipePage() {
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">Equipe Pedagógica</h1>
                     <p className="text-slate-500 mt-1.5 text-sm">Gerencie os acessos e permissões dos colaboradores.</p>
                 </div>
-                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-200 active:scale-95 transition-all rounded-2xl">
-                    <UserPlus size={18} strokeWidth={1.5} className="mr-2" /> Convidar Membro
-                </Button>
+                <InviteMemberDialog tenantId={currentUser.tenantId} />
             </div>
 
             <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">

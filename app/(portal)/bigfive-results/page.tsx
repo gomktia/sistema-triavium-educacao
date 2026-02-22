@@ -80,6 +80,13 @@ export default async function BigFiveResultsPage() {
                     ))}
                 </div>
             </div>
+
+            {/* Nota Ética */}
+            <div className="bg-slate-50 rounded-2xl p-4 border border-dashed border-slate-200 text-center">
+                <p className="text-xs text-slate-500 font-medium">
+                    Este instrumento tem finalidade exclusivamente pedagógica e não constitui diagnóstico clínico.
+                </p>
+            </div>
         </div>
     );
 }

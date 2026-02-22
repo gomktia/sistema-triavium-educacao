@@ -132,14 +132,24 @@ export function getHomeForRole(role: string): string {
 const ROUTE_ACCESS: Record<string, string[]> = {
     '/questionario': ['STUDENT'],
     '/minhas-forcas': ['STUDENT'],
+    '/bigfive': ['STUDENT'],
+    '/bigfive-results': ['STUDENT'],
+    '/ieaa': ['STUDENT'],
+    '/ieaa-results': ['STUDENT'],
+    '/minha-voz': ['STUDENT'],
     '/turma': ['TEACHER', 'MANAGER', 'ADMIN', 'PSYCHOLOGIST', 'COUNSELOR'],
+    '/turmas': ['TEACHER', 'MANAGER', 'ADMIN', 'PSYCHOLOGIST', 'COUNSELOR'],
     '/alunos': ['PSYCHOLOGIST', 'COUNSELOR', 'MANAGER', 'ADMIN'],
     '/intervencoes': ['PSYCHOLOGIST', 'COUNSELOR', 'MANAGER', 'ADMIN'],
     '/relatorios': ['PSYCHOLOGIST', 'COUNSELOR', 'MANAGER', 'ADMIN'],
+    '/dashboard': ['MANAGER', 'ADMIN'],
+    '/dashboard-hibrido': ['PSYCHOLOGIST', 'MANAGER', 'ADMIN'],
     '/gestao': ['MANAGER', 'ADMIN'],
     '/escola/configuracoes': ['MANAGER', 'ADMIN'],
+    '/sugestoes': ['TEACHER', 'MANAGER'],
     '/super-admin': ['ADMIN'],
     '/inicio': ['TEACHER', 'MANAGER', 'ADMIN', 'PSYCHOLOGIST', 'COUNSELOR', 'STUDENT'],
+    '/configuracoes': ['TEACHER', 'MANAGER', 'ADMIN', 'PSYCHOLOGIST', 'COUNSELOR', 'STUDENT'],
 };
 
 /**

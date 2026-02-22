@@ -1,4 +1,4 @@
-# 🔐 Credenciais de Teste - EduInteligência SaaS
+# 🔐 Credenciais de Teste - Triavium SaaS
 
 Use estas credenciais para navegar pelas diferentes perspectivas do sistema durante a sua apresentação. Você pode entrar usando tanto o **E-mail** quanto o **CPF**.
 

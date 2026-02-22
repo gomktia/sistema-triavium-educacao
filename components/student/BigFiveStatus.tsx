@@ -109,6 +109,9 @@ export function BigFiveStatus({ scores, studentName }: { scores: any[], studentN
                                 </div>
                             ))}
                         </div>
+                        <p className="text-[9px] text-slate-400 text-center mt-3 pt-3 border-t border-slate-50">
+                            Finalidade exclusivamente pedagógica.
+                        </p>
                     </CardContent>
                 </Card>
             </div>

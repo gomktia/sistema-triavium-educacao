@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",
+    "@radix-ui/react-alert-dialog": "^1.1.15",
     "@react-pdf/renderer": "^4.3.2",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.95.3",

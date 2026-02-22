@@ -25,6 +25,7 @@ interface QuestionCardProps {
     value: number | undefined;
     onChange: (value: number) => void;
     highlight?: boolean;
+    labels?: string[];
 }
 
 function IntensityIcon({ level, isSelected }: { level: number; isSelected: boolean }) {
@@ -68,7 +69,9 @@ function IntensityIcon({ level, isSelected }: { level: number; isSelected: boole
     );
 }
 
-export function QuestionCard({ number, text, value, onChange, highlight }: QuestionCardProps) {
+export function QuestionCard({ number, text, value, onChange, highlight, labels }: QuestionCardProps) {
+    const displayLabels = labels || LABELS;
+
     return (
         <div className={cn(
             "bg-white rounded-3xl p-6 sm:p-8 space-y-6 transition-all duration-500",
@@ -91,7 +94,7 @@ export function QuestionCard({ number, text, value, onChange, highlight }: Quest
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 sm:gap-4">
-                {LABELS.map((label, i) => {
+                {displayLabels.map((label, i) => {
                     const isSelected = value === i;
                     const colors = SELECTED_COLORS[i];
                     return (

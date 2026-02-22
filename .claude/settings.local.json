@@ -21,7 +21,18 @@
       "Bash(git commit:*)",
       "Bash(vercel --prod:*)",
       "Bash(vercel env rm:*)",
-      "Bash(printf:*)"
+      "Bash(printf:*)",
+      "Bash(unzip:*)",
+      "Bash(./node_modules/.bin/prisma migrate dev:*)",
+      "Bash(./node_modules/.bin/prisma migrate diff:*)",
+      "Bash(npm run dev:*)",
+      "Bash(./node_modules/.bin/prisma:*)",
+      "Bash(xargs:*)",
+      "Bash(npm run build:*)",
+      "Bash(grep:*)",
+      "Bash(git branch:*)",
+      "Bash(git reset:*)",
+      "Bash(git restore:*)"
     ]
   }
 }

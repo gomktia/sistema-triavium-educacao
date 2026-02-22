@@ -18,7 +18,7 @@ interface FormQuestion {
     number: number
     text: string
     category: string | null
-    type: 'VIA_STRENGTHS' | 'SRSS_IE' | 'BIG_FIVE'
+    type: 'VIA_STRENGTHS' | 'SRSS_IE' | 'BIG_FIVE' | 'IEAA'
     educationalLevel: 'KINDERGARTEN' | 'ELEMENTARY' | 'HIGH_SCHOOL'
     isActive: boolean
     order: number
@@ -33,7 +33,7 @@ interface FormQuestionsManagerProps {
 export function FormQuestionsManager({ initialQuestions, canEdit = false }: FormQuestionsManagerProps) {
     const [questions, setQuestions] = useState<FormQuestion[]>(initialQuestions)
     const [search, setSearch] = useState('')
-    const [selectedType, setSelectedType] = useState<'ALL' | 'VIA_STRENGTHS' | 'SRSS_IE' | 'BIG_FIVE'>('ALL')
+    const [selectedType, setSelectedType] = useState<'ALL' | 'VIA_STRENGTHS' | 'SRSS_IE' | 'BIG_FIVE' | 'IEAA'>('ALL')
 
     // Estado do Modal
     const [isOpen, setIsOpen] = useState(false)
@@ -159,6 +159,7 @@ export function FormQuestionsManager({ initialQuestions, canEdit = false }: Form
                         <option value="VIA_STRENGTHS">VIA (Forças)</option>
                         <option value="SRSS_IE">SRSS-IE (Risco)</option>
                         <option value="BIG_FIVE">BIG FIVE (Personalidade)</option>
+                        <option value="IEAA">IEAA (Autorregulação)</option>
                     </select>
 
                     {canEdit && (
@@ -177,14 +178,18 @@ export function FormQuestionsManager({ initialQuestions, canEdit = false }: Form
                                 <Badge variant={
                                     question.type === 'VIA_STRENGTHS' ? 'default' :
                                         question.type === 'SRSS_IE' ? 'secondary' :
-                                            'outline'
+                                            question.type === 'IEAA' ? 'default' :
+                                                'outline'
                                 }
                                     className={
                                         question.type === 'VIA_STRENGTHS' ? 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200' :
                                             question.type === 'SRSS_IE' ? 'bg-orange-100 text-orange-800 hover:bg-orange-200' :
-                                                'bg-purple-100 text-purple-800 hover:bg-purple-200 border-none'
+                                                question.type === 'IEAA' ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' :
+                                                    'bg-purple-100 text-purple-800 hover:bg-purple-200 border-none'
                                     }>
-                                    {question.type === 'VIA_STRENGTHS' ? 'VIA' : question.type === 'SRSS_IE' ? 'SRSS' : 'BIG FIVE'}
+                                    {question.type === 'VIA_STRENGTHS' ? 'VIA' :
+                                        question.type === 'SRSS_IE' ? 'SRSS' :
+                                            question.type === 'IEAA' ? 'IEAA' : 'BIG FIVE'}
                                 </Badge>
                                 <span className="font-mono text-sm text-muted-foreground">#{question.number}</span>
                                 {question.category && (
@@ -247,6 +252,7 @@ export function FormQuestionsManager({ initialQuestions, canEdit = false }: Form
                                 <option value="VIA_STRENGTHS">VIA (Forças)</option>
                                 <option value="SRSS_IE">SRSS-IE (Risco)</option>
                                 <option value="BIG_FIVE">BIG FIVE (Personalidade)</option>
+                                <option value="IEAA">IEAA (Autorregulação)</option>
                             </select>
                         </div>
 

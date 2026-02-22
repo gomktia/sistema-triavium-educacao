@@ -7,7 +7,6 @@ import { useState, useEffect } from 'react';
 import {
     TrendingUp,
     ShieldCheck,
-    BrainCircuit,
     BarChart3,
     ChevronRight,
     Star,
@@ -44,7 +43,7 @@ export default function LandingPage() {
             )}>
                 <Link className="flex items-center justify-center gap-3 group" href="#">
                     <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center text-white shadow-xl shadow-indigo-200 group-hover:scale-110 transition-all duration-500">
-                        <BrainCircuit size={22} className="group-hover:rotate-12 transition-transform" />
+                        <span className="font-black text-lg tracking-tight">TR</span>
                     </div>
                     <span className="font-black text-2xl tracking-tighter text-slate-900">Triavium</span>
                 </Link>
@@ -461,7 +460,7 @@ export default function LandingPage() {
                         <div className="col-span-1 md:col-span-1 space-y-6">
                             <Link className="flex items-center gap-3" href="#">
                                 <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
-                                    <BrainCircuit size={18} />
+                                    <span className="font-black text-sm tracking-tight">TR</span>
                                 </div>
                                 <span className="font-black text-xl tracking-tighter text-slate-900">Triavium</span>
                             </Link>

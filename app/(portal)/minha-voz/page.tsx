@@ -32,7 +32,7 @@ export default function MinhaVozPage() {
     };
 
     return (
-        <div className="max-w-xl mx-auto space-y-8 animate-in fade-in duration-700 pb-20">
+        <div className="max-w-xl mx-auto space-y-8 animate-in fade-in duration-700 pb-[env(safe-area-inset-bottom,20px)] min-h-[100dvh] flex flex-col">
             <div className="text-center space-y-3 pt-8">
                 <div className="h-20 w-20 bg-gradient-to-br from-rose-400 to-pink-500 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-rose-200 ring-4 ring-white">
                     <MessageCircleHeart className="text-white" size={32} strokeWidth={2.5} />
@@ -44,7 +44,7 @@ export default function MinhaVozPage() {
                 </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 shadow-[0_8px_40px_rgb(0,0,0,0.06)] space-y-6 border border-slate-100 relative overflow-hidden">
+            <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 shadow-[0_8px_40px_rgb(0,0,0,0.06)] space-y-6 border border-slate-100 relative overflow-hidden flex-1 flex flex-col sticky bottom-0">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-400 to-pink-500" />
 
                 <div>

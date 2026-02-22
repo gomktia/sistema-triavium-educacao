@@ -179,3 +179,51 @@ export interface BigFiveScore {
   description: string;
   level: 'Baixo' | 'Médio' | 'Alto';
 }
+
+// --- IEAA (Inventário de Estratégias de Aprendizagem e Autorregulação) ---
+
+export enum IEAADimension {
+  COGNITIVA = 'COGNITIVA',
+  METACOGNITIVA = 'METACOGNITIVA',
+  GESTAO_RECURSOS = 'GESTAO_RECURSOS',
+  MOTIVACIONAL = 'MOTIVACIONAL',
+}
+
+export enum IEAAProfile {
+  EXECUTIVO = 'EXECUTIVO',
+  CIENTISTA = 'CIENTISTA',
+  ENGAJADO = 'ENGAJADO',
+  VULNERAVEL = 'VULNERAVEL',
+}
+
+export enum IEAALevel {
+  REATIVO = 'REATIVO',           // < 46% - Aprendiz Reativo
+  TRANSICAO = 'TRANSICAO',       // 47-73% - Aprendiz em Transição
+  AUTORREGULADO = 'AUTORREGULADO', // > 74% - Aprendiz Autorregulado
+}
+
+export interface IEAARawAnswers {
+  [itemNumber: number]: number; // 1-5 Likert scale
+}
+
+export interface IEAADimensionScore {
+  dimension: IEAADimension;
+  label: string;
+  description: string;
+  score: number;       // Sum of answers
+  maxPossible: number; // Maximum possible score
+  percentage: number;  // Score as percentage
+  level: IEAALevel;
+}
+
+export interface IEAAResult {
+  dimensions: IEAADimensionScore[];
+  totalScore: number;
+  totalMaxPossible: number;
+  totalPercentage: number;
+  overallLevel: IEAALevel;
+  profile: IEAAProfile;
+  profileLabel: string;
+  profileDescription: string;
+  interventionRecommendation: string;
+}

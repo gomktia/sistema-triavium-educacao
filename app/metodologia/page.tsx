@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle2, ChevronRight, BrainCircuit, Activity, ShieldCheck, HeartPulse, FileDown } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Activity, ShieldCheck, HeartPulse, FileDown } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata = {
@@ -16,7 +16,7 @@ export default function MetodologiaPage() {
                 <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="font-black text-xl text-slate-900 flex items-center gap-2">
                         <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
-                            <BrainCircuit size={18} />
+                            <span className="font-black text-sm tracking-tight">TR</span>
                         </div>
                         Triavium
                     </div>

@@ -1,10 +1,10 @@
 import { getClassrooms } from '@/app/actions/classrooms';
 import { getCurrentUser } from '@/lib/auth';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Plus, Users, School, ArrowRight, Calendar, Layers } from 'lucide-react';
+import { Users, School, ArrowRight, Layers } from 'lucide-react';
 import Link from 'next/link';
 import { getLabels } from '@/src/lib/utils/labels';
+import { CreateClassroomDialog } from '@/components/management/CreateClassroomDialog';
 
 export default async function TurmasPage() {
     const user = await getCurrentUser();
@@ -22,10 +22,7 @@ export default async function TurmasPage() {
                 </div>
                 {/* SECURITY V4.1: Apenas MANAGER/ADMIN podem criar turmas */}
                 {(user.role === 'MANAGER' || user.role === 'ADMIN') && (
-                    <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl h-12 px-6 font-bold shadow-lg shadow-indigo-200 active:scale-95 transition-all">
-                        <Plus className="mr-2 h-5 w-5" />
-                        Nova Turma
-                    </Button>
+                    <CreateClassroomDialog />
                 )}
             </div>
 
@@ -92,9 +89,7 @@ export default async function TurmasPage() {
                         </p>
                         {/* SECURITY V4.1: Apenas MANAGER/ADMIN podem criar turmas */}
                         {(user.role === 'MANAGER' || user.role === 'ADMIN') && (
-                            <Button className="mt-8 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl h-12 px-8 font-bold shadow-lg shadow-indigo-200 active:scale-95 transition-all">
-                                Criar primeira turma agora
-                            </Button>
+                            <CreateClassroomDialog variant="empty" />
                         )}
                     </Card>
                 )}

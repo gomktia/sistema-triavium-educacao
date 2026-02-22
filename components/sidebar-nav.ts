@@ -18,6 +18,7 @@ export function getNavForRole(role: string, organizationType?: string): NavItem[
             { label: 'Minha Voz', href: '/minha-voz', iconName: 'MessageCircleHeart' },
             { label: 'Responder VIA', href: '/questionario', iconName: 'ClipboardList' },
             { label: 'Big Five', href: '/bigfive', iconName: 'BrainCircuit' },
+            { label: 'IEAA', href: '/ieaa', iconName: 'BookOpen' },
             { label: 'Minhas Forças', href: '/minhas-forcas', iconName: 'Trophy' },
             { label: 'Perfil', href: '/configuracoes', iconName: 'Settings' },
         ],
@@ -33,6 +34,7 @@ export function getNavForRole(role: string, organizationType?: string): NavItem[
                     { label: 'Lançar Triagem', href: '/turma/triagem', iconName: 'ClipboardList' },
                 ]
             },
+            { label: 'Sugestoes', href: '/sugestoes', iconName: 'Lightbulb' },
             { label: 'Configurações', href: '/configuracoes', iconName: 'Settings' },
         ],
         PSYCHOLOGIST: [
@@ -77,6 +79,7 @@ export function getNavForRole(role: string, organizationType?: string): NavItem[
             { label: 'Financeiro', href: '/gestao/financeiro', iconName: 'CreditCard' },
             { label: 'Mapa de Risco', href: '/turma', iconName: 'ClipboardList' },
             { label: labels.subjects, href: '/alunos', iconName: 'GraduationCap' },
+            { label: 'Sugestoes', href: '/sugestoes', iconName: 'Lightbulb' },
             { label: 'Configurações', href: '/configuracoes', iconName: 'Settings' },
         ],
         ADMIN: [

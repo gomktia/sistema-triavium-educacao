@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { SelfRegistrationForm } from '@/components/auth/SelfRegistrationForm';
-import { BrainCircuit } from 'lucide-react';
 
 export const dynamic = 'force-dynamic'
 
@@ -32,7 +31,7 @@ export default async function SelfRegistrationPage(props: { params: Promise<{ te
                                 {tenant.logoUrl ? (
                                     <img src={tenant.logoUrl} alt={tenant.name} className="h-10 w-10 object-contain brightness-0 invert" />
                                 ) : (
-                                    <BrainCircuit size={32} />
+                                    <span className="font-black text-2xl tracking-tight">TR</span>
                                 )}
                             </div>
                             <h1 className="text-2xl font-black text-slate-900 tracking-tight">Crie sua Conta</h1>
@@ -46,7 +45,7 @@ export default async function SelfRegistrationPage(props: { params: Promise<{ te
                     </div>
                     <div className="bg-slate-50/50 p-6 text-center border-t border-slate-100">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            © 2026 GomkTia Intelligence Systems
+                            © 2026 Triavium Educação e Desenvolvimento LTDA
                         </p>
                     </div>
                 </div>
