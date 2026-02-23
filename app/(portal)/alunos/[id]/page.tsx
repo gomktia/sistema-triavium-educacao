@@ -13,6 +13,7 @@ import { getLabels } from '@/src/lib/utils/labels';
 import { DataPortabilityCard } from '@/components/legal/DataPortabilityCard';
 import { FamilyReportDialog } from '@/components/reports/FamilyReportDialog';
 import { InviteGuardianDialog } from '@/components/guardian/InviteGuardianDialog';
+import { SendMessageDialog } from '@/components/guardian/SendMessageDialog';
 import { generateEvolutionNarrative, getHomeSuggestions } from '@/lib/report/family-report-helpers';
 import { STRENGTH_DESCRIPTIONS } from '@/src/core/content/strength-descriptions';
 
@@ -186,6 +187,12 @@ export default async function AlunoDetalhePage(props: { params: Promise<{ id: st
                             studentId={student.id}
                             studentName={student.name}
                             guardianEmail={student.guardianEmail || undefined}
+                        />
+                    )}
+                    {canInviteGuardian && (
+                        <SendMessageDialog
+                            studentId={student.id}
+                            studentName={student.name}
                         />
                     )}
                     {familyReportProps && (

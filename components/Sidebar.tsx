@@ -32,7 +32,10 @@ import {
     TrendingUp,
     Lightbulb,
     User,
-    BookOpen
+    BookOpen,
+    BarChart3,
+    Calendar,
+    MessageSquare
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -59,7 +62,10 @@ const ICON_MAP: Record<string, any> = {
     TrendingUp,
     Lightbulb,
     User,
-    BookOpen
+    BookOpen,
+    BarChart3,
+    Calendar,
+    MessageSquare
 };
 
 interface SidebarProps {

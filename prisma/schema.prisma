@@ -292,6 +292,7 @@ model Student {
   studentMessages      StudentMessage[]
   guardians            StudentGuardian[]
   guardianInvites      GuardianInvite[]
+  familyCommunications FamilyCommunication[]
 
   @@unique([tenantId, cpf])
   @@unique([tenantId, enrollmentId])
@@ -416,6 +417,7 @@ model Tenant {
   studentMessages     StudentMessage[]
   studentGuardians    StudentGuardian[]
   guardianInvites     GuardianInvite[]
+  familyCommunications FamilyCommunication[]
 
   @@map("tenants")
 }
@@ -444,6 +446,7 @@ model User {
   tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   guardianStudents   StudentGuardian[]
   guardianInvites    GuardianInvite[]    @relation("GuardianInviter")
+  sentFamilyMessages FamilyCommunication[]
   tourCompletedAt    DateTime?
 
   @@unique([tenantId, cpf])
@@ -622,4 +625,24 @@ enum InviteStatus {
   PENDING
   ACCEPTED
   EXPIRED
+}
+
+model FamilyCommunication {
+  id        String   @id @default(cuid())
+  tenantId  String
+  studentId String
+  senderId  String
+  type      String   // AVISO, PARABENS, REUNIAO, SUGESTAO
+  subject   String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  sender    User     @relation(fields: [senderId], references: [id])
+
+  @@index([tenantId])
+  @@index([studentId])
+  @@index([senderId])
+  @@map("family_communications")
 }

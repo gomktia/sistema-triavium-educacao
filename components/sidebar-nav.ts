@@ -86,6 +86,7 @@ export function getNavForRole(role: string, organizationType?: string): NavItem[
                     { label: 'Dashboard Geral', href: '/dashboard', iconName: 'LayoutDashboard' },
                     { label: 'Monitoramento', href: '/dashboard/intervencoes', iconName: 'TrendingUp' },
                     { label: 'Análise Híbrida', href: '/dashboard-hibrido', iconName: 'Activity' },
+                    { label: 'Comparativo', href: '/turmas/comparativo', iconName: 'BarChart3' },
                 ]
             },
             { label: 'Turmas', href: '/turmas', iconName: 'School' },
@@ -103,10 +104,12 @@ export function getNavForRole(role: string, organizationType?: string): NavItem[
             },
             { label: 'Sugestões', href: '/sugestoes', iconName: 'Lightbulb' },
             { label: 'Config. da Escola', href: '/escola/configuracoes', iconName: 'School' },
+            { label: 'Calendário', href: '/calendario-triagem', iconName: 'Calendar' },
             { label: 'Configurações', href: '/configuracoes', iconName: 'Settings' },
         ],
         RESPONSIBLE: [
             { label: 'Início', href: '/responsavel', iconName: 'Home' },
+            { label: 'Mensagens', href: '/responsavel/mensagens', iconName: 'MessageSquare' },
             { label: 'Perfil', href: '/responsavel/perfil', iconName: 'User' },
         ],
         ADMIN: [
