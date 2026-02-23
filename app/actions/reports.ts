@@ -5,6 +5,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { getLabels } from '@/src/lib/utils/labels';
 import { UserRole } from '@/src/core/types';
 import * as XLSX from 'xlsx';
+import { calculateTierMigration, calculateGroupEfficacy } from '@/lib/intervention-monitoring';
 
 export async function generateExcelReport() {
     const user = await getCurrentUser();
@@ -249,4 +250,201 @@ export async function saveProfessionalOpinion(studentId: string, text: string) {
         console.error(e);
         return { error: 'Erro ao salvar histórico.' };
     }
+}
+
+/**
+ * Obtém dados consolidados para o painel de monitoramento de intervenções.
+ * Acesso restrito a MANAGER e ADMIN.
+ */
+export async function getInterventionMonitoringData(): Promise<{
+    kpis: {
+        totalTier3: number;
+        migrationPositivePercent: number;
+        migrationNegativePercent: number;
+        activeGroups: number;
+    };
+    tierMigration: {
+        label: string;
+        improved: number;
+        unchanged: number;
+        worsened: number;
+    }[];
+    groupEfficacy: {
+        id: string;
+        name: string;
+        type: string;
+        studentCount: number;
+        percentImproved: number;
+        percentUnchanged: number;
+        percentWorsened: number;
+    }[];
+} | null> {
+    const user = await getCurrentUser();
+    if (!user || (user.role !== UserRole.MANAGER && user.role !== UserRole.ADMIN)) {
+        return null;
+    }
+
+    const academicYear = new Date().getFullYear();
+
+    // 1. Fetch all SRSS-IE assessments for the current academic year with a tier
+    const assessments = await prisma.assessment.findMany({
+        where: {
+            tenantId: user.tenantId,
+            type: 'SRSS_IE',
+            academicYear,
+            overallTier: { not: null },
+        },
+        select: {
+            studentId: true,
+            screeningWindow: true,
+            overallTier: true,
+            appliedAt: true,
+        },
+        orderBy: { appliedAt: 'desc' },
+    });
+
+    // 2. Deduplicate: keep only the latest assessment per student+window
+    const seen = new Set<string>();
+    const unique = assessments.filter((a) => {
+        const key = `${a.studentId}-${a.screeningWindow}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+
+    // 3. Group by screening window
+    const byWindow: Record<string, { studentId: string; tier: string }[]> = {
+        DIAGNOSTIC: [],
+        MONITORING: [],
+        FINAL: [],
+    };
+
+    for (const a of unique) {
+        const window = a.screeningWindow as string;
+        if (byWindow[window]) {
+            byWindow[window].push({ studentId: a.studentId, tier: a.overallTier as string });
+        }
+    }
+
+    // 4. Calculate tier migration between consecutive windows
+    const windowPairs: { before: string; after: string; label: string }[] = [
+        { before: 'DIAGNOSTIC', after: 'MONITORING', label: 'Mar → Jun' },
+        { before: 'MONITORING', after: 'FINAL', label: 'Jun → Out' },
+    ];
+
+    const tierMigration = windowPairs
+        .filter((pair) => byWindow[pair.before].length > 0 && byWindow[pair.after].length > 0)
+        .map((pair) => {
+            const result = calculateTierMigration(byWindow[pair.before], byWindow[pair.after]);
+            return {
+                label: pair.label,
+                improved: result.improved,
+                unchanged: result.unchanged,
+                worsened: result.worsened,
+            };
+        });
+
+    // 5. Calculate KPIs
+    // Determine the most recent window with data (order: FINAL > MONITORING > DIAGNOSTIC)
+    const windowOrder = ['FINAL', 'MONITORING', 'DIAGNOSTIC'] as const;
+    const mostRecentWindow = windowOrder.find((w) => byWindow[w].length > 0);
+    const earliestWindow = [...windowOrder].reverse().find((w) => byWindow[w].length > 0);
+
+    const totalTier3 = mostRecentWindow
+        ? byWindow[mostRecentWindow].filter((e) => e.tier === 'TIER_3').length
+        : 0;
+
+    // Overall migration: earliest window → most recent window
+    let migrationPositivePercent = 0;
+    let migrationNegativePercent = 0;
+
+    if (earliestWindow && mostRecentWindow && earliestWindow !== mostRecentWindow) {
+        const overall = calculateTierMigration(byWindow[earliestWindow], byWindow[mostRecentWindow]);
+        if (overall.total > 0) {
+            migrationPositivePercent = Math.round((overall.improved / overall.total) * 100);
+            migrationNegativePercent = Math.round((overall.worsened / overall.total) * 100);
+        }
+    }
+
+    // Count active intervention groups for this tenant
+    const activeGroups = await prisma.interventionGroup.count({
+        where: { tenantId: user.tenantId, isActive: true },
+    });
+
+    // 6. Calculate group efficacy
+    const groups = await prisma.interventionGroup.findMany({
+        where: { tenantId: user.tenantId, isActive: true },
+        include: {
+            students: {
+                select: { id: true },
+            },
+        },
+    });
+
+    const groupEfficacy = await Promise.all(
+        groups.map(async (group) => {
+            const studentIds = group.students.map((s) => s.id);
+
+            // For each student, find their earliest and latest SRSS-IE tier
+            const studentAssessments = await prisma.assessment.findMany({
+                where: {
+                    tenantId: user.tenantId,
+                    studentId: { in: studentIds },
+                    type: 'SRSS_IE',
+                    academicYear,
+                    overallTier: { not: null },
+                },
+                select: {
+                    studentId: true,
+                    overallTier: true,
+                    appliedAt: true,
+                },
+                orderBy: { appliedAt: 'asc' },
+            });
+
+            // Build earliest and latest tier per student
+            const earliestTier = new Map<string, string>();
+            const latestTier = new Map<string, string>();
+
+            for (const sa of studentAssessments) {
+                if (!earliestTier.has(sa.studentId)) {
+                    earliestTier.set(sa.studentId, sa.overallTier as string);
+                }
+                latestTier.set(sa.studentId, sa.overallTier as string);
+            }
+
+            // Build entries for students that have both earliest and latest
+            const entries = studentIds
+                .filter((id) => earliestTier.has(id) && latestTier.has(id))
+                .map((id) => ({
+                    studentId: id,
+                    tierBefore: earliestTier.get(id)!,
+                    tierAfter: latestTier.get(id)!,
+                }));
+
+            const efficacy = calculateGroupEfficacy(entries);
+            const total = entries.length || 1;
+
+            return {
+                id: group.id,
+                name: group.name,
+                type: group.type,
+                studentCount: studentIds.length,
+                percentImproved: efficacy.percentImproved,
+                percentUnchanged: Math.round((efficacy.unchanged / total) * 100),
+                percentWorsened: Math.round((efficacy.worsened / total) * 100),
+            };
+        })
+    );
+
+    return {
+        kpis: {
+            totalTier3,
+            migrationPositivePercent,
+            migrationNegativePercent,
+            activeGroups,
+        },
+        tierMigration,
+        groupEfficacy,
+    };
 }
