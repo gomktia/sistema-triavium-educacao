@@ -1,0 +1,564 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Assessment {
+  id                 String          @id @default(cuid())
+  tenantId           String
+  studentId          String
+  type               AssessmentType
+  screeningWindow    ScreeningWindow
+  academicYear       Int
+  appliedAt          DateTime        @default(now())
+  screeningTeacherId String?
+  rawAnswers         Json
+  processedScores    Json?
+  overallTier        RiskTier?
+  externalizingScore Int?
+  internalizingScore Int?
+  selfKnowledgeScore Int?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  screeningTeacher   User?           @relation(fields: [screeningTeacherId], references: [id])
+  student            Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  tenant             Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, type, appliedAt])
+  @@index([tenantId])
+  @@index([tenantId, overallTier])
+  @@index([tenantId, studentId])
+  @@index([tenantId, type, screeningWindow, academicYear])
+  @@map("assessments")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String
+  action    String
+  targetId  String?
+  details   Json?
+  timestamp DateTime @default(now())
+  ip        String?
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([action])
+  @@index([userId])
+  @@map("audit_logs")
+}
+
+model Classroom {
+  id                 String               @id @default(cuid())
+  tenantId           String
+  name               String
+  grade              GradeLevel
+  year               Int
+  shift              String?
+  createdAt          DateTime             @default(now())
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  students           Student[]
+  teacherClassrooms TeacherClassroom[]
+
+  @@unique([tenantId, name, year])
+  @@index([tenantId])
+  @@map("classrooms")
+}
+
+model FormQuestion {
+  id               String           @id @default(cuid())
+  number           Int
+  text             String
+  category         String?
+  type             AssessmentType
+  isActive         Boolean          @default(true)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  order            Int              @default(0)
+  weight           Int              @default(1)
+  tenantId         String?
+  educationalLevel EducationalLevel @default(HIGH_SCHOOL)
+  tenant           Tenant?         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, type, number])
+  @@map("form_questions")
+}
+
+model GradeFocusConfig {
+  id            Int           @id @default(autoincrement())
+  grade         GradeLevel
+  focus_label   String
+  srss_item     Int
+  severity      String
+  rationale_pt  String
+  srss_ie_items SrssIeItem @relation(fields: [srss_item], references: [item_number])
+
+  @@unique([grade, srss_item])
+  @@map("grade_focus_config")
+}
+
+model InterventionGroup {
+  id          String           @id @default(cuid())
+  tenantId    String
+  name        String
+  description String?
+  type        InterventionType
+  startDate   DateTime
+  endDate     DateTime?
+  isActive    Boolean          @default(true)
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  students    Student[]       @relation("InterventionGroupToStudent")
+
+  @@index([tenantId])
+  @@map("intervention_groups")
+}
+
+model InterventionLog {
+  id                String             @id @default(cuid())
+  tenantId          String
+  studentId         String
+  authorId          String
+  type              InterventionType
+  status            InterventionStatus @default(PLANNED)
+  tier              RiskTier
+  title             String
+  description       String?
+  goals             String?
+  observations      String?
+  leverageStrengths String[]
+  targetRisks       String[]
+  startDate         DateTime?
+  endDate           DateTime?
+  nextReview        DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  author            User              @relation(fields: [authorId], references: [id])
+  student           Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  tenant            Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([tenantId, studentId])
+  @@index([tenantId, tier])
+  @@index([tenantId, createdAt])
+  @@map("intervention_logs")
+}
+
+model InterventionPlan {
+  id                String    @id @default(cuid())
+  tenantId          String
+  studentId         String
+  authorId          String
+  status            String    @default("ACTIVE")
+  targetRisks       String[]
+  leverageStrengths String[]
+  strategicActions  String
+  expectedOutcome   String?
+  reviewDate        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  isPDI             Boolean   @default(false)
+  pdiGoals          Json?
+  author            User     @relation(fields: [authorId], references: [id])
+  student           Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([tenantId])
+  @@map("intervention_plans")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  tenantId  String
+  userId    String?
+  studentId String?
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  link      String?
+  createdAt DateTime         @default(now())
+  student   Student?        @relation(fields: [studentId], references: [id])
+  tenant    Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User?           @relation(fields: [userId], references: [id])
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId])
+  @@index([tenantId, userId, isRead])
+  @@map("notifications")
+}
+
+model SchoolIndicator {
+  id               String   @id @default(cuid())
+  tenantId         String
+  studentId        String
+  academicYear     Int
+  quarter          Int
+  attendanceRate   Float
+  academicAverage  Float
+  disciplinaryLogs Int      @default(0)
+  previousAverage  Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  student          Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  tenant           Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, academicYear, quarter])
+  @@index([tenantId])
+  @@index([tenantId, academicYear])
+  @@index([studentId, academicYear])
+  @@map("school_indicators")
+}
+
+model SrssIeCutoff {
+  id        Int      @id @default(autoincrement())
+  domain    String
+  tier      RiskTier
+  min_score Int
+  max_score Int
+  color     String
+  action_pt String
+
+  @@unique([domain, tier])
+  @@map("srss_ie_cutoffs")
+}
+
+model SrssIeItem {
+  id                 Int                  @id @default(autoincrement())
+  item_number        Int                  @unique
+  text_pt            String
+  domain             String
+  max_score          Int                  @default(3)
+  gradeFocusConfig GradeFocusConfig[]
+
+  @@map("srss_ie_items")
+}
+
+model StudentInvitation {
+  id              String    @id @default(cuid())
+  token           String    @unique
+  tenantId        String
+  email           String?
+  status          String    @default("PENDING")
+  usedByStudentId String?
+  expiresAt       DateTime?
+  createdAt       DateTime  @default(now())
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([token])
+  @@map("student_invitations")
+}
+
+model Student {
+  id                  String                @id @default(cuid())
+  tenantId            String
+  name                String
+  birthDate           DateTime?
+  grade               GradeLevel
+  classroomId         String?
+  enrollmentId        String?
+  guardianName        String?
+  guardianPhone       String?
+  guardianEmail       String?
+  isActive            Boolean               @default(true)
+  isFormEnabled       Boolean               @default(false)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  formAccessExpiresAt DateTime?
+  cpf                 String?
+  accessCode          String?               @unique
+  consentAcceptedAt   DateTime?
+  assessments         Assessment[]
+  interventionLogs   InterventionLog[]
+  interventionPlans  InterventionPlan[]
+  notifications       Notification[]
+  schoolIndicators   SchoolIndicator[]
+  classroom          Classroom?           @relation(fields: [classroomId], references: [id])
+  tenant             Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userAccount        User?
+  interventionGroups InterventionGroup[] @relation("InterventionGroupToStudent")
+  behaviorLogs       BehaviorLog[]
+  systemAlertLevel   AlertLevel           @default(GREEN)
+  specialEducationNeeds Json?
+  studentMessages      StudentMessage[]
+
+  @@unique([tenantId, cpf])
+  @@unique([tenantId, enrollmentId])
+  @@index([classroomId])
+  @@index([tenantId, grade])
+  @@index([tenantId])
+  @@map("students")
+}
+
+model StudentMessage {
+  id          String   @id @default(cuid())
+  tenantId    String
+  studentId   String
+  content     String   @db.Text
+  riskLevel   String   @default("LOW") // LOW, MEDIUM, HIGH, CRITICAL
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([studentId])
+  @@index([riskLevel])
+  @@map("student_messages")
+}
+
+enum AlertLevel {
+  GREEN
+  YELLOW
+  RED
+}
+
+model TeacherClassroom {
+  id          String     @id @default(cuid())
+  teacherId   String
+  classroomId String
+  tenantId    String
+  createdAt   DateTime   @default(now())
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  teacher     User      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, classroomId])
+  @@index([classroomId])
+  @@index([teacherId])
+  @@index([tenantId])
+  @@map("teacher_classrooms")
+}
+
+model Tenant {
+  id                  String                @id @default(cuid())
+  name                String
+  slug                String                @unique
+  customDomain        String?               @unique
+  cnpj                String?               @unique
+  address             String?
+  city                String?
+  state               String?               @db.VarChar(2)
+  phone               String?
+  email               String?
+  logoUrl             String?
+  organizationType    OrganizationType      @default(EDUCATIONAL)
+  onboardingCompleted Boolean               @default(false)
+  isActive            Boolean               @default(true)
+  subscriptionStatus  String                @default("active")
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  assessments         Assessment[]
+  classrooms          Classroom[]
+  formQuestions      FormQuestion[]
+  interventionGroups InterventionGroup[]
+  interventionLogs   InterventionLog[]
+  interventionPlans  InterventionPlan[]
+  notifications       Notification[]
+  schoolIndicators   SchoolIndicator[]
+  studentInvitations StudentInvitation[]
+  students            Student[]
+  teacherClassrooms  TeacherClassroom[]
+  users               User[]
+  behaviorLogs        BehaviorLog[]
+  productFeedbacks    ProductFeedback[]
+  auditLogs           AuditLog[]
+  studentMessages     StudentMessage[]
+
+  @@map("tenants")
+}
+
+model User {
+  id                 String               @id @default(cuid())
+  tenantId           String
+  email              String
+  name               String
+  role               Role
+  supabaseUid        String?
+  isActive           Boolean              @default(true)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  studentId          String?              @unique
+  cpf                String?
+  assessments        Assessment[]
+  auditLogs          AuditLog[]
+  interventionLogs  InterventionLog[]
+  interventionPlans InterventionPlan[]
+  notifications      Notification[]
+  teacherClassrooms  TeacherClassroom[]
+  behaviorLogs       BehaviorLog[]
+  productFeedbacks   ProductFeedback[]
+  student            Student?            @relation(fields: [studentId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, cpf])
+  @@unique([tenantId, email])
+  @@unique([tenantId, supabaseUid])
+  @@index([supabaseUid])
+  @@index([tenantId])
+  @@map("users")
+}
+
+model ViaQuestionItem {
+  id          Int    @id @default(autoincrement())
+  item_number Int    @unique
+  text_pt     String
+  strength    String
+  virtue      String
+  max_score   Int    @default(4)
+
+  @@map("via_question_items")
+}
+
+model ViaStrengthMapping {
+  id           Int    @id @default(autoincrement())
+  strength_id  Int    @unique
+  strength     String
+  virtue       String
+  item_numbers Int[]
+  max_possible Int
+
+  @@map("via_strength_mapping")
+}
+
+enum AssessmentType {
+  VIA_STRENGTHS
+  SRSS_IE
+  BIG_FIVE
+  IEAA
+}
+
+enum EducationalLevel {
+  KINDERGARTEN
+  ELEMENTARY
+  HIGH_SCHOOL
+}
+
+enum GradeLevel {
+  ANO_1_EM
+  ANO_2_EM
+  ANO_3_EM
+}
+
+enum InterventionStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum InterventionType {
+  SOCIAL_SKILLS_GROUP
+  EMOTION_REGULATION
+  CAREER_GUIDANCE
+  PEER_MENTORING
+  STUDY_SKILLS
+  INDIVIDUAL_PLAN
+  PSYCHOLOGIST_REFERRAL
+  EXTERNAL_REFERRAL
+  CRISIS_PROTOCOL
+  FAMILY_MEETING
+  CHECK_IN_CHECK_OUT
+}
+
+enum NotificationType {
+  CRITICAL_RISK
+  NEW_ASSESSMENT
+  INTERVENTION_DUE
+  SYSTEM_ALERT
+}
+
+enum OrganizationType {
+  EDUCATIONAL
+  MILITARY
+  CORPORATE
+  SPORTS
+}
+
+enum RiskTier {
+  TIER_1
+  TIER_2
+  TIER_3
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  PSYCHOLOGIST
+  COUNSELOR
+  TEACHER
+  STUDENT
+}
+
+enum ScreeningWindow {
+  DIAGNOSTIC
+  MONITORING
+  FINAL
+}
+
+enum BehaviorCategory {
+  CONFLITO
+  ISOLAMENTO
+  TRISTEZA
+  AGRESSIVIDADE
+  POSITIVO
+  OUTROS
+}
+
+model BehaviorLog {
+  id          String           @id @default(cuid())
+  tenantId    String
+  studentId   String
+  teacherId   String
+  category    BehaviorCategory
+  severity    Int              @default(1) // 1=Baixo, 2=Médio, 3=Alto/Crise
+  description String?
+  createdAt   DateTime         @default(now())
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher User    @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, studentId])
+  @@index([teacherId])
+  @@index([createdAt])
+  @@index([tenantId, createdAt])
+  @@index([studentId, createdAt])
+  @@map("behavior_logs")
+}
+
+model ProductFeedback {
+  id          String         @id @default(cuid())
+  tenantId    String
+  userId      String
+  subject     String
+  description String         @db.Text
+  status      FeedbackStatus @default(PENDING)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([status])
+  @@map("product_feedbacks")
+}
+
+enum FeedbackStatus {
+  PENDING
+  REVIEWING
+  PLANNED
+  IMPLEMENTED
+  REJECTED
+}

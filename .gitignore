@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.next/
+.env
+.env.local
+Token supabase.txt
+tsconfig.tsbuildinfo
+~$*
+*.tmp
+*.log
+nul
+.vercel
+.env.vercel
+.agent/
+.claude/
+build_log*.txt
+deployments.txt
+env_val.txt

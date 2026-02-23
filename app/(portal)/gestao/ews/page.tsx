@@ -1,0 +1,58 @@
+import { redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { UserRole } from '@/src/core/types';
+import { EWSQuickLaunch } from '@/components/management/EWSQuickLaunch';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, Info } from 'lucide-react';
+import Link from 'next/link';
+import { getLabels } from '@/src/lib/utils/labels';
+
+export const metadata = {
+    title: 'Lançamento Rápido EWS | Gestão',
+};
+
+export default async function EWSPage() {
+    const user = await getCurrentUser();
+    // PSYCHOLOGIST adicionado para poder lançar indicadores EWS complementares
+    const allowedRoles = [UserRole.MANAGER, UserRole.ADMIN, UserRole.COUNSELOR, UserRole.PSYCHOLOGIST];
+
+    if (!user || !allowedRoles.includes(user.role)) {
+        redirect('/');
+    }
+
+    const labels = getLabels(user.organizationType);
+
+    const students = await prisma.student.findMany({
+        where: { tenantId: user.tenantId, isActive: true },
+        select: { id: true, name: true, grade: true },
+        orderBy: { name: 'asc' },
+    });
+
+    return (
+        <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <Link href="/gestao">
+                        <Button variant="ghost" size="icon" className="rounded-full">
+                            <ChevronLeft size={20} />
+                        </Button>
+                    </Link>
+                    <div>
+                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Lançamento EWS</h1>
+                        <p className="text-slate-500 mt-1">Insira os indicadores para monitoramento de risco.</p>
+                    </div>
+                </div>
+
+                <div className="bg-indigo-50 border border-indigo-100 p-3 rounded-xl flex items-start gap-3 max-w-sm">
+                    <Info className="text-indigo-500 shrink-0 mt-0.5" size={16} />
+                    <p className="text-[10px] text-indigo-700 font-medium leading-relaxed">
+                        Indicadores de frequência e desempenho são cruzados com os dados do SRSS-IE para gerar o Alerta de Risco Automatizado.
+                    </p>
+                </div>
+            </div>
+
+            <EWSQuickLaunch students={students} labels={labels} />
+        </div>
+    );
+}
