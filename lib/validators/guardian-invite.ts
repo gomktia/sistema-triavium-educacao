@@ -1,6 +1,6 @@
 const VALID_RELATIONSHIPS = ['MAE', 'PAI', 'AVO_A', 'TIO_A', 'OUTRO'] as const;
 
-interface InviteInput {
+export interface InviteInput {
   email: string;
   relationship: string;
   studentId: string;

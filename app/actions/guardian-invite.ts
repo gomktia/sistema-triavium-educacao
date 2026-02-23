@@ -6,7 +6,7 @@ import { UserRole } from '@/src/core/types';
 import { randomUUID } from 'crypto';
 import { Resend } from 'resend';
 import { getTenantUrl } from '@/lib/tenant-resolver';
-import { validateGuardianInviteInput } from '@/lib/validators/guardian-invite';
+import { validateGuardianInviteInput, type InviteInput } from '@/lib/validators/guardian-invite';
 
 // ============================================================
 // Send Guardian Invite (server action)
