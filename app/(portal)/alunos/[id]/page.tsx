@@ -12,6 +12,7 @@ import { ChevronLeft, UserCircle } from 'lucide-react';
 import { getLabels } from '@/src/lib/utils/labels';
 import { DataPortabilityCard } from '@/components/legal/DataPortabilityCard';
 import { FamilyReportDialog } from '@/components/reports/FamilyReportDialog';
+import { InviteGuardianDialog } from '@/components/guardian/InviteGuardianDialog';
 import { generateEvolutionNarrative, getHomeSuggestions } from '@/lib/report/family-report-helpers';
 import { STRENGTH_DESCRIPTIONS } from '@/src/core/content/strength-descriptions';
 
@@ -40,6 +41,7 @@ export default async function AlunoDetalhePage(props: { params: Promise<{ id: st
             tenant: {
                 select: { name: true, logoUrl: true }
             },
+            guardianEmail: true,
             specialEducationNeeds: true
         },
     });
@@ -157,6 +159,8 @@ export default async function AlunoDetalhePage(props: { params: Promise<{ id: st
         };
     }
 
+    const canInviteGuardian = [UserRole.PSYCHOLOGIST, UserRole.COUNSELOR, UserRole.MANAGER, UserRole.ADMIN].includes(user.role);
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -176,9 +180,18 @@ export default async function AlunoDetalhePage(props: { params: Promise<{ id: st
                         </p>
                     </div>
                 </div>
-                {familyReportProps && (
-                    <FamilyReportDialog {...familyReportProps} />
-                )}
+                <div className="flex items-center gap-2">
+                    {canInviteGuardian && (
+                        <InviteGuardianDialog
+                            studentId={student.id}
+                            studentName={student.name}
+                            guardianEmail={student.guardianEmail || undefined}
+                        />
+                    )}
+                    {familyReportProps && (
+                        <FamilyReportDialog {...familyReportProps} />
+                    )}
+                </div>
             </div>
 
             {/* Painel de Gestão (Visível apenas para Psicólogo/Admin) */}
