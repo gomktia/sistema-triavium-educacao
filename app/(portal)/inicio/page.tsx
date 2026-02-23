@@ -1,4 +1,5 @@
 import { getCurrentUser } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 import { getLabels } from '@/src/lib/utils/labels';
 import { prisma } from '@/lib/prisma';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,6 +30,11 @@ import { BigFiveStatus } from '@/components/student/BigFiveStatus';
 export default async function InicioPage() {
     const user = await getCurrentUser();
     if (!user) return null;
+
+    // RESPONSIBLE users should go to their own portal, not staff /inicio
+    if (user.role === UserRole.RESPONSIBLE) {
+        redirect('/responsavel');
+    }
 
     const labels = getLabels(user.organizationType);
     const isStudent = user.role === 'STUDENT';
