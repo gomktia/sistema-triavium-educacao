@@ -16,9 +16,16 @@ export function getNavForRole(role: string, organizationType?: string): NavItem[
         STUDENT: [
             { label: 'Início', href: '/inicio', iconName: 'Home' },
             { label: 'Minha Voz', href: '/minha-voz', iconName: 'MessageCircleHeart' },
-            { label: 'Responder VIA', href: '/questionario', iconName: 'ClipboardList' },
-            { label: 'Big Five', href: '/bigfive', iconName: 'BrainCircuit' },
-            { label: 'IEAA', href: '/ieaa', iconName: 'BookOpen' },
+            {
+                label: 'Avaliações',
+                href: '/questionario',
+                iconName: 'ClipboardList',
+                children: [
+                    { label: 'Responder VIA', href: '/questionario', iconName: 'ClipboardList' },
+                    { label: 'Big Five', href: '/bigfive', iconName: 'BrainCircuit' },
+                    { label: 'IEAA', href: '/ieaa', iconName: 'BookOpen' },
+                ]
+            },
             { label: 'Minhas Forças', href: '/minhas-forcas', iconName: 'Trophy' },
             { label: 'Perfil', href: '/configuracoes', iconName: 'Settings' },
         ],
@@ -71,16 +78,31 @@ export function getNavForRole(role: string, organizationType?: string): NavItem[
         ],
         MANAGER: [
             { label: 'Início', href: '/inicio', iconName: 'Home' },
+            {
+                label: 'Dashboards',
+                href: '/dashboard',
+                iconName: 'LayoutDashboard',
+                children: [
+                    { label: 'Dashboard Geral', href: '/dashboard', iconName: 'LayoutDashboard' },
+                    { label: 'Monitoramento', href: '/dashboard/intervencoes', iconName: 'TrendingUp' },
+                    { label: 'Análise Híbrida', href: '/dashboard-hibrido', iconName: 'Activity' },
+                ]
+            },
             { label: 'Turmas', href: '/turmas', iconName: 'School' },
-            { label: 'Dashboard', href: '/dashboard', iconName: 'LayoutDashboard' },
-            { label: 'Monitoramento', href: '/dashboard/intervencoes', iconName: 'TrendingUp' },
-            { label: 'Análise Híbrida', href: '/dashboard-hibrido', iconName: 'Activity' },
-            { label: 'Gestão de Impacto', href: '/gestao', iconName: 'Trophy' },
-            { label: 'Equipe Pedagógica', href: '/gestao/equipe', iconName: 'Users' },
-            { label: 'Financeiro', href: '/gestao/financeiro', iconName: 'CreditCard' },
-            { label: 'Mapa de Risco', href: '/turma', iconName: 'ClipboardList' },
+            { label: 'Mapa de Risco', href: '/turma', iconName: 'HeartPulse' },
             { label: labels.subjects, href: '/alunos', iconName: 'GraduationCap' },
-            { label: 'Sugestoes', href: '/sugestoes', iconName: 'Lightbulb' },
+            {
+                label: 'Gestão',
+                href: '/gestao',
+                iconName: 'Trophy',
+                children: [
+                    { label: 'Gestão de Impacto', href: '/gestao', iconName: 'Trophy' },
+                    { label: 'Equipe Pedagógica', href: '/gestao/equipe', iconName: 'Users' },
+                    { label: 'Financeiro', href: '/gestao/financeiro', iconName: 'CreditCard' },
+                ]
+            },
+            { label: 'Sugestões', href: '/sugestoes', iconName: 'Lightbulb' },
+            { label: 'Config. da Escola', href: '/escola/configuracoes', iconName: 'School' },
             { label: 'Configurações', href: '/configuracoes', iconName: 'Settings' },
         ],
         RESPONSIBLE: [

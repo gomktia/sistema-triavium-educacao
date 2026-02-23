@@ -15,7 +15,7 @@ export default async function Page() {
 
     const tenant = await prisma.tenant.findUnique({
         where: { id: user.tenantId },
-        select: { id: true, name: true, logoUrl: true }
+        select: { id: true, name: true, logoUrl: true, slug: true, customDomain: true, cnpj: true, phone: true, email: true, address: true, city: true, state: true }
     });
 
     return <EscolaConfigPage tenant={tenant} />;

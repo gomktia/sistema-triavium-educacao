@@ -25,7 +25,14 @@ import {
     UserCircle,
     GraduationCap,
     ShieldAlert,
-    ChevronDown
+    ChevronDown,
+    BrainCircuit,
+    MessageCircleHeart,
+    Activity,
+    TrendingUp,
+    Lightbulb,
+    User,
+    BookOpen
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -45,7 +52,14 @@ const ICON_MAP: Record<string, any> = {
     CreditCard,
     LifeBuoy,
     GraduationCap,
-    ShieldAlert
+    ShieldAlert,
+    BrainCircuit,
+    MessageCircleHeart,
+    Activity,
+    TrendingUp,
+    Lightbulb,
+    User,
+    BookOpen
 };
 
 interface SidebarProps {
