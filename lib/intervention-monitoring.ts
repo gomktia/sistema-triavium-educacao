@@ -24,6 +24,8 @@ interface EfficacyResult {
     unchanged: number;
     worsened: number;
     percentImproved: number;
+    percentUnchanged: number;
+    percentWorsened: number;
 }
 
 const TIER_VALUES: Record<string, number> = {
@@ -75,7 +77,7 @@ export function calculateGroupEfficacy(
     students: GroupStudentEntry[]
 ): EfficacyResult {
     if (students.length === 0) {
-        return { improved: 0, unchanged: 0, worsened: 0, percentImproved: 0 };
+        return { improved: 0, unchanged: 0, worsened: 0, percentImproved: 0, percentUnchanged: 0, percentWorsened: 0 };
     }
 
     let improved = 0;
@@ -92,5 +94,7 @@ export function calculateGroupEfficacy(
     }
 
     const percentImproved = Math.round((improved / students.length) * 100);
-    return { improved, unchanged, worsened, percentImproved };
+    const percentWorsened = Math.round((worsened / students.length) * 100);
+    const percentUnchanged = 100 - percentImproved - percentWorsened;
+    return { improved, unchanged, worsened, percentImproved, percentUnchanged, percentWorsened };
 }

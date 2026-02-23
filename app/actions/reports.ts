@@ -221,6 +221,7 @@ export async function saveProfessionalOpinion(studentId: string, text: string) {
         // Encontrar tier atual
         const assessment = await prisma.assessment.findFirst({
             where: {
+                tenantId: user.tenantId,
                 studentId,
                 type: 'SRSS_IE',
                 academicYear: new Date().getFullYear()
@@ -381,61 +382,67 @@ export async function getInterventionMonitoringData(): Promise<{
         },
     });
 
-    const groupEfficacy = await Promise.all(
-        groups.map(async (group) => {
-            const studentIds = group.students.map((s) => s.id);
+    // Collect all student IDs across all groups for a single query
+    const allGroupStudentIds = new Set<string>();
+    for (const group of groups) {
+        for (const s of group.students) {
+            allGroupStudentIds.add(s.id);
+        }
+    }
 
-            // For each student, find their earliest and latest SRSS-IE tier
-            const studentAssessments = await prisma.assessment.findMany({
-                where: {
-                    tenantId: user.tenantId,
-                    studentId: { in: studentIds },
-                    type: 'SRSS_IE',
-                    academicYear,
-                    overallTier: { not: null },
-                },
-                select: {
-                    studentId: true,
-                    overallTier: true,
-                    appliedAt: true,
-                },
-                orderBy: { appliedAt: 'asc' },
-            });
-
-            // Build earliest and latest tier per student
-            const earliestTier = new Map<string, string>();
-            const latestTier = new Map<string, string>();
-
-            for (const sa of studentAssessments) {
-                if (!earliestTier.has(sa.studentId)) {
-                    earliestTier.set(sa.studentId, sa.overallTier as string);
-                }
-                latestTier.set(sa.studentId, sa.overallTier as string);
-            }
-
-            // Build entries for students that have both earliest and latest
-            const entries = studentIds
-                .filter((id) => earliestTier.has(id) && latestTier.has(id))
-                .map((id) => ({
-                    studentId: id,
-                    tierBefore: earliestTier.get(id)!,
-                    tierAfter: latestTier.get(id)!,
-                }));
-
-            const efficacy = calculateGroupEfficacy(entries);
-            const total = entries.length || 1;
-
-            return {
-                id: group.id,
-                name: group.name,
-                type: group.type,
-                studentCount: studentIds.length,
-                percentImproved: efficacy.percentImproved,
-                percentUnchanged: Math.round((efficacy.unchanged / total) * 100),
-                percentWorsened: Math.round((efficacy.worsened / total) * 100),
-            };
+    // Single query for all group students' assessments (avoids N+1)
+    const groupAssessments = allGroupStudentIds.size > 0
+        ? await prisma.assessment.findMany({
+            where: {
+                tenantId: user.tenantId,
+                studentId: { in: [...allGroupStudentIds] },
+                type: 'SRSS_IE',
+                academicYear,
+                overallTier: { not: null },
+            },
+            select: {
+                studentId: true,
+                overallTier: true,
+                appliedAt: true,
+            },
+            orderBy: { appliedAt: 'asc' },
         })
-    );
+        : [];
+
+    // Build earliest and latest tier maps for all students at once
+    const allEarliestTier = new Map<string, string>();
+    const allLatestTier = new Map<string, string>();
+
+    for (const sa of groupAssessments) {
+        if (!allEarliestTier.has(sa.studentId)) {
+            allEarliestTier.set(sa.studentId, sa.overallTier as string);
+        }
+        allLatestTier.set(sa.studentId, sa.overallTier as string);
+    }
+
+    const groupEfficacy = groups.map((group) => {
+        const studentIds = group.students.map((s) => s.id);
+
+        const entries = studentIds
+            .filter((id) => allEarliestTier.has(id) && allLatestTier.has(id))
+            .map((id) => ({
+                studentId: id,
+                tierBefore: allEarliestTier.get(id)!,
+                tierAfter: allLatestTier.get(id)!,
+            }));
+
+        const efficacy = calculateGroupEfficacy(entries);
+
+        return {
+            id: group.id,
+            name: group.name,
+            type: group.type,
+            studentCount: studentIds.length,
+            percentImproved: efficacy.percentImproved,
+            percentUnchanged: efficacy.percentUnchanged,
+            percentWorsened: efficacy.percentWorsened,
+        };
+    });
 
     return {
         kpis: {

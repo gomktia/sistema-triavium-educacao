@@ -77,12 +77,16 @@ describe('calculateGroupEfficacy', () => {
         expect(result.unchanged).toBe(1);
         expect(result.worsened).toBe(1);
         expect(result.percentImproved).toBe(50);
+        expect(result.percentUnchanged).toBe(25);
+        expect(result.percentWorsened).toBe(25);
     });
 
     it('returns 0% for empty array', () => {
         const result = calculateGroupEfficacy([]);
         expect(result.improved).toBe(0);
         expect(result.percentImproved).toBe(0);
+        expect(result.percentUnchanged).toBe(0);
+        expect(result.percentWorsened).toBe(0);
     });
 
     it('returns 100% when all improved', () => {
@@ -92,5 +96,17 @@ describe('calculateGroupEfficacy', () => {
         ];
         const result = calculateGroupEfficacy(students);
         expect(result.percentImproved).toBe(100);
+        expect(result.percentWorsened).toBe(0);
+        expect(result.percentUnchanged).toBe(0);
+    });
+
+    it('percentages always sum to 100', () => {
+        const students = [
+            { studentId: 'a', tierBefore: 'TIER_3', tierAfter: 'TIER_2' },
+            { studentId: 'b', tierBefore: 'TIER_2', tierAfter: 'TIER_2' },
+            { studentId: 'c', tierBefore: 'TIER_1', tierAfter: 'TIER_2' },
+        ];
+        const result = calculateGroupEfficacy(students);
+        expect(result.percentImproved + result.percentUnchanged + result.percentWorsened).toBe(100);
     });
 });
