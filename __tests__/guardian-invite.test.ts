@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateGuardianInviteInput } from '@/app/actions/guardian-invite';
+import { validateGuardianInviteInput } from '@/lib/validators/guardian-invite';
 
 describe('validateGuardianInviteInput', () => {
   it('rejects empty email', () => {
