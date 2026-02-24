@@ -95,20 +95,14 @@ export function QuestionnaireWizard({
                     router.refresh();
                 } else if (result.error) {
                     setIsSaving(false);
-                    const msg = `Erro no servidor: ${result.error}`;
-                    toast.error(msg);
-                    alert(msg);
+                    toast.error(`Erro no servidor: ${result.error}`);
                 } else {
                     setIsSaving(false);
-                    const msg = `Respostas enviadas: ${totalAnswered}/71. Por favor, responda todas as questões para finalizar.`;
-                    toast.error(msg);
-                    alert(msg);
+                    toast.error(`Respostas enviadas: ${totalAnswered}/71. Por favor, responda todas as questões para finalizar.`);
                 }
             } catch (err: any) {
                 setIsSaving(false);
-                const msg = `Erro inesperado: ${err.message}`;
-                toast.error(msg);
-                alert(msg);
+                toast.error(`Erro inesperado: ${err.message}`);
             }
         } else {
             setCurrentStepIdx(prev => prev + 1);

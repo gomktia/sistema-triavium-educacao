@@ -60,57 +60,78 @@ export async function createClassroom(data: { name: string; grade: GradeLevel; y
     const user = await getCurrentUser();
     if (!user || user.role === 'STUDENT') throw new Error('Unauthorized');
 
-    const classroom = await prisma.classroom.create({
-        data: {
-            ...data,
-            tenantId: user.tenantId
-        }
-    });
+    try {
+        const classroom = await prisma.classroom.create({
+            data: {
+                ...data,
+                tenantId: user.tenantId
+            }
+        });
 
-    revalidatePath('/turmas');
-    return classroom;
+        revalidatePath('/turmas');
+        return classroom;
+    } catch (e: any) {
+        if (e.code === 'P2002') throw new Error('Turma com este nome já existe.');
+        console.error('Error creating classroom:', e.message);
+        throw new Error('Erro ao criar turma.');
+    }
 }
 
 export async function deleteClassroom(id: string) {
     const user = await getCurrentUser();
     if (!user || user.role === 'STUDENT') throw new Error('Unauthorized');
 
-    await prisma.classroom.delete({
-        where: { id, tenantId: user.tenantId }
-    });
+    try {
+        await prisma.classroom.delete({
+            where: { id, tenantId: user.tenantId }
+        });
 
-    revalidatePath('/turmas');
-    return { success: true };
+        revalidatePath('/turmas');
+        return { success: true };
+    } catch (e: any) {
+        console.error('Error deleting classroom:', e.message);
+        throw new Error('Erro ao deletar turma.');
+    }
 }
 
 export async function addStudentsToClass(classroomId: string, studentIds: string[]) {
     const user = await getCurrentUser();
     if (!user || user.role === 'STUDENT') throw new Error('Unauthorized');
 
-    await prisma.student.updateMany({
-        where: {
-            id: { in: studentIds },
-            tenantId: user.tenantId
-        },
-        data: { classroomId }
-    });
+    try {
+        await prisma.student.updateMany({
+            where: {
+                id: { in: studentIds },
+                tenantId: user.tenantId
+            },
+            data: { classroomId }
+        });
 
-    revalidatePath('/turmas');
-    revalidatePath(`/turmas/${classroomId}`);
-    return { success: true };
+        revalidatePath('/turmas');
+        revalidatePath(`/turmas/${classroomId}`);
+        return { success: true };
+    } catch (e: any) {
+        console.error('Error adding students to class:', e.message);
+        throw new Error('Erro ao adicionar alunos à turma.');
+    }
 }
 
 export async function removeStudentFromClass(studentId: string) {
     const user = await getCurrentUser();
     if (!user || user.role === 'STUDENT') throw new Error('Unauthorized');
 
-    await prisma.student.update({
-        where: { id: studentId, tenantId: user.tenantId },
-        data: { classroomId: null }
-    });
+    try {
+        await prisma.student.update({
+            where: { id: studentId, tenantId: user.tenantId },
+            data: { classroomId: null }
+        });
 
-    revalidatePath('/turmas');
-    return { success: true };
+        revalidatePath('/turmas');
+        return { success: true };
+    } catch (e: any) {
+        console.error('Error removing student from class:', e.message);
+        throw new Error('Erro ao remover aluno da turma.');
+    }
 }
 
 /**

@@ -43,12 +43,12 @@ export function BigFiveStatus({ scores, studentName }: { scores: any[], studentN
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
             {/* Chart Column */}
-            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col items-center justify-center relative min-h-[320px]">
-                <h3 className="absolute top-6 left-6 text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col relative min-h-[360px]">
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-2">
                     <BrainCircuit size={14} className="text-violet-500" />
                     Seu Mapa de Personalidade
                 </h3>
-                <div className="w-full h-[280px]">
+                <div className="w-full flex-1 min-h-0">
                     <BigFiveRadarResult scores={scores} />
                 </div>
             </div>

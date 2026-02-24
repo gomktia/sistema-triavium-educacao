@@ -34,63 +34,64 @@ export async function exportStudentData(studentId: string) {
         details: { exportType: 'full' },
     });
 
-    // Busca completa dos dados vinculados ao CPF/ID do aluno
-    const data = await prisma.student.findUnique({
-        where: { id: studentId },
-        include: {
-            assessments: {
-                select: {
-                    type: true,
-                    overallTier: true,
-                    appliedAt: true,
-                    createdAt: true,
-                    processedScores: true
-                }
-            },
-            userAccount: {
-                select: {
-                    email: true,
-                    cpf: true,
-                    createdAt: true
-                }
-            },
-            tenant: {
-                select: {
-                    name: true
+    try {
+        const data = await prisma.student.findUnique({
+            where: { id: studentId },
+            include: {
+                assessments: {
+                    select: {
+                        type: true,
+                        overallTier: true,
+                        appliedAt: true,
+                        createdAt: true,
+                        processedScores: true
+                    }
+                },
+                userAccount: {
+                    select: {
+                        email: true,
+                        cpf: true,
+                        createdAt: true
+                    }
+                },
+                tenant: {
+                    select: {
+                        name: true
+                    }
                 }
             }
-        }
-    });
+        });
 
-    if (!data) throw new Error("Dados não encontrados");
+        if (!data) throw new Error("Dados não encontrados");
 
-    // Formata o pacote de dados conforme exigido pela portabilidade da LGPD
-    const exportPackage = {
-        metadata: {
-            generatedAt: new Date().toISOString(),
-            version: "1.0",
-            platform: "Sistema de Gestão Socioemocional",
-            organization: data.tenant?.name
-        },
-        profile: {
-            name: data.name,
-            cpf: data.userAccount?.cpf || data.cpf,
-            email: data.userAccount?.email,
-            birthDate: data.birthDate,
-            organizationId: data.tenantId,
-            grade: data.grade
-        },
-        consent: {
-            acceptedAt: data.consentAcceptedAt,
-            status: data.consentAcceptedAt ? "ACCEPTED" : "PENDING"
-        },
-        history: data.assessments.map(a => ({
-            date: a.appliedAt,
-            type: a.type,
-            tier: a.overallTier,
-            summary: JSON.stringify(a.processedScores) // Serialize basic score summary
-        }))
-    };
-
-    return exportPackage;
+        return {
+            metadata: {
+                generatedAt: new Date().toISOString(),
+                version: "1.0",
+                platform: "Sistema de Gestão Socioemocional",
+                organization: data.tenant?.name
+            },
+            profile: {
+                name: data.name,
+                cpf: data.userAccount?.cpf || data.cpf,
+                email: data.userAccount?.email,
+                birthDate: data.birthDate,
+                organizationId: data.tenantId,
+                grade: data.grade
+            },
+            consent: {
+                acceptedAt: data.consentAcceptedAt,
+                status: data.consentAcceptedAt ? "ACCEPTED" : "PENDING"
+            },
+            history: data.assessments.map(a => ({
+                date: a.appliedAt,
+                type: a.type,
+                tier: a.overallTier,
+                summary: JSON.stringify(a.processedScores)
+            }))
+        };
+    } catch (e: any) {
+        console.error('Error exporting student data:', e.message);
+        throw new Error("Erro ao exportar dados. Tente novamente.");
+    }
 }

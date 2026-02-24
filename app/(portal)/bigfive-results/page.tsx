@@ -34,7 +34,9 @@ export default async function BigFiveResultsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                 {/* Radar Chart */}
                 <div className="lg:col-span-1 sticky top-8">
-                    <BigFiveRadarResult scores={scores} />
+                    <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] h-[300px] sm:h-[400px]">
+                        <BigFiveRadarResult scores={scores} />
+                    </div>
                     <div className="mt-6 p-6 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
                         <h4 className="font-bold text-slate-700 mb-2 text-sm uppercase tracking-wide">Como interpretar?</h4>
                         <p className="text-xs text-slate-500 leading-relaxed">

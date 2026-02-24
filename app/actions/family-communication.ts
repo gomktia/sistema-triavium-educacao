@@ -102,20 +102,41 @@ export async function getFamilyMessages(studentId?: string) {
     return { success: false, error: 'Não autenticado.', messages: [] };
   }
 
-  // If RESPONSIBLE, fetch messages for all linked students
-  if (user.role === UserRole.RESPONSIBLE) {
-    const guardianLinks = await prisma.studentGuardian.findMany({
-      where: { guardianId: user.id, tenantId: user.tenantId },
-      select: { studentId: true },
-    });
+  try {
+    if (user.role === UserRole.RESPONSIBLE) {
+      const guardianLinks = await prisma.studentGuardian.findMany({
+        where: { guardianId: user.id, tenantId: user.tenantId },
+        select: { studentId: true },
+      });
 
-    const studentIds = guardianLinks.map((g) => g.studentId);
-    if (studentIds.length === 0) {
-      return { success: true, messages: [] };
+      const studentIds = guardianLinks.map((g) => g.studentId);
+      if (studentIds.length === 0) {
+        return { success: true, messages: [] };
+      }
+
+      const messages = await prisma.familyCommunication.findMany({
+        where: { tenantId: user.tenantId, studentId: { in: studentIds } },
+        include: {
+          student: { select: { name: true } },
+          sender: { select: { name: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      return { success: true, messages };
+    }
+
+    const staffRoles = [UserRole.TEACHER, UserRole.PSYCHOLOGIST, UserRole.COUNSELOR, UserRole.MANAGER, UserRole.ADMIN];
+    if (!staffRoles.includes(user.role)) {
+      return { success: false, error: 'Sem permissão.', messages: [] };
+    }
+
+    if (!studentId) {
+      return { success: false, error: 'ID do aluno é obrigatório.', messages: [] };
     }
 
     const messages = await prisma.familyCommunication.findMany({
-      where: { tenantId: user.tenantId, studentId: { in: studentIds } },
+      where: { tenantId: user.tenantId, studentId },
       include: {
         student: { select: { name: true } },
         sender: { select: { name: true } },
@@ -124,28 +145,10 @@ export async function getFamilyMessages(studentId?: string) {
     });
 
     return { success: true, messages };
+  } catch (e: any) {
+    console.error('Error fetching family messages:', e.message);
+    return { success: false, error: 'Erro ao buscar mensagens.', messages: [] };
   }
-
-  // Staff: fetch messages for specific student
-  const staffRoles = [UserRole.TEACHER, UserRole.PSYCHOLOGIST, UserRole.COUNSELOR, UserRole.MANAGER, UserRole.ADMIN];
-  if (!staffRoles.includes(user.role)) {
-    return { success: false, error: 'Sem permissão.', messages: [] };
-  }
-
-  if (!studentId) {
-    return { success: false, error: 'ID do aluno é obrigatório.', messages: [] };
-  }
-
-  const messages = await prisma.familyCommunication.findMany({
-    where: { tenantId: user.tenantId, studentId },
-    include: {
-      student: { select: { name: true } },
-      sender: { select: { name: true } },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  return { success: true, messages };
 }
 
 export async function markFamilyMessageRead(messageId: string) {
@@ -172,14 +175,18 @@ export async function markFamilyMessageRead(messageId: string) {
     return { success: false, error: 'Sem permissão.' };
   }
 
-  await prisma.familyCommunication.update({
-    where: { id: messageId },
-    data: { isRead: true },
-  });
+  try {
+    await prisma.familyCommunication.update({
+      where: { id: messageId },
+      data: { isRead: true },
+    });
 
-  revalidatePath('/responsavel/mensagens');
-
-  return { success: true };
+    revalidatePath('/responsavel/mensagens');
+    return { success: true };
+  } catch (e: any) {
+    console.error('Error marking message as read:', e.message);
+    return { success: false, error: 'Erro ao marcar mensagem como lida.' };
+  }
 }
 
 function getFamilyMessageEmailHtml(

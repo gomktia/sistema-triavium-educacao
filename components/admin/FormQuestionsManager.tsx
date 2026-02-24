@@ -2,6 +2,7 @@
 'use client'
 
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { createQuestion, updateQuestion, deleteQuestion } from '@/app/actions/form-questions'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -73,14 +74,13 @@ export function FormQuestionsManager({ initialQuestions, canEdit = false }: Form
     // Handler: Salvar (Criar ou Atualizar)
     const handleSave = async () => {
         if (!currentQuestion.text || !currentQuestion.number || !currentQuestion.type) {
-            alert("Preencha todos os campos obrigatórios")
+            toast.error("Preencha todos os campos obrigatórios")
             return
         }
 
         setIsLoading(true)
         try {
             if (isEditing && currentQuestion.id && currentQuestion.isActive !== undefined) {
-                // Update
                 const res = await updateQuestion(currentQuestion.id, {
                     text: currentQuestion.text,
                     number: Number(currentQuestion.number),
@@ -92,10 +92,9 @@ export function FormQuestionsManager({ initialQuestions, canEdit = false }: Form
                     setQuestions(prev => prev.map(q => q.id === res.data.id ? res.data : q))
                     setIsOpen(false)
                 } else {
-                    alert('Erro ao atualizar: ' + res.error)
+                    toast.error('Erro ao atualizar: ' + res.error)
                 }
             } else {
-                // Create
                 const res = await createQuestion({
                     text: currentQuestion.text,
                     number: Number(currentQuestion.number),
@@ -108,12 +107,12 @@ export function FormQuestionsManager({ initialQuestions, canEdit = false }: Form
                     setQuestions(prev => [...prev, res.data])
                     setIsOpen(false)
                 } else {
-                    alert('Erro ao criar: ' + res.error)
+                    toast.error('Erro ao criar: ' + res.error)
                 }
             }
         } catch (e) {
             console.error(e)
-            alert('Erro inesperado')
+            toast.error('Erro inesperado')
         } finally {
             setIsLoading(false)
         }
@@ -128,11 +127,11 @@ export function FormQuestionsManager({ initialQuestions, canEdit = false }: Form
             if (res.success) {
                 setQuestions(prev => prev.filter(q => q.id !== id))
             } else {
-                alert('Erro ao deletar: ' + res.error)
+                toast.error('Erro ao deletar: ' + res.error)
             }
         } catch (e) {
             console.error(e)
-            alert('Erro inesperado')
+            toast.error('Erro inesperado')
         }
     }
 

@@ -83,12 +83,14 @@ export function StudentProfileView({
             {bigFive && (
                 <div className="space-y-3">
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm items-center">
-                        <div className="md:col-span-5 relative h-[300px]">
-                            <h3 className="absolute top-0 left-0 text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 z-10">
+                        <div className="md:col-span-5 flex flex-col">
+                            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 mb-2">
                                 <BrainCircuit className="text-violet-500" size={16} />
                                 Big Five (Personalidade)
                             </h3>
-                            <BigFiveRadarResult scores={bigFive.scores} />
+                            <div className="h-[300px]">
+                                <BigFiveRadarResult scores={bigFive.scores} />
+                            </div>
                         </div>
                         <div className="md:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {bigFive.scores.map((s: any) => (
