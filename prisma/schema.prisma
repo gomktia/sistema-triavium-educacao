@@ -418,6 +418,10 @@ model Tenant {
   studentGuardians    StudentGuardian[]
   guardianInvites     GuardianInvite[]
   familyCommunications FamilyCommunication[]
+  plans              TenantPlan[]
+  invoices           Invoice[]
+  supportTickets     SupportTicket[]
+  webhooks           Webhook[]
 
   @@map("tenants")
 }
@@ -448,6 +452,8 @@ model User {
   guardianInvites    GuardianInvite[]    @relation("GuardianInviter")
   sentFamilyMessages FamilyCommunication[]
   tourCompletedAt    DateTime?
+  supportTickets     SupportTicket[]
+  ticketMessages     TicketMessage[]
 
   @@unique([tenantId, cpf])
   @@unique([tenantId, email])
@@ -647,4 +653,121 @@ model FamilyCommunication {
   @@index([studentId])
   @@index([senderId])
   @@map("family_communications")
+}
+
+// ─── Financial Models ──────────────────────────────────────
+
+model TenantPlan {
+  id           String    @id @default(cuid())
+  tenantId     String
+  planName     String
+  monthlyPrice Float
+  studentLimit Int?
+  startDate    DateTime
+  endDate      DateTime?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invoices Invoice[]
+
+  @@index([tenantId])
+  @@map("tenant_plans")
+}
+
+model Invoice {
+  id          String        @id @default(cuid())
+  tenantId    String
+  planId      String?
+  amount      Float
+  dueDate     DateTime
+  paidDate    DateTime?
+  status      InvoiceStatus @default(PENDING)
+  description String?
+  createdAt   DateTime      @default(now())
+
+  tenant Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  plan   TenantPlan? @relation(fields: [planId], references: [id])
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("invoices")
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+// ─── Support Ticket Models ─────────────────────────────────
+
+model SupportTicket {
+  id        String         @id @default(cuid())
+  tenantId  String
+  userId    String
+  subject   String
+  priority  TicketPriority @default(MEDIUM)
+  status    TicketStatus   @default(OPEN)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  closedAt  DateTime?
+
+  tenant   Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user     User            @relation(fields: [userId], references: [id])
+  messages TicketMessage[]
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([priority])
+  @@map("support_tickets")
+}
+
+model TicketMessage {
+  id        String   @id @default(cuid())
+  ticketId  String
+  userId    String
+  content   String   @db.Text
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user   User          @relation(fields: [userId], references: [id])
+
+  @@index([ticketId])
+  @@map("ticket_messages")
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_USER
+  RESOLVED
+  CLOSED
+}
+
+// ─── Webhook Model ─────────────────────────────────────────
+
+model Webhook {
+  id        String   @id @default(cuid())
+  tenantId  String
+  url       String
+  events    String[]
+  secret    String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("webhooks")
 }
