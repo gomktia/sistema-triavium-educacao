@@ -109,6 +109,7 @@ export function getNavForRole(role: string, organizationType?: string): NavItem[
         ],
         RESPONSIBLE: [
             { label: 'Início', href: '/responsavel', iconName: 'Home' },
+            { label: 'SDQ', href: '/responsavel/sdq', iconName: 'ClipboardCheck' },
             { label: 'Mensagens', href: '/responsavel/mensagens', iconName: 'MessageSquare' },
             { label: 'Perfil', href: '/responsavel/perfil', iconName: 'User' },
         ],

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { UserRole } from '@/src/core/types';
-import { SRSSGrid } from '@/components/teacher/SRSSGrid';
+import { ScreeningTabSwitcher } from '@/components/teacher/ScreeningTabSwitcher';
 import { getLabels } from '@/src/lib/utils/labels';
 import { ClipboardCheck, Lightbulb, HelpCircle, Info } from 'lucide-react';
 import { getMyClassrooms } from '@/app/actions/teacher-classrooms';
@@ -59,21 +59,29 @@ export default async function TriagemPage() {
     const assessments = await prisma.assessment.findMany({
         where: {
             tenantId: user.tenantId,
-            type: 'SRSS_IE',
+            type: { in: ['SRSS_IE', 'SDQ'] },
             academicYear: new Date().getFullYear(),
         },
-        select: { studentId: true, rawAnswers: true, overallTier: true },
+        select: { studentId: true, rawAnswers: true, overallTier: true, processedScores: true, type: true },
     });
 
     type AssessmentEntry = (typeof assessments)[number];
     type StudentEntry = (typeof students)[number];
 
-    const existingData: Record<string, any> = {};
+    const srssExistingData: Record<string, any> = {};
+    const sdqExistingData: Record<string, any> = {};
     assessments.forEach((a: AssessmentEntry) => {
-        existingData[a.studentId] = {
-            answers: a.rawAnswers,
-            tier: a.overallTier
-        };
+        if (a.type === 'SRSS_IE') {
+            srssExistingData[a.studentId] = {
+                answers: a.rawAnswers,
+                tier: a.overallTier,
+            };
+        } else if (a.type === 'SDQ') {
+            sdqExistingData[a.studentId] = {
+                answers: a.rawAnswers,
+                band: (a.processedScores as any)?.totalDifficultiesBand,
+            };
+        }
     });
 
     const labels = getLabels(user.organizationType);
@@ -166,11 +174,12 @@ export default async function TriagemPage() {
                 </div>
             </div>
 
-            <SRSSGrid
+            <ScreeningTabSwitcher
                 students={students}
-                existingData={existingData}
+                srssExistingData={srssExistingData}
+                sdqExistingData={sdqExistingData}
                 labels={labels}
-                questions={srssQuestions}
+                srssQuestions={srssQuestions}
             />
         </div>
     );

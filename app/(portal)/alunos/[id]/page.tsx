@@ -63,6 +63,17 @@ export default async function AlunoDetalhePage(props: { params: Promise<{ id: st
     const srssAnswers = allAssessments.find((a: AssessmentRow) => a.type === 'SRSS_IE')?.rawAnswers;
     const bigFiveScores = allAssessments.find((a: AssessmentRow) => a.type === 'BIG_FIVE')?.processedScores as any;
 
+    // SDQ: teacher version (has screeningTeacherId) and parent version (screeningTeacherId is null)
+    const sdqAssessments = allAssessments.filter((a: AssessmentRow) => a.type === 'SDQ');
+    // We need screeningTeacherId to distinguish, but it's not in the select. Use a separate query.
+    const sdqDetailed = await prisma.assessment.findMany({
+        where: { tenantId: user.tenantId, studentId: student.id, type: 'SDQ' },
+        select: { processedScores: true, screeningTeacherId: true },
+        orderBy: { appliedAt: 'desc' },
+    });
+    const sdqTeacherResult = sdqDetailed.find(a => a.screeningTeacherId !== null)?.processedScores as any;
+    const sdqParentResult = sdqDetailed.find(a => a.screeningTeacherId === null)?.processedScores as any;
+
     // Dados para o Gráfico de Evolução
     const evolutionData = allAssessments
         .filter((a: AssessmentRow) => a.type === 'SRSS_IE')
@@ -243,6 +254,8 @@ export default async function AlunoDetalhePage(props: { params: Promise<{ id: st
                     ewsAlert={ewsAlert}
                     interventionPlans={interventionPlans}
                     labels={labels}
+                    sdqTeacherResult={sdqTeacherResult}
+                    sdqParentResult={sdqParentResult}
                 />
             )}
 

@@ -228,3 +228,49 @@ export interface IEAAResult {
   profileDescription: string;
   interventionRecommendation: string;
 }
+
+// --- SDQ (Strengths and Difficulties Questionnaire) ---
+
+export enum SDQSubscale {
+  EMOTIONAL = 'EMOTIONAL',
+  CONDUCT = 'CONDUCT',
+  HYPERACTIVITY = 'HYPERACTIVITY',
+  PEER = 'PEER',
+  PROSOCIAL = 'PROSOCIAL',
+}
+
+export enum SDQBand {
+  NORMAL = 'NORMAL',
+  BORDERLINE = 'BORDERLINE',
+  ABNORMAL = 'ABNORMAL',
+}
+
+export enum SDQVersion {
+  TEACHER = 'TEACHER',
+  PARENT = 'PARENT',
+}
+
+/** Respostas brutas do SDQ (25 itens, escala 0-2) */
+export interface SDQRawAnswers {
+  [itemNumber: number]: number; // 0 (Falso), 1 (Mais ou menos), 2 (Verdadeiro)
+}
+
+export interface SDQSubscaleScore {
+  subscale: SDQSubscale;
+  label: string;
+  score: number;
+  maxPossible: number;
+  band: SDQBand;
+  bandLabel: string;
+}
+
+export interface SDQResult {
+  version: SDQVersion;
+  subscales: SDQSubscaleScore[];
+  totalDifficulties: number;
+  totalDifficultiesBand: SDQBand;
+  totalDifficultiesBandLabel: string;
+  prosocialScore: number;
+  prosocialBand: SDQBand;
+  prosocialBandLabel: string;
+}

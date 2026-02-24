@@ -8,7 +8,8 @@ import { STRENGTH_DESCRIPTIONS } from '@/src/core/content/strength-descriptions'
 import { StrengthsCard } from '@/components/guardian/StrengthsCard';
 import { EvolutionCard } from '@/components/guardian/EvolutionCard';
 import { SuggestionsCard } from '@/components/guardian/SuggestionsCard';
-import { Heart } from 'lucide-react';
+import { Heart, ClipboardCheck } from 'lucide-react';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -142,6 +143,18 @@ export default async function ResponsavelPage() {
     );
   }
 
+  // Check for existing parent SDQ
+  const parentSDQ = await prisma.assessment.findFirst({
+    where: {
+      studentId: student.id,
+      type: 'SDQ',
+      screeningTeacherId: null,
+    },
+    orderBy: { appliedAt: 'desc' },
+    select: { processedScores: true },
+  });
+  const sdqComplete = !!parentSDQ?.processedScores;
+
   // Create audit log entry (non-blocking)
   prisma.auditLog.create({
     data: {
@@ -179,6 +192,37 @@ export default async function ResponsavelPage() {
         <p className="text-sm text-slate-500 font-medium uppercase tracking-wider mt-1">
           {gradeDisplay}
         </p>
+      </div>
+
+      {/* SDQ Status Card */}
+      <div className={`rounded-2xl p-6 shadow-sm border ${sdqComplete ? 'bg-emerald-50 border-emerald-200' : 'bg-teal-50 border-teal-200'}`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${sdqComplete ? 'bg-emerald-100' : 'bg-teal-100'}`}>
+              <ClipboardCheck size={20} className={sdqComplete ? 'text-emerald-600' : 'text-teal-600'} />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 text-sm">
+                {sdqComplete ? 'SDQ Concluído' : 'Questionário SDQ'}
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {sdqComplete
+                  ? 'Você já preencheu o Questionário de Capacidades e Dificuldades.'
+                  : 'Ajude-nos a compreender melhor o comportamento do(a) seu(sua) filho(a).'}
+              </p>
+            </div>
+          </div>
+          <Link
+            href={sdqComplete ? '/responsavel/sdq-results' : '/responsavel/sdq'}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+              sdqComplete
+                ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                : 'bg-teal-600 text-white hover:bg-teal-700 shadow-sm'
+            }`}
+          >
+            {sdqComplete ? 'Ver Resultados' : 'Responder SDQ'}
+          </Link>
+        </div>
       </div>
 
       {/* Main content */}

@@ -484,6 +484,7 @@ enum AssessmentType {
   SRSS_IE
   BIG_FIVE
   IEAA
+  SDQ
 }
 
 enum EducationalLevel {

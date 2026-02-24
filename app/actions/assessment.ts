@@ -6,9 +6,10 @@ import { getCurrentUser } from '@/lib/auth';
 import { calculateStudentProfile, calculateStrengthScores, calculateRiskScores } from '@/src/core/logic/scoring';
 import { calculateBigFiveScores } from '@/src/core/logic/bigfive';
 import { calculateIEAAScores } from '@/src/core/logic/ieaa';
-import { GradeLevel, VIARawAnswers, SRSSRawAnswers, UserRole, BigFiveRawAnswers, IEAARawAnswers } from '@/src/core/types';
+import { calculateSDQScores } from '@/src/core/logic/sdq';
+import { GradeLevel, VIARawAnswers, SRSSRawAnswers, UserRole, BigFiveRawAnswers, IEAARawAnswers, SDQRawAnswers, SDQVersion } from '@/src/core/types';
 import { revalidatePath } from 'next/cache';
-import { saveVIAInputSchema, saveSRSSInputSchema, saveBigFiveInputSchema, saveIEAAInputSchema } from '@/lib/validators/assessment';
+import { saveVIAInputSchema, saveSRSSInputSchema, saveBigFiveInputSchema, saveIEAAInputSchema, saveSDQTeacherInputSchema, saveSDQParentInputSchema } from '@/lib/validators/assessment';
 import { upsertAssessment } from '@/lib/assessment-utils';
 
 /**
@@ -329,6 +330,137 @@ export async function getMyIEAA() {
         where: {
             studentId: user.studentId,
             type: 'IEAA',
+        },
+        orderBy: { appliedAt: 'desc' },
+    });
+}
+
+/**
+ * Salva a triagem SDQ realizada pelo professor.
+ */
+export async function saveSDQTeacherScreening(studentId: string, answers: SDQRawAnswers) {
+    const user = await getCurrentUser();
+    const allowedRoles = [UserRole.TEACHER, UserRole.PSYCHOLOGIST, UserRole.COUNSELOR, UserRole.MANAGER, UserRole.ADMIN];
+
+    if (!user || !allowedRoles.includes(user.role)) {
+        return { error: 'Não autorizado.' };
+    }
+
+    const parsed = saveSDQTeacherInputSchema.safeParse({ studentId, answers });
+    if (!parsed.success) {
+        return { error: 'Dados invalidos: ' + parsed.error.issues[0]?.message };
+    }
+
+    const student = await prisma.student.findUnique({
+        where: { id: studentId },
+        select: { tenantId: true, name: true },
+    });
+
+    if (!student || student.tenantId !== user.tenantId) {
+        return { error: 'Aluno não encontrado ou acesso negado.' };
+    }
+
+    const answeredCount = Object.keys(answers).length;
+    const isComplete = answeredCount >= 25;
+
+    let processedScores = null;
+    if (isComplete) {
+        processedScores = calculateSDQScores(answers, SDQVersion.TEACHER);
+    }
+
+    try {
+        await upsertAssessment({
+            tenantId: user.tenantId,
+            studentId,
+            type: 'SDQ',
+            screeningWindow: 'DIAGNOSTIC',
+            academicYear: new Date().getFullYear(),
+            findByScreeningWindow: true,
+            screeningTeacherId: user.id,
+            rawAnswers: answers as unknown as Prisma.InputJsonValue,
+            processedScores: processedScores as unknown as Prisma.InputJsonValue,
+        });
+    } catch (e: unknown) {
+        console.error('Error saving SDQ teacher:', e instanceof Error ? e.message : e);
+        return { error: 'Erro ao salvar SDQ.' };
+    }
+
+    revalidatePath('/turma/triagem');
+    return { success: true, complete: isComplete, scores: processedScores };
+}
+
+/**
+ * Salva as respostas do SDQ preenchido pelo responsável.
+ */
+export async function saveSDQParentAnswers(answers: SDQRawAnswers, targetStudentId: string) {
+    const user = await getCurrentUser();
+
+    if (!user || user.role !== UserRole.RESPONSIBLE) {
+        return { error: 'Não autorizado. Apenas responsáveis podem preencher o SDQ.' };
+    }
+
+    const parsed = saveSDQParentInputSchema.safeParse({ answers, targetStudentId });
+    if (!parsed.success) {
+        return { error: 'Dados invalidos: ' + parsed.error.issues[0]?.message };
+    }
+
+    // Verify parent-student link via StudentGuardian
+    const guardianLink = await prisma.studentGuardian.findFirst({
+        where: {
+            guardianId: user.id,
+            studentId: targetStudentId,
+            tenantId: user.tenantId,
+        },
+    });
+
+    if (!guardianLink) {
+        return { error: 'Vínculo com o aluno não encontrado.' };
+    }
+
+    const answeredCount = Object.keys(answers).length;
+    const isComplete = answeredCount >= 25;
+
+    let processedScores = null;
+    if (isComplete) {
+        processedScores = calculateSDQScores(answers, SDQVersion.PARENT);
+    }
+
+    try {
+        await upsertAssessment({
+            tenantId: user.tenantId,
+            studentId: targetStudentId,
+            type: 'SDQ',
+            findByScreeningWindow: false,
+            screeningTeacherId: undefined, // null discriminates parent version
+            rawAnswers: answers as unknown as Prisma.InputJsonValue,
+            processedScores: processedScores as unknown as Prisma.InputJsonValue,
+        });
+    } catch (e: unknown) {
+        console.error('Error saving SDQ parent:', e instanceof Error ? e.message : e);
+        return { error: 'Erro ao salvar SDQ.' };
+    }
+
+    revalidatePath('/responsavel/sdq');
+    revalidatePath('/responsavel/sdq-results');
+    return { success: true, complete: isComplete, scores: processedScores };
+}
+
+export async function getMyChildSDQ() {
+    const user = await getCurrentUser();
+    if (!user || user.role !== UserRole.RESPONSIBLE) return null;
+
+    const guardianLink = await prisma.studentGuardian.findFirst({
+        where: { guardianId: user.id, tenantId: user.tenantId },
+        select: { studentId: true },
+    });
+
+    if (!guardianLink) return null;
+
+    return await prisma.assessment.findFirst({
+        where: {
+            studentId: guardianLink.studentId,
+            type: 'SDQ',
+            screeningTeacherId: null, // Parent version only
         },
         orderBy: { appliedAt: 'desc' },
     });

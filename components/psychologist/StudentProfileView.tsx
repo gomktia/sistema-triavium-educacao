@@ -24,6 +24,7 @@ import { OrganizationLabels } from '@/src/lib/utils/labels';
 import { StudentSummaryCard } from '@/components/dashboard/StudentSummaryCard';
 import { InclusionCard } from '@/components/special-education/InclusionCard';
 import { BigFiveRadarResult } from '@/components/bigfive/BigFiveRadarResult';
+import { SDQResultView } from '@/components/sdq/SDQResultView';
 
 interface StudentProfileViewProps {
     studentName: string;
@@ -33,6 +34,8 @@ interface StudentProfileViewProps {
     ewsAlert?: any;
     interventionPlans?: any[];
     labels: OrganizationLabels;
+    sdqTeacherResult?: any;
+    sdqParentResult?: any;
 }
 
 export function StudentProfileView({
@@ -42,7 +45,9 @@ export function StudentProfileView({
     evolutionData = [],
     ewsAlert,
     interventionPlans = [],
-    labels
+    labels,
+    sdqTeacherResult,
+    sdqParentResult,
 }: StudentProfileViewProps) {
     const [showPlanForm, setShowPlanForm] = useState(false);
     const {
@@ -101,6 +106,14 @@ export function StudentProfileView({
                         Este instrumento tem finalidade exclusivamente pedagógica e não constitui diagnóstico clínico.
                     </p>
                 </div>
+            )}
+
+            {/* SDQ - Capacidades e Dificuldades */}
+            {(sdqTeacherResult || sdqParentResult) && (
+                <SDQResultView
+                    teacherResult={sdqTeacherResult}
+                    parentResult={sdqParentResult}
+                />
             )}
 
             {/* EWS Alerta (Early Warning) */}

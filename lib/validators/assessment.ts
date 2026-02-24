@@ -47,3 +47,21 @@ export const saveIEAAInputSchema = z.object({
     answers: ieaaAnswersSchema,
     targetStudentId: z.string().optional(),
 });
+
+/** SDQ: 25 items, escala 0-2 */
+export const sdqAnswersSchema = z.record(
+    z.string(),
+    z.number().int().min(0).max(2)
+);
+
+/** Schema para salvar SDQ (professor) */
+export const saveSDQTeacherInputSchema = z.object({
+    studentId: z.string().min(1),
+    answers: sdqAnswersSchema,
+});
+
+/** Schema para salvar SDQ (responsável) */
+export const saveSDQParentInputSchema = z.object({
+    answers: sdqAnswersSchema,
+    targetStudentId: z.string().min(1),
+});

@@ -35,7 +35,8 @@ import {
     BookOpen,
     BarChart3,
     Calendar,
-    MessageSquare
+    MessageSquare,
+    ClipboardCheck
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -65,7 +66,8 @@ const ICON_MAP: Record<string, any> = {
     BookOpen,
     BarChart3,
     Calendar,
-    MessageSquare
+    MessageSquare,
+    ClipboardCheck
 };
 
 interface SidebarProps {
