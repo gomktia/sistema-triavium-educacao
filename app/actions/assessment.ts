@@ -7,9 +7,10 @@ import { calculateStudentProfile, calculateStrengthScores, calculateRiskScores }
 import { calculateBigFiveScores } from '@/src/core/logic/bigfive';
 import { calculateIEAAScores } from '@/src/core/logic/ieaa';
 import { calculateSDQScores } from '@/src/core/logic/sdq';
-import { GradeLevel, VIARawAnswers, SRSSRawAnswers, UserRole, BigFiveRawAnswers, IEAARawAnswers, SDQRawAnswers, SDQVersion } from '@/src/core/types';
+import { calculateFamilySocioemotionalScores } from '@/src/core/logic/family-socioemotional';
+import { GradeLevel, VIARawAnswers, SRSSRawAnswers, UserRole, BigFiveRawAnswers, IEAARawAnswers, SDQRawAnswers, SDQVersion, FamilySocioemotionalRawAnswers, FamilySocioemotionalZone } from '@/src/core/types';
 import { revalidatePath } from 'next/cache';
-import { saveVIAInputSchema, saveSRSSInputSchema, saveBigFiveInputSchema, saveIEAAInputSchema, saveSDQTeacherInputSchema, saveSDQParentInputSchema } from '@/lib/validators/assessment';
+import { saveVIAInputSchema, saveSRSSInputSchema, saveBigFiveInputSchema, saveIEAAInputSchema, saveSDQTeacherInputSchema, saveSDQParentInputSchema, saveFamilySocioemotionalInputSchema } from '@/lib/validators/assessment';
 import { upsertAssessment } from '@/lib/assessment-utils';
 
 /**
@@ -464,4 +465,83 @@ export async function getMyChildSDQ() {
         },
         orderBy: { appliedAt: 'desc' },
     });
+}
+
+/**
+ * Salva as respostas da Percepção Familiar (Heteroavaliação Socioemocional) pelo responsável.
+ */
+export async function saveFamilySocioemotionalAnswers(
+    answers: FamilySocioemotionalRawAnswers,
+    targetStudentId: string
+) {
+    const user = await getCurrentUser();
+
+    if (!user || user.role !== UserRole.RESPONSIBLE) {
+        return { error: 'Não autorizado. Apenas responsáveis podem preencher este formulário.' };
+    }
+
+    const parsed = saveFamilySocioemotionalInputSchema.safeParse({ answers, targetStudentId });
+    if (!parsed.success) {
+        return { error: 'Dados inválidos: ' + parsed.error.issues[0]?.message };
+    }
+
+    // Verify parent-student link via StudentGuardian
+    const guardianLink = await prisma.studentGuardian.findFirst({
+        where: {
+            guardianId: user.id,
+            studentId: targetStudentId,
+            tenantId: user.tenantId,
+        },
+    });
+
+    if (!guardianLink) {
+        return { error: 'Vínculo com o aluno não encontrado.' };
+    }
+
+    const answeredCount = Object.keys(answers).length;
+    const isComplete = answeredCount >= 15;
+
+    let processedScores = null;
+    if (isComplete) {
+        processedScores = calculateFamilySocioemotionalScores(answers);
+
+        // Notify if any axis is in Zona de Atenção
+        if (processedScores.attentionAxes.length > 0) {
+            const student = await prisma.student.findUnique({
+                where: { id: targetStudentId },
+                select: { name: true },
+            });
+
+            const axisNames = processedScores.attentionAxes.map(a => a.label).join(', ');
+
+            const { createNotification, NotificationType } = await import('@/lib/notifications');
+            await createNotification({
+                tenantId: user.tenantId,
+                studentId: targetStudentId,
+                type: NotificationType.SYSTEM_ALERT,
+                title: 'Percepção Familiar: Zona de Atenção',
+                message: `A família de ${student?.name || 'aluno(a)'} sinalizou vulnerabilidade nos eixos: ${axisNames}. Recomenda-se triangulação com autoavaliação e observação docente.`,
+                link: `/alunos/${targetStudentId}`,
+            });
+        }
+    }
+
+    try {
+        await upsertAssessment({
+            tenantId: user.tenantId,
+            studentId: targetStudentId,
+            type: 'FAMILY_SOCIOEMOTIONAL',
+            findByScreeningWindow: false,
+            screeningTeacherId: undefined,
+            rawAnswers: answers as unknown as Prisma.InputJsonValue,
+            processedScores: processedScores as unknown as Prisma.InputJsonValue,
+        });
+    } catch (e: unknown) {
+        console.error('Error saving Family Socioemotional:', e instanceof Error ? e.message : e);
+        return { error: 'Erro ao salvar o formulário.' };
+    }
+
+    revalidatePath('/responsavel/percepcao-familiar');
+    revalidatePath('/responsavel');
+    return { success: true, complete: isComplete, scores: processedScores };
 }

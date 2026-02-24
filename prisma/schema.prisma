@@ -485,6 +485,7 @@ enum AssessmentType {
   BIG_FIVE
   IEAA
   SDQ
+  FAMILY_SOCIOEMOTIONAL
 }
 
 enum EducationalLevel {

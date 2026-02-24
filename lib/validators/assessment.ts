@@ -65,3 +65,15 @@ export const saveSDQParentInputSchema = z.object({
     answers: sdqAnswersSchema,
     targetStudentId: z.string().min(1),
 });
+
+/** Percepção Familiar: 15 itens, escala 0-4 */
+export const familySocioemotionalAnswersSchema = z.record(
+    z.string(),
+    z.number().int().min(0).max(4)
+);
+
+/** Schema para salvar Percepção Familiar (responsável) */
+export const saveFamilySocioemotionalInputSchema = z.object({
+    answers: familySocioemotionalAnswersSchema,
+    targetStudentId: z.string().min(1),
+});

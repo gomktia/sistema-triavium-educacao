@@ -8,7 +8,7 @@ import { STRENGTH_DESCRIPTIONS } from '@/src/core/content/strength-descriptions'
 import { StrengthsCard } from '@/components/guardian/StrengthsCard';
 import { EvolutionCard } from '@/components/guardian/EvolutionCard';
 import { SuggestionsCard } from '@/components/guardian/SuggestionsCard';
-import { Heart, ClipboardCheck } from 'lucide-react';
+import { Heart, ClipboardCheck, Users } from 'lucide-react';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -155,6 +155,18 @@ export default async function ResponsavelPage() {
   });
   const sdqComplete = !!parentSDQ?.processedScores;
 
+  // Check for existing Percepção Familiar assessment
+  const familyAssessment = await prisma.assessment.findFirst({
+    where: {
+      studentId: student.id,
+      type: 'FAMILY_SOCIOEMOTIONAL',
+      screeningTeacherId: null,
+    },
+    orderBy: { appliedAt: 'desc' },
+    select: { processedScores: true },
+  });
+  const familyComplete = !!familyAssessment?.processedScores;
+
   // Create audit log entry (non-blocking)
   prisma.auditLog.create({
     data: {
@@ -221,6 +233,37 @@ export default async function ResponsavelPage() {
             }`}
           >
             {sdqComplete ? 'Ver Resultados' : 'Responder SDQ'}
+          </Link>
+        </div>
+      </div>
+
+      {/* Percepção Familiar Card */}
+      <div className={`rounded-2xl p-6 shadow-sm border ${familyComplete ? 'bg-emerald-50 border-emerald-200' : 'bg-violet-50 border-violet-200'}`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${familyComplete ? 'bg-emerald-100' : 'bg-violet-100'}`}>
+              <Users size={20} className={familyComplete ? 'text-emerald-600' : 'text-violet-600'} />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 text-sm">
+                {familyComplete ? 'Percepção Familiar Concluída' : 'Percepção Familiar'}
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {familyComplete
+                  ? 'Você já registrou sua percepção sobre as competências socioemocionais.'
+                  : 'Compartilhe como você percebe o desenvolvimento socioemocional do(a) seu(sua) filho(a).'}
+              </p>
+            </div>
+          </div>
+          <Link
+            href={familyComplete ? '/responsavel/percepcao-familiar/resultado' : '/responsavel/percepcao-familiar'}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+              familyComplete
+                ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                : 'bg-violet-600 text-white hover:bg-violet-700 shadow-sm'
+            }`}
+          >
+            {familyComplete ? 'Ver Resultados' : 'Responder'}
           </Link>
         </div>
       </div>

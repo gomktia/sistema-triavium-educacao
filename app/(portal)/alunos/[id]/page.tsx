@@ -74,6 +74,14 @@ export default async function AlunoDetalhePage(props: { params: Promise<{ id: st
     const sdqTeacherResult = sdqDetailed.find(a => a.screeningTeacherId !== null)?.processedScores as any;
     const sdqParentResult = sdqDetailed.find(a => a.screeningTeacherId === null)?.processedScores as any;
 
+    // Fetch Family Socioemotional (Percepção Familiar) assessment
+    const familyAssessment = await prisma.assessment.findFirst({
+        where: { tenantId: user.tenantId, studentId: student.id, type: 'FAMILY_SOCIOEMOTIONAL', screeningTeacherId: null },
+        orderBy: { appliedAt: 'desc' },
+        select: { processedScores: true },
+    });
+    const familySocioemotionalResult = familyAssessment?.processedScores as any;
+
     // Dados para o Gráfico de Evolução
     const evolutionData = allAssessments
         .filter((a: AssessmentRow) => a.type === 'SRSS_IE')
@@ -256,6 +264,7 @@ export default async function AlunoDetalhePage(props: { params: Promise<{ id: st
                     labels={labels}
                     sdqTeacherResult={sdqTeacherResult}
                     sdqParentResult={sdqParentResult}
+                    familySocioemotionalResult={familySocioemotionalResult}
                 />
             )}
 

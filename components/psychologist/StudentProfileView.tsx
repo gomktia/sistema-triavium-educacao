@@ -6,7 +6,7 @@ import { RiskSummaryCard } from '@/components/domain/RiskSummaryCard';
 import { CrossoverCard } from '@/components/domain/CrossoverCard';
 import { TierBadge } from '@/components/domain/TierBadge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Sparkles, AlertTriangle, ListChecks, UserCircle2, ShieldAlert, FilePlus2, History, Target, BrainCircuit } from 'lucide-react';
+import { Sparkles, AlertTriangle, ListChecks, UserCircle2, ShieldAlert, FilePlus2, History, Target, BrainCircuit, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EvolutionChart } from '@/components/charts/EvolutionChart';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,8 @@ import { StudentSummaryCard } from '@/components/dashboard/StudentSummaryCard';
 import { InclusionCard } from '@/components/special-education/InclusionCard';
 import { BigFiveRadarResult } from '@/components/bigfive/BigFiveRadarResult';
 import { SDQResultView } from '@/components/sdq/SDQResultView';
+import { Vision360Chart } from '@/components/family-socioemotional/Vision360Chart';
+import { FamilySocioemotionalResultView } from '@/components/family-socioemotional/FamilySocioemotionalResultView';
 
 interface StudentProfileViewProps {
     studentName: string;
@@ -36,6 +38,7 @@ interface StudentProfileViewProps {
     labels: OrganizationLabels;
     sdqTeacherResult?: any;
     sdqParentResult?: any;
+    familySocioemotionalResult?: any;
 }
 
 export function StudentProfileView({
@@ -48,6 +51,7 @@ export function StudentProfileView({
     labels,
     sdqTeacherResult,
     sdqParentResult,
+    familySocioemotionalResult,
 }: StudentProfileViewProps) {
     const [showPlanForm, setShowPlanForm] = useState(false);
     const {
@@ -114,6 +118,83 @@ export function StudentProfileView({
                     teacherResult={sdqTeacherResult}
                     parentResult={sdqParentResult}
                 />
+            )}
+
+            {/* Visão 360° — Percepção Familiar vs Big Five */}
+            {familySocioemotionalResult && (
+                <div className="space-y-3">
+                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 px-1">
+                        <Users size={16} className="text-violet-500" />
+                        Visão 360° — Percepção Familiar
+                    </h3>
+
+                    {bigFive ? (
+                        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                                <div className="md:col-span-6">
+                                    <Vision360Chart
+                                        bigFiveScores={bigFive.scores}
+                                        familyResult={familySocioemotionalResult}
+                                    />
+                                </div>
+                                <div className="md:col-span-6 flex flex-col justify-center space-y-2">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-3 w-8 rounded-full bg-indigo-500" />
+                                            <span className="text-[10px] font-bold text-slate-500">Autoavaliação (Aluno)</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-3 w-8 rounded-full bg-violet-500 opacity-60" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 3px, white 3px, white 5px)' }} />
+                                            <span className="text-[10px] font-bold text-slate-500">Percepção Familiar</span>
+                                        </div>
+                                    </div>
+                                    {familySocioemotionalResult.axes?.map((axis: any) => {
+                                        const bigFiveMatch = bigFive.scores.find((s: any) => s.domain === axis.bigFiveDomain);
+                                        const familyNorm = Number(((axis.score / 15) * 5).toFixed(2));
+                                        const diff = bigFiveMatch ? Number((familyNorm - bigFiveMatch.score).toFixed(2)) : 0;
+                                        const diffColor = Math.abs(diff) > 1 ? 'text-amber-600' : 'text-slate-400';
+
+                                        return (
+                                            <div key={axis.axis} className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                                <span className="text-[11px] font-bold text-slate-700 flex-1">{axis.label.split(' e ')[0]}</span>
+                                                <div className="flex items-center gap-3 text-[10px] font-black">
+                                                    <span className="text-indigo-600">{bigFiveMatch?.score?.toFixed(1) ?? '-'}</span>
+                                                    <span className="text-slate-300">vs</span>
+                                                    <span className="text-violet-600">{familyNorm.toFixed(1)}</span>
+                                                    <span className={cn("px-1.5 py-0.5 rounded", diffColor, Math.abs(diff) > 1 ? 'bg-amber-50' : 'bg-slate-100')}>
+                                                        {diff > 0 ? '+' : ''}{diff.toFixed(1)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                    {familySocioemotionalResult.axes?.some((a: any) => {
+                                        const match = bigFive.scores.find((s: any) => s.domain === a.bigFiveDomain);
+                                        if (!match) return false;
+                                        return Math.abs(((a.score / 15) * 5) - match.score) > 1.5;
+                                    }) && (
+                                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-2">
+                                            <p className="text-[10px] text-amber-700 font-bold">
+                                                Divergência significativa detectada entre as percepções.
+                                                Recomenda-se investigação qualitativa (entrevista com a família e/ou aluno).
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <FamilySocioemotionalResultView
+                            result={familySocioemotionalResult}
+                            showInterventions={true}
+                        />
+                    )}
+
+                    <p className="text-[10px] text-slate-400 text-center font-medium px-4">
+                        A percepção parental está sujeita a vieses cognitivos (efeito halo, desejabilidade social).
+                        Os dados devem ser triangulados com autoavaliações e registros docentes.
+                    </p>
+                </div>
             )}
 
             {/* EWS Alerta (Early Warning) */}

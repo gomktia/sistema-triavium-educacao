@@ -18,7 +18,7 @@ interface FormQuestion {
     number: number
     text: string
     category: string | null
-    type: 'VIA_STRENGTHS' | 'SRSS_IE' | 'BIG_FIVE' | 'IEAA' | 'SDQ'
+    type: 'VIA_STRENGTHS' | 'SRSS_IE' | 'BIG_FIVE' | 'IEAA' | 'SDQ' | 'FAMILY_SOCIOEMOTIONAL'
     educationalLevel: 'KINDERGARTEN' | 'ELEMENTARY' | 'HIGH_SCHOOL'
     isActive: boolean
     order: number
@@ -33,7 +33,7 @@ interface FormQuestionsManagerProps {
 export function FormQuestionsManager({ initialQuestions, canEdit = false }: FormQuestionsManagerProps) {
     const [questions, setQuestions] = useState<FormQuestion[]>(initialQuestions)
     const [search, setSearch] = useState('')
-    const [selectedType, setSelectedType] = useState<'ALL' | 'VIA_STRENGTHS' | 'SRSS_IE' | 'BIG_FIVE' | 'IEAA' | 'SDQ'>('ALL')
+    const [selectedType, setSelectedType] = useState<'ALL' | 'VIA_STRENGTHS' | 'SRSS_IE' | 'BIG_FIVE' | 'IEAA' | 'SDQ' | 'FAMILY_SOCIOEMOTIONAL'>('ALL')
 
     // Estado do Modal
     const [isOpen, setIsOpen] = useState(false)

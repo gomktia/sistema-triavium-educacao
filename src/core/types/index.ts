@@ -229,6 +229,45 @@ export interface IEAAResult {
   interventionRecommendation: string;
 }
 
+// --- Percepção Familiar (Heteroavaliação Socioemocional) ---
+
+export enum FamilySocioemotionalAxis {
+  AUTOGESTAO = 'AUTOGESTAO',                 // Eixo I: Autogestão e Conscienciosidade
+  RESILIENCIA = 'RESILIENCIA',               // Eixo II: Resiliência e Estabilidade Emocional
+  AMABILIDADE = 'AMABILIDADE',               // Eixo III: Amabilidade e Consciência Social
+  ENGAJAMENTO_SOCIAL = 'ENGAJAMENTO_SOCIAL', // Eixo IV: Engajamento Social e Habilidades Relacionais
+  ABERTURA = 'ABERTURA',                     // Eixo V: Abertura ao Novo e Tomada de Decisão
+}
+
+export enum FamilySocioemotionalZone {
+  MAESTRIA = 'MAESTRIA',     // 12-15 pts
+  PROXIMAL = 'PROXIMAL',     // 8-11 pts
+  ATENCAO = 'ATENCAO',       // 3-7 pts
+}
+
+/** Respostas brutas da Percepção Familiar (15 itens, escala 0-4 armazenada, mapeada para 1-5) */
+export interface FamilySocioemotionalRawAnswers {
+  [itemNumber: number]: number; // 0 (Nunca) a 4 (Quase Sempre)
+}
+
+export interface FamilySocioemotionalAxisScore {
+  axis: FamilySocioemotionalAxis;
+  label: string;
+  description: string;
+  score: number;        // 3-15 (soma com offset +1 por item)
+  maxPossible: number;  // 15
+  zone: FamilySocioemotionalZone;
+  zoneLabel: string;
+  bigFiveDomain: BigFiveDomain; // Mapeamento direto para cruzamento
+}
+
+export interface FamilySocioemotionalResult {
+  axes: FamilySocioemotionalAxisScore[];
+  totalScore: number;      // 15-75
+  totalMaxPossible: number; // 75
+  attentionAxes: FamilySocioemotionalAxisScore[]; // Eixos em Zona de Atenção
+}
+
 // --- SDQ (Strengths and Difficulties Questionnaire) ---
 
 export enum SDQSubscale {
