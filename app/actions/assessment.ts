@@ -62,16 +62,11 @@ export async function saveVIAAnswers(answers: VIARawAnswers, targetStudentId?: s
     // Verificar quantidade de respostas
     const answeredCount = Object.keys(answers).length;
     const isComplete = answeredCount >= 71;
-    console.log(`[VIA Save] Answers: ${answeredCount}/71, Complete: ${isComplete}, Student: ${studentIdToSave}`);
-    if (!isComplete) {
-        console.log('[VIA Save] Missing questions:', Object.keys(answers).sort().join(','));
-    }
 
     let processedScores = null;
     let signatureStrengths = null;
 
     if (isComplete) {
-        // ... (rest of logic same)
         const strengthScores = calculateStrengthScores(answers);
         const sorted = [...strengthScores].sort((a, b) => b.normalizedScore - a.normalizedScore);
 

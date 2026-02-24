@@ -85,12 +85,9 @@ export function QuestionnaireWizard({
             setIsSaving(true);
             // Garantir que todas as 71 questões estão no objeto
             const totalAnswered = Object.keys(answers).length;
-            console.log('[Wizard] Finalizando com', totalAnswered, 'respostas de 71');
 
             try {
-                // Forçar o envio do estado atual direto
                 const result = await saveVIAAnswers(answers, studentId);
-                console.log('[Wizard] Resultado final:', JSON.stringify(result));
 
                 if (result.success && result.complete) {
                     toast.success('Questionário finalizado com sucesso!');

@@ -28,7 +28,7 @@ export async function sendEmail({ to, subject, html, from }: SendEmailParams): P
             subject,
             html,
         });
-        console.log(`📧 E-mail enviado: "${subject}" → ${Array.isArray(to) ? to.join(', ') : to}`);
+        console.log(`📧 E-mail enviado: "${subject}" (${Array.isArray(to) ? to.length : 1} destinatário(s))`);
         return { success: true };
     } catch (error) {
         console.error('❌ Erro ao enviar e-mail:', error);
