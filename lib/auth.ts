@@ -148,6 +148,7 @@ const ROUTE_ACCESS: Record<string, string[]> = {
     '/gestao': ['MANAGER', 'ADMIN'],
     '/escola/configuracoes': ['MANAGER', 'ADMIN'],
     '/sugestoes': ['TEACHER', 'MANAGER'],
+    '/suporte-escola': ['MANAGER', 'ADMIN'],
     '/super-admin': ['ADMIN'],
     '/responsavel': ['RESPONSIBLE'],
     '/inicio': ['TEACHER', 'MANAGER', 'ADMIN', 'PSYCHOLOGIST', 'COUNSELOR', 'STUDENT', 'RESPONSIBLE'],

@@ -103,6 +103,7 @@ export function getNavForRole(role: string, organizationType?: string): NavItem[
                 ]
             },
             { label: 'Sugestões', href: '/sugestoes', iconName: 'Lightbulb' },
+            { label: 'Suporte', href: '/suporte-escola', iconName: 'LifeBuoy' },
             { label: 'Config. da Escola', href: '/escola/configuracoes', iconName: 'School' },
             { label: 'Calendário', href: '/calendario-triagem', iconName: 'Calendar' },
             { label: 'Configurações', href: '/configuracoes', iconName: 'Settings' },
@@ -116,11 +117,14 @@ export function getNavForRole(role: string, organizationType?: string): NavItem[
         ],
         ADMIN: [
             { label: 'Painel Global', href: '/super-admin', iconName: 'ShieldAlert' },
-            { label: 'Monitoramento', href: '/dashboard/intervencoes', iconName: 'TrendingUp' },
             { label: labels.organizations, href: '/super-admin/escolas', iconName: 'School' },
+            { label: 'Usuarios', href: '/super-admin/usuarios', iconName: 'Users' },
             { label: 'Financeiro', href: '/super-admin/financeiro', iconName: 'CreditCard' },
             { label: 'Suporte', href: '/super-admin/suporte', iconName: 'LifeBuoy' },
-            { label: 'Configurações SaaS', href: '/super-admin/configuracoes', iconName: 'Settings' },
+            { label: 'Logs', href: '/super-admin/logs', iconName: 'ScrollText' },
+            { label: 'Webhooks', href: '/super-admin/webhooks', iconName: 'Webhook' },
+            { label: 'Feedback', href: '/super-admin/feedback', iconName: 'MessageSquareHeart' },
+            { label: 'Configuracoes', href: '/super-admin/configuracoes', iconName: 'Settings' },
         ],
     };
 
