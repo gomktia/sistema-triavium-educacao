@@ -28,15 +28,15 @@ export default function LoginPage() {
         }
     }, []);
 
-    const TEST_USERS = [
+    const TEST_USERS = process.env.NODE_ENV !== 'production' ? [
         { label: 'Super Admin', email: 'geisonhoehr@gmail.com', role: 'SaaS', color: 'bg-slate-900 text-white' },
         { label: 'Gestor', email: 'admin@escola.com', role: 'Escola', color: 'bg-indigo-600 text-white' },
         { label: 'Psicólogo', email: 'psi@escola.com', role: 'Escola', color: 'bg-pink-600 text-white' },
         { label: 'Professor', email: 'professor@escola.com', role: 'Escola', color: 'bg-emerald-600 text-white' },
         { label: 'Aluno', email: 'aluno@escola.com', role: 'Escola', color: 'bg-amber-500 text-white' },
-    ];
+    ] : [];
 
-    const handleQuickLogin = (uEmail: string) => {
+    const handleQuickLogin = process.env.NODE_ENV !== 'production' ? (uEmail: string) => {
         setError(null);
         setEmail(uEmail);
         setPassword('123456');
@@ -51,7 +51,6 @@ export default function LoginPage() {
                     setError(result.error);
                 }
             } catch (error: any) {
-                // Redirect errors do Next.js devem ser ignorados (o redirect acontece automaticamente)
                 if (error?.digest?.startsWith('NEXT_REDIRECT')) return;
                 console.error('Quick login error:', error);
                 if (error.message?.includes('unexpected response') || error.message?.includes('Server Components render')) {
@@ -61,7 +60,7 @@ export default function LoginPage() {
                 }
             }
         });
-    };
+    } : () => {};
 
     async function handleSubmit(formData: FormData) {
         setError(null);
@@ -145,7 +144,7 @@ export default function LoginPage() {
                                     >
                                         Senha de Acesso
                                     </label>
-                                    <Link href="#" className="text-[10px] font-black text-indigo-500 uppercase tracking-widest hover:text-indigo-600">Esqueci a senha</Link>
+                                    <Link href="/esqueci-senha" className="text-[10px] font-black text-indigo-500 uppercase tracking-widest hover:text-indigo-600">Esqueci a senha</Link>
                                 </div>
                                 <div className="relative group">
                                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
@@ -208,6 +207,7 @@ export default function LoginPage() {
                         </div>
 
                         {/* Developer Shortcuts */}
+                        {process.env.NODE_ENV !== 'production' && (
                         <div className="mt-12 pt-8 border-t border-slate-100">
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 text-center">
                                 Dev Quick Access
@@ -228,6 +228,7 @@ export default function LoginPage() {
                                 ))}
                             </div>
                         </div>
+                        )}
                     </div>
 
                     <div className="bg-slate-50/50 p-6 text-center border-t border-slate-100">

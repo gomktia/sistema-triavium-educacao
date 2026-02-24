@@ -6,6 +6,7 @@ import { UserCircle, Shield, Key, Bell, HelpCircle, FileText, ChevronRight, Sett
 import { getQuestions } from '@/app/actions/form-questions';
 import { getLabels } from '@/src/lib/utils/labels';
 import { RestartTourButton } from '@/components/onboarding/RestartTourButton';
+import { ChangePasswordForm } from '@/components/settings/ChangePasswordForm';
 
 export default async function SettingsPage() {
     const user = await getCurrentUser();
@@ -158,22 +159,7 @@ export default async function SettingsPage() {
                                 <p className="text-slate-500 text-xs">Proteja sua conta com uma senha forte.</p>
                             </div>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 opacity-40 pointer-events-none">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Senha Atual</label>
-                                <div className="h-12 px-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center text-slate-300">••••••••</div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nova Senha</label>
-                                <div className="h-12 px-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center text-slate-300">••••••••</div>
-                            </div>
-                        </div>
-                        <div className="mt-8 pt-8 border-t border-slate-50">
-                            <Button disabled className="bg-slate-100 text-slate-400 rounded-2xl h-12 px-8 font-bold">
-                                Atualizar Credenciais
-                            </Button>
-                            <p className="text-[10px] text-slate-400 mt-4 italic">Modulo de segurança sob manutenção programada.</p>
-                        </div>
+                        <ChangePasswordForm />
                     </Card>
                 </TabsContent>
             </Tabs>

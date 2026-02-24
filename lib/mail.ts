@@ -68,3 +68,51 @@ export async function sendCriticalAlertEmail({
         console.error('❌ Erro ao enviar e-mail de alerta:', error);
     }
 }
+
+export async function sendPasswordResetEmail({ to, resetLink }: { to: string; resetLink: string }) {
+    if (!process.env.RESEND_API_KEY || !resend) {
+        console.warn('⚠️ RESEND_API_KEY não configurada. E-mail de recuperação não enviado.');
+        return;
+    }
+
+    try {
+        await resend.emails.send({
+            from: 'Triavium <noreply@triavium.com.br>',
+            to,
+            subject: 'Redefinição de Senha - Triavium',
+            html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                    <div style="background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 32px; text-align: center;">
+                        <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -0.025em;">Triavium</h1>
+                        <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0; font-size: 14px;">Redefinição de Senha</p>
+                    </div>
+
+                    <div style="padding: 32px; background-color: #ffffff;">
+                        <p style="color: #475569; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+                            Recebemos uma solicitação para redefinir a senha da sua conta. Clique no botão abaixo para criar uma nova senha:
+                        </p>
+
+                        <div style="text-align: center; margin: 32px 0;">
+                            <a href="${resetLink}" style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; padding: 14px 32px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 14px; display: inline-block;">
+                                Redefinir Minha Senha
+                            </a>
+                        </div>
+
+                        <p style="color: #94a3b8; font-size: 13px; line-height: 1.5; margin: 24px 0 0;">
+                            Este link expira em 1 hora. Se você não solicitou esta redefinição, ignore este e-mail — sua conta permanece segura.
+                        </p>
+                    </div>
+
+                    <div style="padding: 16px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;">
+                        <p style="color: #94a3b8; font-size: 11px; margin: 0;">
+                            © 2026 Triavium Educação e Desenvolvimento LTDA
+                        </p>
+                    </div>
+                </div>
+            `,
+        });
+        console.log(`📧 E-mail de recuperação enviado para ${to}.`);
+    } catch (error) {
+        console.error('❌ Erro ao enviar e-mail de recuperação:', error);
+    }
+}
