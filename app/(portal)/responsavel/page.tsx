@@ -46,7 +46,7 @@ export default async function ResponsavelPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
             <Heart size={24} className="text-rose-500" />
             Portal do Responsável
           </h1>
@@ -170,7 +170,7 @@ export default async function ResponsavelPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
+        <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
           <Heart size={24} className="text-rose-500" />
           Portal do Responsável
         </h1>

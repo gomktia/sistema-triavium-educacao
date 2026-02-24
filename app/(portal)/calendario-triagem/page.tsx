@@ -20,7 +20,7 @@ export default async function CalendarioTriagemPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
+        <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
           <Calendar size={24} className="text-indigo-500" />
           Calendário de Triagem
         </h1>

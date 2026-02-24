@@ -139,7 +139,7 @@ export default async function TurmaPage(props: { searchParams: Promise<{ classro
                             {classrooms.map(c => (
                                 <Link
                                     key={c.id}
-                                    href={`/ turma ? classroomId = ${c.id} `}
+                                    href={`/turma?classroomId=${c.id}`}
                                     className={cn(
                                         "text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-widest transition-all",
                                         classroomId === c.id ? "bg-indigo-600 text-white shadow-md shadow-indigo-100" : "bg-slate-100 text-slate-400 hover:bg-slate-200"

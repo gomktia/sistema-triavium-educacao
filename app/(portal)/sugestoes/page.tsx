@@ -68,7 +68,7 @@ export default function SugestoesPage() {
                 <div className="h-20 w-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-amber-200 ring-4 ring-white">
                     <Lightbulb className="text-white" size={32} strokeWidth={2.5} />
                 </div>
-                <h1 className="text-3xl font-black text-slate-800 tracking-tight">Canal de Sugestoes</h1>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Canal de Sugestoes</h1>
                 <p className="text-slate-500 font-medium leading-relaxed max-w-md mx-auto">
                     Sua opiniao e muito importante! Compartilhe ideias de melhorias ou novas funcionalidades para o sistema.
                 </p>

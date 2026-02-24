@@ -31,7 +31,7 @@ export default async function GuardianProfilePage() {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <h1 className="text-2xl font-black text-slate-900">Meu Perfil</h1>
+      <h1 className="text-3xl font-black text-slate-900 tracking-tight">Meu Perfil</h1>
 
       <Card className="border-0 shadow-md">
         <CardHeader>

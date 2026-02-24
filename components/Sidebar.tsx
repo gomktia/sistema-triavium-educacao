@@ -289,7 +289,7 @@ export function Sidebar({ items, userName, userEmail, userRole, organizationType
             <div className={cn(
                 "fixed inset-y-0 left-0 z-40 bg-[#0f172a] transform transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col shadow-2xl h-full border-r border-white/[0.04]",
                 isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0 lg:static lg:inset-auto",
-                isCollapsed ? "w-[76px]" : "w-72"
+                isCollapsed ? "w-[76px]" : "w-64"
             )}>
                 <CollapseToggle />
                 <SidebarHeader />

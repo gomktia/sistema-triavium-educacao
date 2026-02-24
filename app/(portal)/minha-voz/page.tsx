@@ -37,7 +37,7 @@ export default function MinhaVozPage() {
                 <div className="h-20 w-20 bg-gradient-to-br from-rose-400 to-pink-500 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-rose-200 ring-4 ring-white">
                     <MessageCircleHeart className="text-white" size={32} strokeWidth={2.5} />
                 </div>
-                <h1 className="text-3xl font-black text-slate-800 tracking-tight">Minha Voz</h1>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Minha Voz</h1>
                 <p className="text-slate-500 font-medium leading-relaxed max-w-md mx-auto">
                     Este é um espaço seguro. Se você precisa conversar, desabafar ou pedir ajuda, escreva aqui.
                     Nossa equipe de apoio escolar receberá sua mensagem com sigilo e carinho.

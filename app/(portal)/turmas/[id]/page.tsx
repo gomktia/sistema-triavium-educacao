@@ -65,7 +65,7 @@ export default async function ClassroomDetailPage(props: { params: Promise<{ id:
                             <div className="h-10 w-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
                                 <School size={20} />
                             </div>
-                            <h1 className="text-2xl font-black text-slate-900 tracking-tight">{classroom.name}</h1>
+                            <h1 className="text-3xl font-black text-slate-900 tracking-tight">{classroom.name}</h1>
                         </div>
                         <p className="text-slate-500 text-sm ml-13">{displayGrade} - {classroom.year}</p>
                     </div>

@@ -16,7 +16,7 @@ export default async function FormQuestionsPage() {
     return (
         <div className="container mx-auto py-8">
             <div className="flex flex-col gap-4 mb-8">
-                <h1 className="text-3xl font-bold tracking-tight">Gestão de Formulários</h1>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Gestão de Formulários</h1>
                 <p className="text-muted-foreground">
                     Visualize e organize as perguntas dos questionários de avaliação socioemocional.
                     {!canEdit && " (Modo Somente Leitura)"}
