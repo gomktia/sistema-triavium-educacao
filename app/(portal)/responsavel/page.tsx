@@ -8,17 +8,24 @@ import { STRENGTH_DESCRIPTIONS } from '@/src/core/content/strength-descriptions'
 import { StrengthsCard } from '@/components/guardian/StrengthsCard';
 import { EvolutionCard } from '@/components/guardian/EvolutionCard';
 import { SuggestionsCard } from '@/components/guardian/SuggestionsCard';
+import { ChildSelector } from '@/components/guardian/ChildSelector';
 import { Heart, ClipboardCheck, Users } from 'lucide-react';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
-export default async function ResponsavelPage() {
+interface PageProps {
+  searchParams: Promise<{ filho?: string }>;
+}
+
+export default async function ResponsavelPage({ searchParams }: PageProps) {
   const user = await getCurrentUser();
 
   if (!user || user.role !== UserRole.RESPONSIBLE) {
     redirect('/');
   }
+
+  const params = await searchParams;
 
   // Fetch all children linked to this guardian via StudentGuardian
   const guardianLinks = await prisma.studentGuardian.findMany({
@@ -65,9 +72,12 @@ export default async function ResponsavelPage() {
     );
   }
 
-  // Use the first child (multi-child selector is for future implementation)
-  const firstLink = guardianLinks[0];
-  const student = firstLink.student;
+  // Resolve selected child from ?filho= param or default to first
+  const selectedLink = params.filho
+    ? guardianLinks.find(l => l.student.id === params.filho) ?? guardianLinks[0]
+    : guardianLinks[0];
+  const student = selectedLink.student;
+  const filhoParam = student.id;
 
   const gradeDisplay =
     student.grade === 'ANO_1_EM' ? '1ª Série EM' :
@@ -178,6 +188,12 @@ export default async function ResponsavelPage() {
     },
   }).catch((err) => console.error('Audit log failed:', err));
 
+  // Build children list for the selector
+  const childrenList = guardianLinks.map(l => ({
+    id: l.student.id,
+    name: l.student.name,
+  }));
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -191,12 +207,8 @@ export default async function ResponsavelPage() {
         </p>
       </div>
 
-      {/* Multi-child note */}
-      {guardianLinks.length > 1 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-700">
-          Você possui {guardianLinks.length} filho(a)(s) vinculado(s). Em breve será possível alternar entre eles.
-        </div>
-      )}
+      {/* Multi-child selector */}
+      <ChildSelector children={childrenList} selectedId={filhoParam} />
 
       {/* Student info */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
@@ -225,7 +237,7 @@ export default async function ResponsavelPage() {
             </div>
           </div>
           <Link
-            href={sdqComplete ? '/responsavel/sdq-results' : '/responsavel/sdq'}
+            href={sdqComplete ? `/responsavel/sdq-results?filho=${filhoParam}` : `/responsavel/sdq?filho=${filhoParam}`}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${
               sdqComplete
                 ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
@@ -256,7 +268,7 @@ export default async function ResponsavelPage() {
             </div>
           </div>
           <Link
-            href={familyComplete ? '/responsavel/percepcao-familiar/resultado' : '/responsavel/percepcao-familiar'}
+            href={familyComplete ? `/responsavel/percepcao-familiar/resultado?filho=${filhoParam}` : `/responsavel/percepcao-familiar?filho=${filhoParam}`}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${
               familyComplete
                 ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'

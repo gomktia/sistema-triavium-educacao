@@ -8,15 +8,21 @@ export const metadata = {
     title: 'Percepção Familiar | Portal do Responsável',
 };
 
-export default async function PercepcaoFamiliarPage() {
+interface PageProps {
+    searchParams: Promise<{ filho?: string }>;
+}
+
+export default async function PercepcaoFamiliarPage({ searchParams }: PageProps) {
     const user = await getCurrentUser();
 
     if (!user || user.role !== UserRole.RESPONSIBLE) {
         redirect('/');
     }
 
-    // Fetch linked child via StudentGuardian
-    const guardianLink = await prisma.studentGuardian.findFirst({
+    const params = await searchParams;
+
+    // Fetch linked children and resolve selected child
+    const guardianLinks = await prisma.studentGuardian.findMany({
         where: { guardianId: user.id, tenantId: user.tenantId },
         include: {
             student: {
@@ -25,11 +31,14 @@ export default async function PercepcaoFamiliarPage() {
         },
     });
 
-    if (!guardianLink) {
+    if (guardianLinks.length === 0) {
         redirect('/responsavel');
     }
 
-    const student = guardianLink.student;
+    const selectedLink = params.filho
+        ? guardianLinks.find(l => l.student.id === params.filho) ?? guardianLinks[0]
+        : guardianLinks[0];
+    const student = selectedLink.student;
 
     // Check for existing assessment (partial or complete)
     const existing = await prisma.assessment.findFirst({
@@ -44,7 +53,7 @@ export default async function PercepcaoFamiliarPage() {
 
     // If already complete, redirect to results
     if (existing?.processedScores) {
-        redirect('/responsavel/percepcao-familiar/resultado');
+        redirect(`/responsavel/percepcao-familiar/resultado?filho=${student.id}`);
     }
 
     const initialAnswers = (existing?.rawAnswers as Record<number, number>) || {};

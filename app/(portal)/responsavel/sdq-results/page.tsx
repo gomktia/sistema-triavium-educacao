@@ -11,14 +11,21 @@ export const metadata = {
     title: 'Resultados SDQ | Portal do Responsável',
 };
 
-export default async function ResponsavelSDQResultsPage() {
+interface PageProps {
+    searchParams: Promise<{ filho?: string }>;
+}
+
+export default async function ResponsavelSDQResultsPage({ searchParams }: PageProps) {
     const user = await getCurrentUser();
 
     if (!user || user.role !== UserRole.RESPONSIBLE) {
         redirect('/');
     }
 
-    const guardianLink = await prisma.studentGuardian.findFirst({
+    const params = await searchParams;
+
+    // Fetch linked children and resolve selected child
+    const guardianLinks = await prisma.studentGuardian.findMany({
         where: { guardianId: user.id, tenantId: user.tenantId },
         include: {
             student: {
@@ -27,11 +34,14 @@ export default async function ResponsavelSDQResultsPage() {
         },
     });
 
-    if (!guardianLink) {
+    if (guardianLinks.length === 0) {
         redirect('/responsavel');
     }
 
-    const student = guardianLink.student;
+    const selectedLink = params.filho
+        ? guardianLinks.find(l => l.student.id === params.filho) ?? guardianLinks[0]
+        : guardianLinks[0];
+    const student = selectedLink.student;
 
     // Fetch parent SDQ result
     const parentSDQ = await prisma.assessment.findFirst({
@@ -45,7 +55,7 @@ export default async function ResponsavelSDQResultsPage() {
     });
 
     if (!parentSDQ?.processedScores) {
-        redirect('/responsavel/sdq');
+        redirect(`/responsavel/sdq?filho=${student.id}`);
     }
 
     const parentResult = parentSDQ.processedScores as unknown as SDQResult;
@@ -53,7 +63,7 @@ export default async function ResponsavelSDQResultsPage() {
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-4">
-                <Link href="/responsavel">
+                <Link href={`/responsavel?filho=${student.id}`}>
                     <Button variant="ghost" size="icon" className="rounded-full">
                         <ChevronLeft size={20} />
                     </Button>

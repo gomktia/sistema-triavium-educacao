@@ -1,38 +1,41 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Users } from 'lucide-react';
 
 interface Child {
   id: string;
   name: string;
-  grade: string;
 }
 
 interface ChildSelectorProps {
   children: Child[];
   selectedId: string;
-  onSelect: (id: string) => void;
 }
 
-export function ChildSelector({ children, selectedId, onSelect }: ChildSelectorProps) {
+export function ChildSelector({ children, selectedId }: ChildSelectorProps) {
   if (children.length <= 1) return null;
 
+  const pathname = usePathname();
+
   return (
-    <div className="flex items-center gap-2 mb-6">
-      <Users size={16} className="text-slate-400" />
-      <span className="text-sm text-slate-500 font-medium mr-2">Filho(a):</span>
-      <div className="flex gap-2">
+    <div className="flex items-center gap-2 flex-wrap">
+      <Users size={16} className="text-slate-400 shrink-0" />
+      <span className="text-sm text-slate-500 font-medium mr-1">Filho(a):</span>
+      <div className="flex gap-2 flex-wrap">
         {children.map((child) => (
-          <Button
+          <Link
             key={child.id}
-            variant={child.id === selectedId ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => onSelect(child.id)}
-            className={child.id === selectedId ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+            href={`${pathname}?filho=${child.id}`}
+            className={`inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-sm font-bold transition-all active:scale-95 ${
+              child.id === selectedId
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+            }`}
           >
             {child.name}
-          </Button>
+          </Link>
         ))}
       </div>
     </div>

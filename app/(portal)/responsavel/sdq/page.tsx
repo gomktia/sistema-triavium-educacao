@@ -8,15 +8,21 @@ export const metadata = {
     title: 'SDQ — Questionário | Portal do Responsável',
 };
 
-export default async function ResponsavelSDQPage() {
+interface PageProps {
+    searchParams: Promise<{ filho?: string }>;
+}
+
+export default async function ResponsavelSDQPage({ searchParams }: PageProps) {
     const user = await getCurrentUser();
 
     if (!user || user.role !== UserRole.RESPONSIBLE) {
         redirect('/');
     }
 
-    // Fetch linked child via StudentGuardian
-    const guardianLink = await prisma.studentGuardian.findFirst({
+    const params = await searchParams;
+
+    // Fetch linked children and resolve selected child
+    const guardianLinks = await prisma.studentGuardian.findMany({
         where: { guardianId: user.id, tenantId: user.tenantId },
         include: {
             student: {
@@ -25,11 +31,14 @@ export default async function ResponsavelSDQPage() {
         },
     });
 
-    if (!guardianLink) {
+    if (guardianLinks.length === 0) {
         redirect('/responsavel');
     }
 
-    const student = guardianLink.student;
+    const selectedLink = params.filho
+        ? guardianLinks.find(l => l.student.id === params.filho) ?? guardianLinks[0]
+        : guardianLinks[0];
+    const student = selectedLink.student;
 
     // Check for existing parent SDQ (partial or complete)
     const existingSDQ = await prisma.assessment.findFirst({
@@ -44,7 +53,7 @@ export default async function ResponsavelSDQPage() {
 
     // If already complete, redirect to results
     if (existingSDQ?.processedScores) {
-        redirect('/responsavel/sdq-results');
+        redirect(`/responsavel/sdq-results?filho=${student.id}`);
     }
 
     const initialAnswers = (existingSDQ?.rawAnswers as Record<number, number>) || {};
