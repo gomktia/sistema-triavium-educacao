@@ -54,14 +54,9 @@ export const BIG_FIVE_ITEMS: BigFiveItem[] = [
     { id: 33, text: "Eu me preocupo com as coisas.", domain: BigFiveDomain.ESTABILIDADE, reversed: true }, // N+
     { id: 34, text: "Eu raramente me sinto triste.", domain: BigFiveDomain.ESTABILIDADE, reversed: false }, // N-
     { id: 35, text: "Eu me irrito facilmente.", domain: BigFiveDomain.ESTABILIDADE, reversed: true }, // N+
-    { id: 36, text: "Eu tenho oscilações de humor frequentes.", domain: BigFiveDomain.ESTABILIDADE, reversed: true }, // N+
-    { id: 37, text: "Eu tenho emoções controladas.", domain: BigFiveDomain.ESTABILIDADE, reversed: false }, // N- (Implied) - Replacing "Seldom feel blue" duplicate or similar.
-    // Let's use strict IPIP-50
-    // "Have frequent mood swings" (N+) -> Inverted
-    // "Get upset easily" (N+) -> Inverted
-    { id: 37, text: "Eu fico chateado facilmente.", domain: BigFiveDomain.ESTABILIDADE, reversed: true },
-    { id: 38, text: "Eu mudo de humor com frequência.", domain: BigFiveDomain.ESTABILIDADE, reversed: true }, // Duplicate of 36? I'll check.
-    // Item 36 was "mood swings". Item 38 "change my mood a lot". Close enough.
+    { id: 36, text: "Eu tenho oscilações de humor frequentes.", domain: BigFiveDomain.ESTABILIDADE, reversed: true }, // N+ "Have frequent mood swings"
+    { id: 37, text: "Eu fico chateado facilmente.", domain: BigFiveDomain.ESTABILIDADE, reversed: true }, // N+ "Get upset easily"
+    { id: 38, text: "Eu mudo de humor com frequência.", domain: BigFiveDomain.ESTABILIDADE, reversed: true }, // N+ "Change my mood a lot"
     { id: 39, text: "Eu me sinto triste frequentemente.", domain: BigFiveDomain.ESTABILIDADE, reversed: true }, // N+ "Feel blue"
     { id: 40, text: "Eu muitas vezes me sinto abatido(a).", domain: BigFiveDomain.ESTABILIDADE, reversed: true }, // N+ 
 
